@@ -6,8 +6,8 @@ This is a general custom made bot.
 
 Features are:
 
-1. Sending messages in channels and being able to edit them with commands.
-2. Sending announcements.
+1. Sending messages in channels and being able to edit them with commands. (pending)
+2. Sending announcements. (pending)
 
 ## Installation 
 
