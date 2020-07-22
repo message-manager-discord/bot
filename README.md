@@ -1,5 +1,3 @@
-[toc]
-
 # Custom Helper Bot
 
 ## General Info
