@@ -13,6 +13,14 @@ bot = commands.Bot(command_prefix = 'h!', case_insensitive = True)
 
 bot.remove_command('help')
 
+@bot.event
+async def on_ready():
+    print(https://discord.com/api/oauth2/authorize?client_id={0}&permissions=519232&scope=bot".format(bot.user.id))
+    print("Logged on as {0}!".format(bot.user))
+    
+    await bot.change_presence(
+        activity = discord.Game(name="Watching for messages!")
+    )
 
 @bot.command(name='help', help='Responds with an embed with all the commands and options')
 async def help(ctx, help_type = None):
@@ -35,12 +43,6 @@ async def help(ctx, help_type = None):
         
     await ctx.send(embed=embed)
 
-@bot.event
-async def on_ready():
-    print("Logged on as {0}!".format(bot.user))
-    await bot.change_presence(
-        activity = discord.Game(name="Watching for messages!")
-    )
 
 @bot.command(name = 'info')
 async def info(ctx):
