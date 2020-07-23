@@ -33,5 +33,7 @@ Features are:
 5. At `DISCORD_TOKEN=bot_token` replace bot_token with the bot's token. 
 
 ### Config Values
-| Field | Value | Description |
-| ------|-------|-------------|
+| Field         | Value          | Description                                                  |
+| ------------- | -------------- | ------------------------------------------------------------ |
+| DISCORD_TOKEN | Bot Token      | This is the discord bot token, find an explanation [here](https://discord.com/developers/docs) |
+| SERVER_ID     | Discord Server | If set the bot will only respond to commands in this server. |
