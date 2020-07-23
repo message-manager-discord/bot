@@ -3,11 +3,13 @@ import os
 import discord
 import platform
 import datetime
+import embeds
 from dotenv import load_dotenv
 from discord.ext import commands
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
+OWNER = os.getenv('OWNER_ID')
 
 bot = commands.Bot(command_prefix = 'h!', case_insensitive = True)
 
@@ -15,7 +17,7 @@ bot.remove_command('help')
 
 @bot.event
 async def on_ready():
-    print(https://discord.com/api/oauth2/authorize?client_id={0}&permissions=519232&scope=bot".format(bot.user.id))
+    print("https://discord.com/api/oauth2/authorize?client_id={0}&permissions=519232&scope=bot".format(bot.user.id))
     print("Logged on as {0}!".format(bot.user))
     
     await bot.change_presence(
@@ -23,24 +25,16 @@ async def on_ready():
     )
 
 @bot.command(name='help', help='Responds with an embed with all the commands and options')
-async def help(ctx, help_type = None):
-    embed = discord.Embed(title="Help with commands for the bot", colour = 16761035)
-    embed.add_field(
-        name="`!ping`",
-        value="Replys with the latency of the bot.",
-        inline=True
-    )
-    embed.add_field(
-        name="`!help`",
-        value="Displays this view.",
-        inline=True
-    )
-    embed.add_field(
-        name = "`!info`",
-        value = "Displays info about the bot.",
-        inline = True
-    )
-        
+async def help(ctx):
+    embed=embeds.create_embed(
+    "Help with commands for the bot",
+    16761035,
+     [
+         ["!ping", "Replys with the latency of the bot", True],
+         ["!help", "Displays this view.", True],
+         ['!info', 'Displays info about the bot', True],
+     ]
+)    
     await ctx.send(embed=embed)
 
 
@@ -52,7 +46,9 @@ async def info(ctx):
     embed.set_footer(text="hi", icon_url=f"{bot.user.avatar_url}")
 
     embed.add_field(name="Username", value=bot.user, inline=True)
-    embed.add_field(name="Owner", value=f'<@{684964314234618044}>', inline=True)
+    embed.add_field(name="Developer", value='<@684964314234618044>', inline=True)
+    if OWNER != 'None':
+        embed.add_field(name="Owner", value=f'<@{OWNER}>')
     embed.add_field(name="Discord.py Version", value="1.4.0", inline=True)
     embed.add_field(name="Python Version", value=platform.python_version(), inline=True)
     embed.add_field(name="Number of Servers", value=len(bot.guilds), inline=True)
