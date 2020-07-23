@@ -31,3 +31,7 @@ Features are:
 3. This bot uses [dotenv](https://pypi.org/project/python-dotenv/) for environment variables. 
 4. Rename `.example_env` to `.env`
 5. At `DISCORD_TOKEN=bot_token` replace bot_token with the bot's token. 
+
+### Config Values
+| Field | Value | Description |
+| ------|-------|-------------|
