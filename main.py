@@ -10,8 +10,9 @@ from discord.ext import commands
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 OWNER = os.getenv('OWNER_ID')
+prefix = os.getenv('PREFIX')
 
-bot = commands.Bot(command_prefix = 'h!', case_insensitive = True)
+bot = commands.Bot(command_prefix = prefix, case_insensitive = True)
 
 bot.remove_command('help')
 
@@ -30,9 +31,9 @@ async def help(ctx):
     "Help with commands for the bot",
     16761035,
      [
-         ["!ping", "Replys with the latency of the bot", True],
-         ["!help", "Displays this view.", True],
-         ['!info', 'Displays info about the bot', True],
+         [f"{prefix}ping", "Replys with the latency of the bot", True],
+         [f"{prefix}help", "Displays this view.", True],
+         [f'{prefix}info', 'Displays info about the bot', True],
      ]
 )    
     await ctx.send(embed=embed)
@@ -40,19 +41,20 @@ async def help(ctx):
 
 @bot.command(name = 'info')
 async def info(ctx):
-    embed = discord.Embed(title="Info about the Bot", colour=discord.Colour(0xc387c1))
-
+    embed=embeds.create_embed(
+    "Info about the Bot",
+    discord.Colour(0xc387c1),
+     [
+         ["Username", bot.user, True],
+         ["Prefix", prefix, True],
+         ["Developer",'<@684964314234618044>', , True],
+         [f'{prefix}info', 'Displays info about the bot', True],
+         ["Owner", f"<@{OWNER}>", True],
+         ["Discord.py Version", platform.python_version(), True],
+         ["Number of Servers",len(bot.guilds), True]
+     ]
+    )    
     embed.set_thumbnail(url=f"{bot.user.avatar_url}")
-    embed.set_footer(text="hi", icon_url=f"{bot.user.avatar_url}")
-
-    embed.add_field(name="Username", value=bot.user, inline=True)
-    embed.add_field(name="Developer", value='<@684964314234618044>', inline=True)
-    if OWNER != 'None':
-        embed.add_field(name="Owner", value=f'<@{OWNER}>')
-    embed.add_field(name="Discord.py Version", value="1.4.0", inline=True)
-    embed.add_field(name="Python Version", value=platform.python_version(), inline=True)
-    embed.add_field(name="Number of Servers", value=len(bot.guilds), inline=True)
-    # embed.add_field(name="Uptime", value=get_uptime(), inline=True)
     embed.set_footer(text = datetime.datetime.now())
     await ctx.send(embed=embed)
 
