@@ -70,12 +70,8 @@ async def info(ctx):
     embed.set_footer(text = datetime.datetime.now())
     await ctx.send(embed=embed)
 
-@bot.command(name="send")
-async def send(ctx, channel_id, *args):
-    content_list = []
-    for a in args:
-        content_list.append(a+" ")
-    content = ''.join(content_list)
+@bot.command(name="send", rest_is_raw = True)
+async def send(ctx, channel_id, *, content):
     channel = bot.get_channel(int(channel_id))
     await channel.send(content)
     embed = helpers.create_embed(
@@ -89,15 +85,12 @@ async def send(ctx, channel_id, *args):
         )
     await ctx.send(embed=embed)
 
-@bot.command(name="edit")
-async def edit(ctx, channel_id, message_id, *args):
+@bot.command(name="edit", rest_is_raw=True)
+async def edit(ctx, channel_id, message_id, *, content):
+    ctx.rest_is_raw = True
     channel = bot.get_channel(int(channel_id))
     msg = await channel.fetch_message(int(message_id))
     original_content = msg.content    
-    content_list = []
-    for a in args:
-        content_list.append(a+" ")
-    content = ''.join(content_list)
     await msg.edit(content=content)
     embed = helpers.create_embed(
         f"Edited the message!",
