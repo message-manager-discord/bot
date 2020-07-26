@@ -34,7 +34,7 @@ Features are:
 | Field           | Value           | Description                                                  |
 | --------------- | ------------------- | ------------------------------------------------------------ |
 | DISCORD_TOKEN   | String          | This is the discord bot token.                               |
-| SERVER_ID       | Server ID (INT) | If set the bot will only respond to commands in this server. |
 | OWNER_ID        | User ID (INT)   | This will appear in the info box from the `!info` command. Leave as `None` if you don't want this to appear. |
+| SERVER_ID       | Server ID (INT) | If set the bot will only respond to commands in this server. Leave as `None` to make the bot respond regardless of server.|
 | MANAGEMENT_ROLE | Role ID (INT)   | Setting this means that only users with this role can use the bot. Leave it as `None` if you don't want this. **Not Advised** |
 | PREFIX          | String          | This is the prefix before commands. Default is `!`.          |
