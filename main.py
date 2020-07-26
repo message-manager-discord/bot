@@ -42,7 +42,7 @@ async def on_ready():
     print("Logged on as {0}!".format(bot.user))
     
     await bot.change_presence(
-        activity = discord.Game(name="Watching for messages!")
+        activity = discord.Game(name="Watching our important messages!")
     )
 
 @bot.command(name='help', help='Responds with an embed with all the commands and options')
