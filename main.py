@@ -12,7 +12,7 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 OWNER = os.getenv('OWNER_ID')
 prefix = os.getenv('PREFIX')
 allowed_server = os.getenv('SERVER_ID')
-management_role = os.getenv('MANGEMENT_ROLE')
+management_role = os.getenv('MANAGEMENT_ROLE')
 
 bot = commands.Bot(command_prefix = prefix, case_insensitive = True)
 

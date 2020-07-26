@@ -31,8 +31,10 @@ Features are:
 5. At `DISCORD_TOKEN=bot_token` replace bot_token with the bot's token. 
 
 ### Config Values
-| Field         | Value           | Description                                                  |
-| ------------- | --------------- | ------------------------------------------------------------ |
-| DISCORD_TOKEN | Bot Token       | This is the discord bot token.                               |
-| SERVER_ID     | Discord Server  | If set the bot will only respond to commands in this server. |
-| OWNER_ID      | Your discord ID | This will appear in the info box from the `!info` command. Leave as `None` if you don't want this to appear. |
+| Field           | Value           | Description                                                  |
+| --------------- | ------------------- | ------------------------------------------------------------ |
+| DISCORD_TOKEN   | String          | This is the discord bot token.                               |
+| SERVER_ID       | Server ID (INT) | If set the bot will only respond to commands in this server. |
+| OWNER_ID        | User ID (INT)   | This will appear in the info box from the `!info` command. Leave as `None` if you don't want this to appear. |
+| MANAGEMENT_ROLE | Role ID (INT)   | Setting this means that only users with this role can use the bot. Leave it as `None` if you don't want this. **Not Advised** |
+| PREFIX          | String          | This is the prefix before commands. Default is `!`.          |
