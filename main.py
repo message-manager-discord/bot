@@ -11,12 +11,32 @@ load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 OWNER = os.getenv('OWNER_ID')
 prefix = os.getenv('PREFIX')
+allowed_server = os.getenv('SERVER_ID')
+management_role = os.getenv('MANGEMENT_ROLE')
 
 bot = commands.Bot(command_prefix = prefix, case_insensitive = True)
 
 bot.remove_command('help')
 
+#creating the check that checks if the bot is being used the server that is specified in env.
+def check_if_right_server(ctx):
+    if allowed_server == 'None':
+        return True
+    elif ctx.message.guild.id == int(allowed_server):
+        return True
+    else:
+        return False
+def check_if_manage_role(ctx):
+    if management_role == "None":
+        return True
+    elif True:
+        for role in ctx.author.role:
+            if int(management_role) == role.id:
+                return True
+    else:
+        return False
 @bot.event
+
 async def on_ready():
     print("https://discord.com/api/oauth2/authorize?client_id={0}&permissions=519232&scope=bot".format(bot.user.id))
     print("Logged on as {0}!".format(bot.user))
@@ -26,6 +46,7 @@ async def on_ready():
     )
 
 @bot.command(name='help', help='Responds with an embed with all the commands and options')
+@commands.check(check_if_right_server)
 async def help(ctx):
     embed=helpers.create_embed(
     "Help with commands for the bot",
@@ -51,6 +72,7 @@ async def help(ctx):
 
 
 @bot.command(name = 'info')
+@commands.check(check_if_right_server)
 async def info(ctx):
     embed_content = [
          ["Username", bot.user, True],
@@ -71,6 +93,8 @@ async def info(ctx):
     await ctx.send(embed=embed)
 
 @bot.command(name="send", rest_is_raw = True)
+@commands.check(check_if_right_server)
+@commands.check(check_if_manage_role)
 async def send(ctx, channel_id, *, content):
     channel = bot.get_channel(int(channel_id))
     await channel.send(content)
@@ -86,6 +110,8 @@ async def send(ctx, channel_id, *, content):
     await ctx.send(embed=embed)
 
 @bot.command(name="edit", rest_is_raw=True)
+@commands.check(check_if_right_server)
+@commands.check(check_if_manage_role)
 async def edit(ctx, channel_id, message_id, *, content):
     ctx.rest_is_raw = True
     channel = bot.get_channel(int(channel_id))
@@ -106,6 +132,7 @@ async def edit(ctx, channel_id, message_id, *, content):
 
 #  Returns the bot side latency
 @bot.command (name = "ping")
+@commands.check(check_if_right_server)
 async def ping(ctx):
     await ctx.send(f"**ping** {round(bot.latency*100)}ms")   # get the bot latency in seconds then conver it into milli seconds.
 
