@@ -6,3 +6,26 @@ def create_embed(title_value, colour_value, values):
         new_embed.add_field(name=a[0],value=a[1],inline=a[2])
     return new_embed
 
+def get_channel(channel_id, message_id):
+    channel = bot.get_channel(int(channel_id))
+    return await channel.fetch_message(int(message_id))
+
+def create_message_info_embed(command_type, author, content, message):
+    title = 'Sent'
+    list_content = [
+
+        ["Author", author.mention, True],
+        ["Channel", message.channel.mention, True],  
+        ["Content", content, False]
+    ]
+    if command_type == 'edit':
+        title = "Edited"
+        list_content.insert(2, ["Original Content",message.content,False])
+        list_content[3][0] = 'New Content'
+
+    embed = create_embed(
+        f"{title} the message!",
+        discord.Colour(0xc387c1),
+        list_content
+    ]
+    return embed

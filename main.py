@@ -97,38 +97,24 @@ async def info(ctx):
 @commands.check(check_if_manage_role)
 async def send(ctx, channel_id, *, content):
     channel = bot.get_channel(int(channel_id))
-    await channel.send(content)
-    embed = helpers.create_embed(
-        f"Sent the message!",
-         discord.Colour(0xc387c1),
-          [
-              ["Author", ctx.author.mention, True],
-              ["Channel", channel.mention, True],            
-              ["Content",content,False]
-            ]
-        )
+    await msg = channel.send(content)
+    embed = helpers.create_message_info_embed('Send', ctx.author, content, msg)
     await ctx.send(embed=embed)
 
 @bot.command(name="edit", rest_is_raw=True)
 @commands.check(check_if_right_server)
 @commands.check(check_if_manage_role)
 async def edit(ctx, channel_id, message_id, *, content):
-    ctx.rest_is_raw = True
-    channel = bot.get_channel(int(channel_id))
-    msg = await channel.fetch_message(int(message_id))
+    #ctx.rest_is_raw = True
+    msg = helpers.get_message(channel_id, message_id)
     original_content = msg.content    
+    embed = helpers.create_message_info_embed('edit', ctx.author, content, msg)
     await msg.edit(content=content)
-    embed = helpers.create_embed(
-        f"Edited the message!",
-         discord.Colour(0xc387c1),
-          [
-              ["Author", ctx.author.mention, True],
-              ["Channel", channel.mention, True],            
-              ["Original Content",original_content,False],
-              ["New Content", content, False]
-            ]
-        )
     await ctx.send(embed=embed)
+
+@bot.command(name = 'delete')
+async def delete(ctx, channel_id, message_id):
+    
 
 #  Returns the bot side latency
 @bot.command (name = "ping")
