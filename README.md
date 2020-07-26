@@ -20,7 +20,23 @@ Features are:
 5. Running `main.py` 
 6. Inviting the bot to your server, there will be an invite link in the python shell after you run it. 
 
+### Setup Example (linux)
 
+```bash
+~$ python3 #check if python is installed.
+~$ git clone https://github.com/AnotherCat/custom_helper_bot.git # Clone this github repo
+~$ python3 -m venv bot-env # Create the python virtual enviroment bot-env
+~$ source bot-env/bin/activate # Activate the python virtual enviroment (will need to do this every time)
+(bot-env) ~$ cd custom_helper_bot # Navigate to the main dir for the project.
+(bot-env) ~/custom_helper_bot$ pip install -r requirments.txt # Install the required python packeges.
+# Now you need to setup the enviromental variables, see Config below
+(bot-env) ~/custom_helper_bot$ python3 main.py # Run the bot
+```
+
+Note: This assumes that you have the following packages installed: The latest version of python with pip and venv installed. The latest version of git.
+Some commands may require sudo privileges depending on your system.
+
+For windows do the same, but replace `python3` with python and replace `source bot-env/bin/activate` with `/bot-env/scripts/activate.bat`
 
 ## Config
 
