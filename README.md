@@ -27,13 +27,17 @@ Features are:
 ~$ git clone https://github.com/AnotherCat/custom_helper_bot.git # Clone this github repo
 ~$ python3 -m venv bot-env # Create the python virtual enviroment bot-env
 ~$ source bot-env/bin/activate # Activate the python virtual enviroment (will need to do this every time you want to be able to run the bot)
-(bot-env) ~$ cd custom_helper_bot # Navigate to the main dir for the project.
+(bot-env) ~$ cd custom_helper_bot # Navigate to the main directory for the project.
 (bot-env) ~/custom_helper_bot$ pip install -r requirments.txt # Install the required python packeges.
 # Now you need to setup the enviromental variables, see Config below
 (bot-env) ~/custom_helper_bot$ python3 main.py # Run the bot
 ```
 
-Note: This assumes that you have the following packages installed: The latest version of python with pip and venv installed. The latest version of git.
+Note: This assumes that you have the following packages installed: 
+
+- The latest version of python with pip and venv installed. 
+- The latest version of git.
+
 Some commands may require sudo privileges depending on your system.
 
 For windows do the same, but replace `python3` with python and replace `source bot-env/bin/activate` with `/bot-env/scripts/activate.bat`
@@ -45,16 +49,16 @@ This bot uses [dotenv](https://pypi.org/project/python-dotenv/) for environment 
 ### Setting this up:
 
 4. Rename `.example_env` to `.env`
-5. At `DISCORD_TOKEN=bot_token` replace bot_token with the bot's token. 
+5. Set the values as per the table below
 
 #### Config Values
-| Field           | Value           | Description                                                  |
-| :-------------- | :------------------ | :----------------------------------------------------------- |
-| DISCORD_TOKEN   | String          | This is the discord bot token.                               |
-| OWNER_ID        | User ID (INT)   | This will appear in the info box from the `!info` command. Leave as `None` if you don't want this to appear. |
-| SERVER_ID       | Server ID (INT) | If set the bot will only respond to commands in this server. Leave as `None` to make the bot respond regardless of server.|
-| MANAGEMENT_ROLE | Role ID (INT)   | Setting this means that only users with this role can use the bot. Leave it as `None` if you don't want this. **Not Advised** as this will allow `@everyone` to use it. |
-| PREFIX          | String          | This is the prefix before commands. Default is `!`.          |
+| Field           | Value           | Description                                                  | Required |
+| :-------------- | :------------------ | :----------------------------------------------------------- | --------------- |
+| DISCORD_TOKEN   | String          | This is the discord bot token.                               | Yes |
+| OWNER_ID        | User ID (INT)   | This will appear in the info box from the `!info` command. Leave as `None` if you don't want this to appear. | No |
+| SERVER_ID       | Server ID (INT) | If set the bot will only respond to commands in this server. Leave as `None` to make the bot respond regardless of server.| No |
+| MANAGEMENT_ROLE | Role ID (INT)   | Setting this means that only users with this role can use the bot. Leave it as `None` if you don't want this. **Not Advised** as this will allow `@everyone` to use it. | No |
+| PREFIX          | String          | This is the prefix before commands. Default is `!`.          | Yes |
 
 ## Commands
 
