@@ -45,8 +45,8 @@ def check_if_manage_role(ctx):
 @bot.event
 async def on_ready():
     # Print the bot invite link
-    print("https://discord.com/api/oauth2/authorize?client_id={0}&permissions=519232&scope=bot".format(bot.user.id))
-    print("Logged on as {0}!".format(bot.user))
+    print(f"https://discord.com/api/oauth2/authorize?client_id={bot.user.id}&permissions=519232&scope=bot")
+    print(f"Logged on as {bot.user}!")
     
     await bot.change_presence(
         activity = discord.Game(name="Watching our important messages!")
@@ -59,23 +59,23 @@ async def help(ctx):
     embed=helpers.create_embed(
     "Help with commands for the bot",
     16761035,
-     [
-         [f"`{prefix}ping`", "Replys with the latency of the bot", True],
-         [f"`{prefix}help`", "Displays this view.", True],
-         [f'`{prefix}info`', 'Displays info about the bot', True],
-         [
-             f'`{prefix}edit channel_id message_id new_content`',
-             'Edits a message, message **must** be from the bot for it to work',
-             True
-         ],
         [
-            f"`{prefix}send channel_id content`",
-            "Sends a message from the bot in the specificed channel",
-            True
-        ]
+            [f"`{prefix}ping`", "Replys with the latency of the bot", True],
+            [f"`{prefix}help`", "Displays this view.", True],
+            [f'`{prefix}info`', 'Displays info about the bot', True],
+            [
+                f'`{prefix}edit channel_id message_id new_content`',
+                'Edits a message, message **must** be from the bot for it to work',
+                True
+            ],
+            [
+                f"`{prefix}send channel_id content`",
+                "Sends a message from the bot in the specificed channel",
+                True
+            ]
 
-     ]
-)    
+        ]
+    )    
     await ctx.send(embed=embed)
 
 # Create the info command.
@@ -132,11 +132,39 @@ async def delete(ctx, channel_id, message_id):
     msg = helpers.get_message(channel_id, message_id)
 
     if msg.author != bot.user: # Check if the message author is the bot. 
-        raise SyntaxError
-    
-    embed = helpers.create_message_info_embed('delete', ctx.author, msg.content, msg)
-    await.msg.delete()
-    await ctx.send(embed=embed)
+        await ctx.send("That message was not from me! Try again.")
+        break
+
+    await ctx.send(
+        embed = helpers.create_embed(
+            "Are you sure you want to delete this message?",
+            'red',
+            [
+                ["Channel", msg.channel.mention, False],
+                ["Content", msg.content, False]
+            ]
+        )
+    )
+    def is_correct(m):
+        return m.author == ctx.author
+    try:
+        choice = await bot.wait_for('message', check=is_correct, timeout=20.0)
+    except asyncio.TimeoutError:
+        return await ctx.send('Timedout, Please re-do the command.')
+
+    if choice.content.lower() == 'yes':
+        embed = helpers.create_message_info_embed('delete', ctx.author, msg.content, msg)
+        await.msg.delete()
+        await ctx.send(embed=embed)
+    else:
+        ctx.send(embed = helpers.create_embed(
+            "Message deletion exited.",
+            'red',
+            [
+                ['', f'{ctx.author.mention}chose not to delete the message', False]
+            ]
+        )
+        )
 
 #  Returns the bot side latency
 @bot.command (name = "ping")
