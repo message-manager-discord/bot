@@ -154,7 +154,7 @@ async def delete(ctx, channel_id, message_id):
 
     if choice.content.lower() == 'yes':
         embed = helpers.create_message_info_embed('delete', ctx.author, msg.content, msg)
-        await.msg.delete()
+        await msg.delete()
         await ctx.send(embed=embed)
     else:
         ctx.send(embed = helpers.create_embed(
