@@ -1,5 +1,6 @@
 # helpers.py
 from discord import Embed
+import discord
 
 # Creating the create embed function. This fuction takes a title, colour and a list of values. 
 # It returns a discord Embed type.
@@ -12,7 +13,9 @@ def create_embed(title_value, colour_value, values):
 # Create the function get message. This function returns the discord message type.
 async def get_message(channel_id, message_id):
     channel = bot.get_channel(int(channel_id))
-    return await channel.fetch_message(int(message_id))
+     
+    msg = await channel.fetch_message(int(message_id))
+    return msg
 
 # Create the function that create an embed for the message commands.
 def create_message_info_embed(command_type, author, content, message):
