@@ -1,19 +1,23 @@
 # main.py
+import json
 import os
 import discord
 import platform
 import datetime
 import helpers
-from dotenv import load_dotenv
 from discord.ext import commands
 
-# load all the enviromental variables
-load_dotenv()
-TOKEN = os.getenv('DISCORD_TOKEN')
-OWNER = os.getenv('OWNER_ID')
-prefix = os.getenv('PREFIX')
-allowed_server = os.getenv('SERVER_ID')
-management_role = os.getenv('MANAGEMENT_ROLE')
+with open('config.json') as f:
+    config_vars = json.load(f)
+
+
+# load all the enviromental variables 
+TOKEN = config_vars["token"]
+OWNER = config_vars["owner"]
+prefix = config_vars["prefix"]
+allowed_server = config_vars["allowed_server"]
+management_role = config_vars["management_role"]
+emojis = config_vars["emojis"]
 
 # Creating the bot class
 bot = commands.Bot(command_prefix = prefix, case_insensitive = True)
@@ -35,9 +39,12 @@ def check_if_manage_role(ctx):
     if management_role == "None":
         return True
     elif True:
-        for role in ctx.author.role:
+        for role in ctx.author.roles:
             if int(management_role) == role.id:
                 return True
+                
+    elif ctx.author.id == int(OWNER):
+        return True
     else:
         return False
 
@@ -107,7 +114,7 @@ async def info(ctx):
 @commands.check(check_if_manage_role)
 async def send(ctx, channel_id, *, content):
     channel = bot.get_channel(int(channel_id)) # Get the channel.
-    content = content[5:-3]
+    content = content[4:-3]
     msg = await channel.send(content)
     embed = helpers.create_message_info_embed('Send', ctx.author, content, msg)
     await ctx.send(embed=embed)
@@ -117,9 +124,9 @@ async def send(ctx, channel_id, *, content):
 @commands.check(check_if_right_server)
 @commands.check(check_if_manage_role)
 async def edit(ctx, channel_id, message_id, *, content):
-    content = content[5:-3]
+    content = content[4:-3]
     #ctx.rest_is_raw = True
-    msg = helpers.get_message(channel_id, message_id)
+    msg = await helpers.get_message(bot, channel_id, message_id)
     #if msg.author != bot.user:
      #   raise SyntaxError # Checks if the author of the message is the bot, if not raises an error (will customise error later)
 
@@ -167,6 +174,35 @@ async def delete(ctx, channel_id, message_id):
                 ]
             )
             )
+@bot.command(name="list_emojis")
+@commands.check(check_if_right_server)
+@commands.check(check_if_manage_role)
+async def list_emojis(ctx):
+    message = ''
+    emojis_all = ''
+    for emoji_id in emojis:
+        if len(message) >1700:
+            message = message + ' \n <:discordbackground1:737583861281718363>'
+            await ctx.send(message)
+            message = ''
+        emoji = bot.get_emoji(int(emoji_id))
+        
+        message = message + f'\n\n`{str(emoji)}`, `:{emoji.name}:`, {str(emoji)}'
+        emojis_all = emojis_all + str(emoji)
+    """if len(message) >= 2000:
+        no_messages = int(len(message) / 2000)
+        print(no_messages)
+        print(len(message))
+        for number_message in range(no_messages):
+            number_message += 1
+            message_to_send = message[number_message:number_message+2000]
+            print(number_message)
+            print(message_to_send)
+            await ctx.send(message_to_send)
+    else:
+        await ctx.send(message)"""
+    await ctx.send(message)
+    await ctx.send(emojis_all)
 
 #  Returns the bot side latency
 @bot.command (name = "ping")

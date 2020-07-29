@@ -29,7 +29,7 @@ Features are:
 ~$ source bot-env/bin/activate # Activate the python virtual enviroment (will need to do this every time you want to be able to run the bot)
 (bot-env) ~$ cd custom_helper_bot # Navigate to the main directory for the project.
 (bot-env) ~/custom_helper_bot$ pip install -r requirments.txt # Install the required python packeges.
-# Now you need to setup the enviromental variables, see Config below
+# Now you need to setup the configratuion variables, see Config below
 (bot-env) ~/custom_helper_bot$ python3 main.py # Run the bot
 ```
 
@@ -44,23 +44,28 @@ For windows do the same, but replace `python3` with python and replace `source b
 
 ## Config
 
-This bot uses [dotenv](https://pypi.org/project/python-dotenv/) for environment variables. 
+This bot uses JSON for environment variables. 
 
 ### Setting this up:
 
-4. Rename `.example_env` to `.env`
+4. Rename `example_config.json` to `config.json`
 5. Set the values as per the table below
 
 #### Config Values
 | Field           | Value           | Description                                                  | Required |
 | :-------------- | :------------------ | :----------------------------------------------------------- | --------------- |
-| DISCORD_TOKEN   | String          | This is the discord bot token.                               | Yes |
-| OWNER_ID        | User ID (INT)   | This will appear in the info box from the `!info` command. Leave as `None` if you don't want this to appear. | No |
-| SERVER_ID       | Server ID (INT) | If set the bot will only respond to commands in this server. Leave as `None` to make the bot respond regardless of server.| No |
-| MANAGEMENT_ROLE | Role ID (INT)   | Setting this means that only users with this role can use the bot. Leave it as `None` if you don't want this. **Not Advised** as this will allow `@everyone` to use it. | No |
-| PREFIX          | String          | This is the prefix before commands. Default is `!`.          | Yes |
+| token | String          | This is the discord bot token.                               | Yes |
+| owner   | User ID (INT)   | This will appear in the info box from the `!info` command. Leave as `None` if you don't want this to appear. | No |
+| allowed_server | Server ID (INT) | If set the bot will only respond to commands in this server. Leave as `None` to make the bot respond regardless of server.| No |
+| management_role | Role ID (INT)   | Setting this means that only users with this role can use the bot. Leave it as `None` if you don't want this. **Not Advised** as this will allow `@everyone` to use it. | No |
+| prefix    | String          | This is the prefix before commands. Default is `!`.          | Yes |
+| emojis | Array (python list) | These are the emoji id's that the bot will return when the `list_emojis` command is used. Useful for returning the bot emoji text. | No |
 
 ## Commands
+
+Note: message_content and new_content **must** be in code blocks.
+
+If you want to send a code block please use 6 ` instead of 3.
 
 | Command                                   | Description                                                  | Who can use it                        |
 | ----------------------------------------- | ------------------------------------------------------------ | ------------------------------------- |
@@ -70,4 +75,5 @@ This bot uses [dotenv](https://pypi.org/project/python-dotenv/) for environment 
 | `!send channel_id message_content`        | Sends a message to a channel. The channel is the channel which channel_id points to. | Requires the management role (if set) |
 | `!edit channel_id message_id new_content` | Edits the message that can be found in the channel which channel_id points to. The message **must** be from the bot. | Requires the management role (if set) |
 | `!delete channel_id message_id`           | Deletes the message. The message **must** be from the bot.   | Requires the management role (if set) |
+| `!list_emojis`                            | Lists the emojis that have been set.<br />**WARNING:** Depending on the amount of emojis set this can be **extremly** spammy. Each emoji will take up two lines. | Requires the management role (if set) |
 

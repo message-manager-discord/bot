@@ -1,0 +1,10 @@
+{
+	"token":"token",
+	"prefix":"!",
+	"allowed_server":"None",
+	"owner":"None",
+	"management_role":"None",
+	"emojis":[
+		"EMOJI IDs"
+	]
+}

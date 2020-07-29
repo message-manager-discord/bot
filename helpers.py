@@ -11,7 +11,7 @@ def create_embed(title_value, colour_value, values):
     return new_embed
 
 # Create the function get message. This function returns the discord message type.
-async def get_message(channel_id, message_id):
+async def get_message(bot, channel_id, message_id):
     channel = bot.get_channel(int(channel_id))
      
     msg = await channel.fetch_message(int(message_id))
