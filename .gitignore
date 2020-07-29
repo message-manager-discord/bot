@@ -1,0 +1,7 @@
+# Python
+__pycache__
+.env
+
+# Local Config
+config.json
+example.env
