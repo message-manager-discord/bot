@@ -5,7 +5,15 @@ import discord
 import platform
 import datetime
 import helpers
+import logging
 from discord.ext import commands
+
+# Start up the discord logging module.
+logger = logging.getLogger('discord')
+logger.setLevel(logging.DEBUG)
+handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
+handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+logger.addHandler(handler)
 
 with open('config.json') as f:
     config_vars = json.load(f)
@@ -200,8 +208,11 @@ async def list_emojis(ctx):
         
         message = message + f'\n\n`{str(emoji)}`, `:{emoji.name}:`, {str(emoji)}'
         emojis_all = emojis_all + str(emoji)
-    await ctx.send(message)
-    await ctx.send(emojis_all)
+    if message != '':
+        await ctx.send(message)
+        await ctx.send(emojis_all
+    else:
+    await ctx.send("There do not seem to be any emojis to list. Make sure you have config set up correctly")
 
 #  Returns the bot side latency
 @bot.command (name = "ping")
