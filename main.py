@@ -112,7 +112,8 @@ async def info(ctx):
          ["Prefix", prefix, True],
          ["Version", "0.0.0 (in development)", True],
          ["Developer",'<@684964314234618044>', True], # The developer (me), Must not be changed, as per the LICENSE
-         ["Discord.py Version", platform.python_version(), True],
+         ["Discord.py Version", discord.__version__, True],
+         ["Python Version", platform.python_version(), True],
          ["Number of Servers",len(bot.guilds), True]
      ]
     if OWNER != 'None':
