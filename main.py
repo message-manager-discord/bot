@@ -189,18 +189,6 @@ async def list_emojis(ctx):
         
         message = message + f'\n\n`{str(emoji)}`, `:{emoji.name}:`, {str(emoji)}'
         emojis_all = emojis_all + str(emoji)
-    """if len(message) >= 2000:
-        no_messages = int(len(message) / 2000)
-        print(no_messages)
-        print(len(message))
-        for number_message in range(no_messages):
-            number_message += 1
-            message_to_send = message[number_message:number_message+2000]
-            print(number_message)
-            print(message_to_send)
-            await ctx.send(message_to_send)
-    else:
-        await ctx.send(message)"""
     await ctx.send(message)
     await ctx.send(emojis_all)
 
