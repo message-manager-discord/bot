@@ -71,15 +71,25 @@ async def help(ctx):
             [f"`{prefix}help`", "Displays this view.", True],
             [f'`{prefix}info`', 'Displays info about the bot', True],
             [
+                f"`{prefix}send channel_id content`",
+                "Sends a message from the bot in the specificed channel",
+                True
+            ],
+            [
                 f'`{prefix}edit channel_id message_id new_content`',
                 'Edits a message, message **must** be from the bot for it to work',
                 True
             ],
             [
-                f"`{prefix}send channel_id content`",
-                "Sends a message from the bot in the specificed channel",
+                f"`{prefix}delete channel_id message_id`",
+                "[DISABLED, in development] Deletes the message from the bot. **Must** be from the bot",
                 True
-            ]
+            ],            
+            [
+                f"`{prefix}list_emojis`",
+                "Lists all the emojis that the bot can access and that have been set in config.",
+                True
+            ],
 
         ]
     )    
@@ -92,12 +102,13 @@ async def info(ctx):
     embed_content = [
          ["Username", bot.user, True],
          ["Prefix", prefix, True],
+         ["Version", "0.0.0 (in development)", True],
          ["Developer",'<@684964314234618044>', True], # The developer (me), Must not be changed, as per the LICENSE
          ["Discord.py Version", platform.python_version(), True],
          ["Number of Servers",len(bot.guilds), True]
      ]
     if OWNER != 'None':
-        embed_content.insert(3,["Owner", f"<@{OWNER}>", True]) # Check if the env OWNER is not "None", then if not adding the field to the embed.
+        embed_content.insert(4,["Owner", f"<@{OWNER}>", True]) # Check if the env OWNER is not "None", then if not adding the field to the embed.
 
     embed=helpers.create_embed(
         "Info about the Bot",
