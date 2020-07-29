@@ -6,7 +6,7 @@ This is a general custom made bot.
 
 Features are:
 
-1. Sending messages in channels and being able to edit them with commands. (pending)
+1. Sending messages in channels and being able to edit them with commands.
 2. Sending announcements. (pending)
 
 
@@ -48,8 +48,8 @@ This bot uses JSON for environment variables.
 
 ### Setting this up:
 
-4. Rename `example_config.json` to `config.json`
-5. Set the values as per the table below
+1. Rename `example_config.json` to `config.json`
+2. Set the values as per the table below
 
 #### Config Values
 | Field           | Value           | Description                                                  | Required |
@@ -75,5 +75,5 @@ If you want to send a code block please use 6 ` instead of 3.
 | `!send channel_id message_content`        | Sends a message to a channel. The channel is the channel which channel_id points to. | Requires the management role (if set) |
 | `!edit channel_id message_id new_content` | Edits the message that can be found in the channel which channel_id points to. The message **must** be from the bot. | Requires the management role (if set) |
 | `!delete channel_id message_id`           | Deletes the message. The message **must** be from the bot.   | Requires the management role (if set) |
-| `!list_emojis`                            | Lists the emojis that have been set.<br />**WARNING:** Depending on the amount of emojis set this can be **extremly** spammy. Each emoji will take up two lines. | Requires the management role (if set) |
+| `!list_emojis`                            | Lists the emojis that have been set.<br />**WARNING:** Depending on the amount of emojis set this can be extremely spammy. Each emoji will take up two lines. It's not recommended using this in a busy channel. | Requires the management role (if set) |
 
