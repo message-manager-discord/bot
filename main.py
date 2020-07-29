@@ -210,9 +210,9 @@ async def list_emojis(ctx):
         emojis_all = emojis_all + str(emoji)
     if message != '':
         await ctx.send(message)
-        await ctx.send(emojis_all
+        await ctx.send(emojis_all)
     else:
-    await ctx.send("There do not seem to be any emojis to list. Make sure you have config set up correctly")
+        await ctx.send("There do not seem to be any emojis to list. Make sure you have config set up correctly")
 
 #  Returns the bot side latency
 @bot.command (name = "ping")
