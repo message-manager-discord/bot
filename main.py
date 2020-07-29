@@ -147,7 +147,7 @@ async def edit(ctx, channel_id, message_id, *, content):
     await ctx.send(embed=embed)
 
 # Create the command delete. This will delete a message from the bot. 
-@bot.command(name = 'delete')
+@bot.command(name = 'disabled_delete')
 async def delete(ctx, channel_id, message_id):
     msg = helpers.get_message(channel_id, message_id)
 
