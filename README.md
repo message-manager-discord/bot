@@ -29,7 +29,7 @@ Features are:
 ~$ source bot-env/bin/activate # Activate the python virtual enviroment (will need to do this every time you want to be able to run the bot)
 (bot-env) ~$ cd custom_helper_bot # Navigate to the main directory for the project.
 (bot-env) ~/custom_helper_bot$ pip install -r requirments.txt # Install the required python packeges.
-# Now you need to setup the configratuion variables, see Config below
+# Now you need to setup the config variables, see Config below
 (bot-env) ~/custom_helper_bot$ python3 main.py # Run the bot
 ```
 
