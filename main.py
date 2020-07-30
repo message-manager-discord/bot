@@ -20,8 +20,8 @@ with open('config.json') as f:
 
 
 # load all the enviromental variables 
-TOKEN = config_vars["token"]
-OWNER = config_vars["owner"]
+token = config_vars["token"]
+owner = config_vars["owner"]
 prefix = config_vars["prefix"]
 allowed_server = config_vars["allowed_server"]
 management_role = config_vars["management_role"]
@@ -51,7 +51,7 @@ def check_if_manage_role(ctx):
             if int(management_role) == role.id:
                 return True
                 
-    elif ctx.author.id == int(OWNER):
+    elif ctx.author.id == int(owner):
         return True
     else:
         return False
@@ -116,8 +116,8 @@ async def info(ctx):
          ["Python Version", platform.python_version(), True],
          ["Number of Servers",len(bot.guilds), True]
      ]
-    if OWNER != 'None':
-        embed_content.insert(4,["Owner", f"<@{OWNER}>", True]) # Check if the env OWNER is not "None", then if not adding the field to the embed.
+    if owner != 'None':
+        embed_content.insert(4,["Owner", f"<@{owner}>", True]) # Check if the config variable owner is not "None", then if not adding the field to the embed.
 
     embed=helpers.create_embed(
         "Info about the Bot",
@@ -221,4 +221,4 @@ async def list_emojis(ctx):
 async def ping(ctx):
     await ctx.send(f"**ping** {round(bot.latency*100)}ms")   # get the bot latency in seconds then conver it into milli seconds.
 
-bot.run(TOKEN)
+bot.run(token)
