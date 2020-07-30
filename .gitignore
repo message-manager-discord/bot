@@ -7,3 +7,6 @@ config.json
 
 # Logging
 discord.log
+
+# VS-Code 
+.vscode

@@ -28,7 +28,7 @@ Features are:
 ~$ python3 -m venv bot-env # Create the python virtual enviroment bot-env
 ~$ source bot-env/bin/activate # Activate the python virtual enviroment (will need to do this every time you want to be able to run the bot)
 (bot-env) ~$ cd custom_helper_bot # Navigate to the main directory for the project.
-(bot-env) ~/custom_helper_bot$ pip install -r requirments.txt # Install the required python packeges.
+(bot-env) ~/custom_helper_bot$ pip install -r requirments.txt # Install the required python packages.
 # Now you need to setup the config variables, see Config below
 (bot-env) ~/custom_helper_bot$ python3 main.py # Run the bot
 ```
@@ -52,14 +52,14 @@ This bot uses JSON for environment variables.
 2. Set the values as per the table below
 
 #### Config Values
-| Field           | Value           | Description                                                  | Required |
-| :-------------- | :------------------ | :----------------------------------------------------------- | --------------- |
-| token | String          | This is the discord bot token.                               | Yes |
-| owner   | User ID (INT)   | This will appear in the info box from the `!info` command. Leave as `None` if you don't want this to appear. | No |
-| allowed_server | Server ID (INT) | If set the bot will only respond to commands in this server. Leave as `None` to make the bot respond regardless of server.| No |
-| management_role | Role ID (INT)   | Setting this means that only users with this role can use the bot. Leave it as `None` if you don't want this. **Not Advised** as this will allow `@everyone` to use it. | No |
-| prefix    | String          | This is the prefix before commands. Default is `!`.          | Yes |
-| emojis | Array (python list) | These are the emoji id's that the bot will return when the `list_emojis` command is used. Useful for returning the bot emoji text. | No |
+| Field         | Type     | Value                                             | Description                                                  | Required |
+| :-------------- | :------------------ | :----------------------------------------------------------- | --------------- | :-------------- |
+| token | string         | Discord Bot Token  | This is the discord bot token.                               | Yes |
+| prefix    | string         | String    | This is the prefix before commands. Default is `!`.          | Yes |
+| owner   | string | User ID | This will appear in the info box from the `!info` command. Leave as `None` if you don't want this to appear. | No |
+| allowed_server | string | Server ID | If set the bot will only respond to commands in this server. Leave as `None` to make the bot respond regardless of server.| No |
+| management_role | string | Role ID | Setting this means that only users with this role can use the bot. Leave it as `None` if you don't want this. **Not Advised** as this will allow `@everyone` to use it. | No |
+| emojis | string[] | emoji id's, in an array | These are the emoji id's that the bot will return when the `list_emojis` command is used. Useful for returning the bot emoji text. | No |
 
 ## Commands
 
@@ -72,8 +72,36 @@ If you want to send a code block please use 6 ` instead of 3.
 | `!help`                                   | Displays the help embed                                      | `@everyone`                           |
 | `!info`                                   | Displays info about the bot                                  | `@everyone`                           |
 | `!ping`                                   | Returns the bot-side latency                                 | `@everyone`                           |
-| `!send channel_id message_content`        | Sends a message to a channel. The channel is the channel which channel_id points to. | Requires the management role (if set) |
+| `!send channel_id message_content`        | Sends a message to a channel. The channel is the channel which channel_id points to. Bot requires send message permissions in this channel. | Requires the management role (if set) |
 | `!edit channel_id message_id new_content` | Edits the message that can be found in the channel which channel_id points to. The message **must** be from the bot. | Requires the management role (if set) |
 | `!delete channel_id message_id`           | Deletes the message. The message **must** be from the bot.   | Requires the management role (if set) |
-| `!list_emojis`                            | Lists the emojis that have been set.<br />**WARNING:** Depending on the amount of emojis set this can be extremely spammy. Each emoji will take up two lines. It's not recommended using this in a busy channel. | Requires the management role (if set) |
+| `!list_emojis`                            | Lists the emojis that have been set.<br />**WARNING:** Depending on the amount of emojis set this can be **extremely** spammy. Each emoji will take up two lines. It's not recommended using this in a busy channel. | Requires the management role (if set) |
+
+## Important Notes
+
+### Updates
+
+I will be using the standard version naming.
+
+If the first number in the tuple is the same, it will not break if you leave config the same. In this case all you have to do it pull the repo as `config.json` is the only file that is user specific and there is no file named that in the repo. 
+It is still suggested that you read the update notes and update your config as said, but if you don't nothing will break.
+
+If the first number in the tuple changes, this means that it is no longer backwards compatible. 
+This means that you **must** update your configuration after pulling the version.
+
+> Note, as i have not finalized development of the first stage, i have not released any versions. You are free to use it, but be warned it's still in development.
+>
+> Please report any bugs you find in the comments.
+
+
+
+## Checklist
+
+- [ ] Created a application and bot user.
+- [ ] Cloned the repo
+- [ ] Installed the required packages (python 3 with pip, installed requirments.txt)
+- [ ] Setup required configuration variables (token and prefix)
+- [ ] Renamed `example_config.json` to `config.json`
+- [ ] Run bot
+- [ ] Invited the bot to your server, and setup the server permissions for it.
 

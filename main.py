@@ -39,6 +39,8 @@ def check_if_right_server(ctx):
         return True
     elif ctx.message.guild.id == int(allowed_server):
         return True
+    elif ctx.author.id = int(owner):
+        return True
     else:
         return False
 
@@ -66,6 +68,19 @@ async def on_ready():
     await bot.change_presence(
         activity = discord.Game(name="Watching our important messages!")
     ) # Change the presence of the bot
+
+@bot.event
+async def on_guild_join(guild):
+    channel = guild.system_channel
+    embed = helpers.create_embed(
+        "Hi there!",
+        16761035,
+        [
+            ["Startup!", "Thank you for inviting me to your server! \nMy prefix here is: `{prefix}`\nHead over to the (README)[https://github.com/AnotherCat/custom_helper_bot/blob/master/README.md] for setup instructions!"]
+        ]
+    )
+    channel.send(embed=embed)
+
 
 # Create the bot command help. 
 @bot.command(name='help', help='Responds with an embed with all the commands and options')
