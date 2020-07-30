@@ -128,7 +128,7 @@ async def info(ctx):
          ["Username", bot.user, True],
          ["Prefix", prefix, True],
          ["Version", "0.0.0 (in development)", True],
-         ["Docs", "(The Docs)[https://anothercat.github.io/custom_helper_bot/]", True],
+         ["Docs", "[The Docs](https://anothercat.github.io/custom_helper_bot/)", True],
          ["Developer",'<@684964314234618044>', True], # The developer (me), Must not be changed, as per the LICENSE
          ["Discord.py Version", discord.__version__, True],
          ["Python Version", platform.python_version(), True],
