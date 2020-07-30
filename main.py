@@ -45,18 +45,19 @@ def check_if_right_server(ctx):
         return True
     else:
         return False
+        
 
 # Creating the check for the management role.
 def check_if_manage_role(ctx):
     if management_role == "None":
+        return True 
+    elif ctx.author.id in bypassed_users:
         return True
     elif True:
         for role in ctx.author.roles:
+            print(role, role.id, management_role)
             if int(management_role) == role.id:
-                return True         
-    elif ctx.author.id in bypassed_users:
-        return True
-    else:
+                return True     
         return False
 
 # Defining the on_ready event
@@ -127,13 +128,14 @@ async def info(ctx):
          ["Username", bot.user, True],
          ["Prefix", prefix, True],
          ["Version", "0.0.0 (in development)", True],
+         ["Docs", "(The Docs)[https://anothercat.github.io/custom_helper_bot/]", True],
          ["Developer",'<@684964314234618044>', True], # The developer (me), Must not be changed, as per the LICENSE
          ["Discord.py Version", discord.__version__, True],
          ["Python Version", platform.python_version(), True],
          ["Number of Servers",len(bot.guilds), True]
      ]
     if owner != 'None':
-        embed_content.insert(4,["Owner", f"<@{owner}>", True]) # Check if the config variable owner is not "None", then if not adding the field to the embed.
+        embed_content.insert(5,["Owner", f"<@{owner}>", True]) # Check if the config variable owner is not "None", then if not adding the field to the embed.
 
     embed=helpers.create_embed(
         "Info about the Bot",
