@@ -4,7 +4,10 @@
 	"allowed_server":"None",
 	"owner":"None",
 	"management_role":"None",
+	"bypassed_users": [
+		
+	],
 	"emojis":[
-		"EMOJI IDs"
+		
 	]
 }

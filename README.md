@@ -59,7 +59,8 @@ This bot uses JSON for environment variables.
 | owner   | string | User ID | This will appear in the info box from the `!info` command. Leave as `None` if you don't want this to appear. | No |
 | allowed_server | string | Server ID | If set the bot will only respond to commands in this server. Leave as `None` to make the bot respond regardless of server.| No |
 | management_role | string | Role ID | Setting this means that only users with this role can use the bot. Leave it as `None` if you don't want this. **Not Advised** as this will allow `@everyone` to use it. | No |
-| emojis | string[] | emoji id's, in an array | These are the emoji id's that the bot will return when the `list_emojis` command is used. Useful for returning the bot emoji text. | No |
+| bypassed_users | int[] | User ids in an array | By adding a user to this this will bypass all user checks. This is useful for if you have set allowed_server, but want some users to still be able to use it. | No |
+| emojis | int[] | emoji id's, in an array | These are the emoji id's that the bot will return when the `list_emojis` command is used. Useful for returning the bot emoji text. | No |
 
 ## Commands
 

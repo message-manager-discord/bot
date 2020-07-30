@@ -25,6 +25,7 @@ owner = config_vars["owner"]
 prefix = config_vars["prefix"]
 allowed_server = config_vars["allowed_server"]
 management_role = config_vars["management_role"]
+bypassed_users = config_vars["bypassed_users"]
 emojis = config_vars["emojis"]
 
 # Creating the bot class
@@ -39,7 +40,7 @@ def check_if_right_server(ctx):
         return True
     elif ctx.message.guild.id == int(allowed_server):
         return True
-    elif ctx.author.id == int(owner):
+    elif ctx.author.id in bypassed_users:
         return True
     else:
         return False
@@ -51,9 +52,8 @@ def check_if_manage_role(ctx):
     elif True:
         for role in ctx.author.roles:
             if int(management_role) == role.id:
-                return True
-                
-    elif ctx.author.id == int(owner):
+                return True         
+    elif ctx.author.id in bypassed_users:
         return True
     else:
         return False
@@ -237,3 +237,4 @@ async def ping(ctx):
     await ctx.send(f"**ping** {round(bot.latency*100)}ms")   # get the bot latency in seconds then conver it into milli seconds.
 
 bot.run(token)
+
