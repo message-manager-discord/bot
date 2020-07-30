@@ -4,7 +4,7 @@ import os
 import discord
 import platform
 import datetime
-import src.helpers
+import src.helpers as helpers
 import logging
 from discord.ext import commands
 
@@ -39,7 +39,7 @@ def check_if_right_server(ctx):
         return True
     elif ctx.message.guild.id == int(allowed_server):
         return True
-    elif ctx.author.id = int(owner):
+    elif ctx.author.id == int(owner):
         return True
     else:
         return False
