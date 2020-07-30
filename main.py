@@ -4,7 +4,7 @@ import os
 import discord
 import platform
 import datetime
-import helpers
+import src.helpers
 import logging
 from discord.ext import commands
 
@@ -213,7 +213,7 @@ async def list_emojis(ctx):
         await ctx.send(message)
         await ctx.send(emojis_all)
     else:
-        await ctx.send("There do not seem to be any emojis to list. Make sure you have config set up correctly")
+        await ctx.send("There do not seem to be any emojis to list. Make sure you have config set up correctly!")
 
 #  Returns the bot side latency
 @bot.command (name = "ping")
