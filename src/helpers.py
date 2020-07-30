@@ -40,3 +40,6 @@ def create_message_info_embed(command_type, author, content, message):
     )
     return embed
     
+
+if __name__ == "__main__":
+    print("Im afraid you ran the wrong file, please run main.py instead.")
