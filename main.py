@@ -6,6 +6,7 @@ import platform
 import datetime
 import src.helpers as helpers
 import logging
+import asyncio
 from discord.ext import commands
 
 # Start up the discord logging module.
@@ -160,12 +161,7 @@ async def send(ctx, channel_id, *, content):
 @commands.check(check_if_manage_role)
 async def edit(ctx, channel_id, message_id, *, content):
     content = content[4:-3]
-    #ctx.rest_is_raw = True
-    msg = await helpers.get_message(bot, channel_id, message_id)
-    #if msg.author != bot.user:
-     #   raise SyntaxError # Checks if the author of the message is the bot, if not raises an error (will customise error later)
-
-    original_content = msg.content    
+    msg = await helpers.get_message(bot, channel_id, message_id)   
     embed = helpers.create_message_info_embed('edit', ctx.author, content, msg)
     await msg.edit(content=content)
     await ctx.send(embed=embed)
@@ -173,7 +169,7 @@ async def edit(ctx, channel_id, message_id, *, content):
 # Create the command delete. This will delete a message from the bot. 
 @bot.command(name = 'disabled_delete')
 async def delete(ctx, channel_id, message_id):
-    msg = helpers.get_message(channel_id, message_id)
+    msg = helpers.get_message(bot, channel_id, message_id)
 
     if msg.author != bot.user: # Check if the message author is the bot. 
         await ctx.send("That message was not from me! Try again.")
