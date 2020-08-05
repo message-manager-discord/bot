@@ -156,6 +156,7 @@ async def send(ctx, channel_id, *, content):
     msg = await channel.send(content)
     embed = helpers.create_message_info_embed('Send', ctx.author, content, msg)
     await ctx.send(embed=embed)
+    await ctx.message.delete()
 
 # Create the edit command. This command will edit the specificed message. (Message must be from the bot)
 @bot.command(name="edit", rest_is_raw=True)  # rest_is_raw so that the white space will not be cut from the content.
@@ -167,6 +168,7 @@ async def edit(ctx, channel_id, message_id, *, content):
     embed = helpers.create_message_info_embed('edit', ctx.author, content, msg)
     await msg.edit(content=content)
     await ctx.send(embed=embed)
+    await ctx.message.delete()
 
 # Create the command delete. This will delete a message from the bot. 
 @bot.command(name = 'disabled_delete')
