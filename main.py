@@ -228,6 +228,13 @@ async def list_emojis(ctx):
     else:
         await ctx.send("There do not seem to be any emojis to list. Make sure you have config set up correctly!")
 
+@bot.command(name="fetch")
+@commands.check(check_if_right_server)
+@commands.check(check_if_manage_role)
+async def fetch(ctx, channel_id, message_id):
+    msg = await helpers.get_message(bot, channel_id, message_id)
+    await ctx.send("Original Content:\n" + msg.content)
+
 #  Returns the bot side latency
 @bot.command (name = "ping")
 @commands.check(check_if_right_server)
