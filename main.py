@@ -12,7 +12,7 @@ from discord.ext import commands
 # Start up the discord logging module.
 logger = logging.getLogger('discord')
 logger.setLevel(logging.DEBUG)
-handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='a')
+handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
@@ -173,42 +173,41 @@ async def edit(ctx, channel_id, message_id, *, content):
 # Create the command delete. This will delete a message from the bot. 
 @bot.command(name = 'disabled_delete')
 async def delete(ctx, channel_id, message_id):
-    msg = helpers.get_message(bot, channel_id, message_id)
-
-    if msg.author != bot.user: # Check if the message author is the bot. 
-        await ctx.send("That message was not from me! Try again.")
+    msg = await helpers.get_message(bot, channel_id, message_id)
         
-    else:
-        await ctx.send(
-            embed = helpers.create_embed(
-                "Are you sure you want to delete this message?",
-                'red',
-                [
-                    ["Channel", msg.channel.mention, False],
-                    ["Content", msg.content, False]
-                ]
-            )
+    
+    await ctx.send(
+        embed = helpers.create_embed(
+            "Are you sure you want to delete this message?",
+            discord.Color.red(),
+            [
+                ["Channel", msg.channel.mention, False],
+                ["Content", msg.content, False]
+            ]
         )
-        def is_correct(m):
-            return m.author == ctx.author
-        try:
-            choice = await bot.wait_for('message', check=is_correct, timeout=20.0)
-        except asyncio.TimeoutError:
-            return await ctx.send('Timedout, Please re-do the command.')
+    )
+    def is_correct(m):
+        return m.author == ctx.author
+    try:
+        choice = await bot.wait_for('message', check=is_correct, timeout=20.0)
+    except asyncio.TimeoutError:
+        return await ctx.send('Timedout, Please re-do the command.')
 
-        if choice.content.lower() == 'yes':
-            embed = helpers.create_message_info_embed('delete', ctx.author, msg.content, msg)
-            await msg.delete()
-            await ctx.send(embed=embed)
-        else:
-            ctx.send(embed = helpers.create_embed(
-                "Message deletion exited.",
-                'red',
-                [
-                    ['', f'{ctx.author.mention}chose not to delete the message', False]
-                ]
-            )
-            )
+    if choice.content.lower() == 'yes':
+        embed = helpers.create_message_info_embed('delete', ctx.author, msg.content, msg)
+        await msg.delete()
+        await ctx.send(embed=embed)
+    else:
+        ctx.send(embed = helpers.create_embed(
+            "Message deletion exited.",
+            'red',
+            [
+                ['', f'{ctx.author.mention}chose not to delete the message', False]
+            ]
+        )
+        )
+
+
 @bot.command(name="list_emojis")
 @commands.check(check_if_right_server)
 @commands.check(check_if_manage_role)
