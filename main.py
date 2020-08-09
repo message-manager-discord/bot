@@ -162,7 +162,9 @@ async def send(ctx, channel_id, *, content):
 @bot.command(name="edit", rest_is_raw=True)  # rest_is_raw so that the white space will not be cut from the content.
 @commands.check(check_if_right_server)
 @commands.check(check_if_manage_role)
-async def edit(ctx, channel_id, message_id, *, content):
+async def edit(ctx, channel_id=None, message_id=None, *, content):
+    channel_id = helpers.check_channel_id(ctx, channel_id, bot)
+    message_id = helpers.check_message_id(ctx, message_id, bot)
     content = content[4:-3]
     msg = await helpers.get_message(bot, channel_id, message_id)   
     embed = helpers.create_message_info_embed('edit', ctx.author, content, msg)
@@ -172,11 +174,18 @@ async def edit(ctx, channel_id, message_id, *, content):
 
 # Create the command delete. This will delete a message from the bot. 
 @bot.command(name = 'disabled_delete')
-async def delete(ctx, channel_id, message_id):
-    msg = await helpers.get_message(bot, channel_id, message_id)
-        
+async def delete(ctx, channel_id=None, message_id=None):
+    def is_correct(m):
+        return m.author == ctx.author
+    await ctx.message.delete()
     
-    await ctx.send(
+
+    channel_id = helpers.check_channel_id(ctx, channel_id, bot)
+    message_id = helpers.check_message_id(ctx, message_id, bot)
+
+    msg = await helpers.get_message(bot, channel_id, message_id)        
+    
+    message = await ctx.send(
         embed = helpers.create_embed(
             "Are you sure you want to delete this message?",
             discord.Color.red(),
@@ -186,8 +195,8 @@ async def delete(ctx, channel_id, message_id):
             ]
         )
     )
-    def is_correct(m):
-        return m.author == ctx.author
+    
+    
     try:
         choice = await bot.wait_for('message', check=is_correct, timeout=20.0)
     except asyncio.TimeoutError:
@@ -195,7 +204,9 @@ async def delete(ctx, channel_id, message_id):
 
     if choice.content.lower() == 'yes':
         embed = helpers.create_message_info_embed('delete', ctx.author, msg.content, msg)
+        await choice.delete()
         await msg.delete()
+        await message.delete()
         await ctx.send(embed=embed)
     else:
         ctx.send(embed = helpers.create_embed(

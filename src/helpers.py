@@ -1,6 +1,7 @@
 # helpers.py
 from discord import Embed
 import discord
+import asyncio
 
 # Creating the create embed function. This fuction takes a title, colour and a list of values. 
 # It returns a discord Embed type.
@@ -30,8 +31,10 @@ def create_message_info_embed(command_type, author, content, message):
         title = "Edited"
         list_content.insert(2, ["Original Content",message.content,False])
         list_content[3][0] = 'New Content'
+        list_content[0][0] = "Editor"
     elif command_type == 'delete':
         title = 'Deleted'
+        list_content[0][0] = "Deleter"
 
     embed = create_embed(
         f"{title} the message!",
@@ -39,7 +42,54 @@ def create_message_info_embed(command_type, author, content, message):
         list_content
     )
     return embed
-    
+
+
+
+async def check_channel_id(ctx, channel_id, bot):
+    def is_correct(m):
+        return m.author == ctx.author
+    if channel_id == None:
+        message = await ctx.send(
+            embed = create_embed(
+                "What is the id of the channel that the message is in?",
+                discord.Color.blue(),
+                []
+            )
+        )
+        try: 
+            get_channel_id = await bot.wait_for('message', check=is_correct, timeout=20.0)
+        except asyncio.TimeoutError:
+            return await ctx.send('Timedout, Please re-do the command.')
+
+        channel_id = int(get_channel_id.content)
+        await message.delete()
+        await get_channel_id.delete()    
+        return channel_id
+    else:
+        return channel_id
+
+async def check_message_id(ctx, message_id, bot):
+    def is_correct(m):
+        return m.author == ctx.author
+    if message_id == None:
+        message = await ctx.send(
+            embed = create_embed(
+                "What is the id of the message?",
+                discord.Color.blue(),
+                []
+            )
+        )
+        try: 
+            get_message_id = await bot.wait_for('message', check=is_correct, timeout=20.0)
+        except asyncio.TimeoutError:
+            return await ctx.send('Timedout, Please re-do the command.')
+
+        message_id = int(get_message_id.content)
+        await message.delete()
+        await get_message_id.delete()    
+        return message_id
+    else:
+        return message_id
 
 if __name__ == "__main__":
     print("Im afraid you ran the wrong file, please run main.py instead.")
