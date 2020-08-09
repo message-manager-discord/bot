@@ -237,6 +237,13 @@ async def fetch(ctx, channel_id, message_id):
     msg = await helpers.get_message(bot, channel_id, message_id)
     await ctx.send("Original Content:\n" + msg.content)
 
+@bot.command(name='kill')
+async def kill(ctx):
+    if str(ctx.author.id) in bypassed_users:
+        bot.logout()
+    else:
+        ctx.send("You need the perms regestered on the bot to do that!")
+
 #  Returns the bot side latency
 @bot.command (name = "ping")
 @commands.check(check_if_right_server)

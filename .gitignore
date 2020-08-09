@@ -14,3 +14,5 @@ discord.log
 
 docs
 
+# aws
+aws_bot_key.pem
