@@ -1,5 +1,10 @@
 # Custom Helper Bot
 
+This bot is currently in development. **BE WARNED**
+
+After i finish developing and bug testing, i'll make a release.
+But feel free to use it now and please tell me about any bugs/issues by opening an issue!
+
 ## General Info
 
 This is a general custom made bot.
