@@ -2,6 +2,7 @@
 from discord import Embed
 import discord
 import asyncio
+import os
 
 # Creating the create embed function. This fuction takes a title, colour and a list of values. 
 # It returns a discord Embed type.
@@ -19,7 +20,7 @@ async def get_message(bot, channel_id, message_id):
     return msg
 
 # Create the function that create an embed for the message commands.
-def create_message_info_embed(command_type, author, content, message):
+async def send_message_info_embed(ctx, command_type, author, content, message):
     title = 'Sent'
     list_content = [
 
@@ -41,7 +42,28 @@ def create_message_info_embed(command_type, author, content, message):
         discord.Colour(0xc387c1),
         list_content
     )
-    return embed
+    if len(content) >=900 or len(message.content) >= 900:
+        f = open('content.txt','w+')
+        if command_type == 'edit':
+            f.write(f'Original Content:\n\n{message.content}\n\nNew Content:\n\n{content}')
+            del list_content[2:4]
+        else:
+            f.write(f'Content:\n\n{content}')
+            del list_content[2:3]
+        embed = create_embed(
+            f'{title} the message!',
+            discord.Colour(0xc387c1),
+            list_content
+        )
+        f.close()
+        fx = open('content.txt','r')
+        await ctx.send(embed=embed, file = discord.File(fx, "Content.txt"))
+        os.remove('content.txt')
+    else:
+        await ctx.send(embed=embed)
+        
+
+    
 
 
 
@@ -51,15 +73,17 @@ async def check_channel_id(ctx, channel_id, bot):
     if channel_id == None:
         message = await ctx.send(
             embed = create_embed(
-                "What is the id of the channel that the message is in?",
+                "What is the id of the channel?",
                 discord.Color.blue(),
                 []
             )
         )
         try: 
-            get_channel_id = await bot.wait_for('message', check=is_correct, timeout=20.0)
+            get_channel_id = await bot.wait_for('message', check=is_correct)
         except asyncio.TimeoutError:
-            return await ctx.send('Timedout, Please re-do the command.')
+            await message.delete()
+            await ctx.send('Timedout, Please re-do the command.')
+            return False
 
         channel_id = int(get_channel_id.content)
         await message.delete()
@@ -80,9 +104,11 @@ async def check_message_id(ctx, message_id, bot):
             )
         )
         try: 
-            get_message_id = await bot.wait_for('message', check=is_correct, timeout=20.0)
+            get_message_id = await bot.wait_for('message', check=is_correct)
         except asyncio.TimeoutError:
-            return await ctx.send('Timedout, Please re-do the command.')
+            await message.delete()
+            await ctx.send('Timedout, Please re-do the command.')
+            return False
 
         message_id = int(get_message_id.content)
         await message.delete()
@@ -90,6 +116,31 @@ async def check_message_id(ctx, message_id, bot):
         return message_id
     else:
         return message_id
+
+async def check_content(ctx, content, bot):
+    def is_correct(m):
+        return m.author == ctx.author
+    if content == None or content == '':
+        message = await ctx.send(
+            embed = create_embed(
+                "What is the content of the message to be?",
+                discord.Color.blue(),
+                []
+            )
+        )
+        try: 
+            get_content= await bot.wait_for('message', check=is_correct)
+        except asyncio.TimeoutError:
+            await message.delete()
+            await ctx.send('Timedout, Please re-do the command.')
+            return False
+
+        content = get_content.content
+        await message.delete()
+        await get_content.delete()    
+        return content
+    else:
+        return content
 
 if __name__ == "__main__":
     print("Im afraid you ran the wrong file, please run main.py instead.")

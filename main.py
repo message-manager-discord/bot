@@ -69,7 +69,7 @@ async def on_ready():
     
     await bot.change_presence(
         activity = discord.Game(name="Watching our important messages!")
-    ) # Change the presence of the bot
+    )   # Change the presence of the bot
 
 @bot.event
 async def on_guild_join(guild):
@@ -150,38 +150,53 @@ async def info(ctx):
 @bot.command(name="send", rest_is_raw = True)
 @commands.check(check_if_right_server)
 @commands.check(check_if_manage_role)
-async def send(ctx, channel_id, *, content):
-    channel = bot.get_channel(int(channel_id)) # Get the channel.
-    content = content[4:-3]
-    msg = await channel.send(content)
-    embed = helpers.create_message_info_embed('Send', ctx.author, content, msg)
-    await ctx.send(embed=embed)
+async def send(ctx, channel_id=None, *, content=None):
     await ctx.message.delete()
+    channel_id = await helpers.check_channel_id(ctx, channel_id, bot)
+    if channel_id == False:
+        return None
+    content = await helpers.check_content(ctx, content, bot)
+    if content == False:
+        return None
+    if content[1:4] == '```'and content[-3:] == '```':
+        content = content[4:-3]
+    channel = bot.get_channel(int(channel_id)) # Get the channel.
+    msg = await channel.send(content)
+    await helpers.send_message_info_embed(ctx, 'Send', ctx.author, content, msg)
 
 # Create the edit command. This command will edit the specificed message. (Message must be from the bot)
 @bot.command(name="edit", rest_is_raw=True)  # rest_is_raw so that the white space will not be cut from the content.
 @commands.check(check_if_right_server)
 @commands.check(check_if_manage_role)
-async def edit(ctx, channel_id=None, message_id=None, *, content):
-    channel_id = helpers.check_channel_id(ctx, channel_id, bot)
-    message_id = helpers.check_message_id(ctx, message_id, bot)
-    content = content[4:-3]
-    msg = await helpers.get_message(bot, channel_id, message_id)   
-    embed = helpers.create_message_info_embed('edit', ctx.author, content, msg)
-    await msg.edit(content=content)
-    await ctx.send(embed=embed)
+async def edit(ctx, channel_id=None, message_id=None, *, content=None):
     await ctx.message.delete()
+    channel_id = await helpers.check_channel_id(ctx, channel_id, bot)
+    if channel_id == False:
+        return None
+    message_id = await helpers.check_message_id(ctx, message_id, bot)
+    if message_id == False:
+        return None
+    content = await helpers.check_content(ctx, content, bot)
+    if content == False:
+        return None
+    if content[1:4] == '```'and content[-3:] == '```':
+        content = content[4:-3]
+    msg = await helpers.get_message(bot, channel_id, message_id)   
+    await helpers.send_message_info_embed(ctx, 'edit', ctx.author, content, msg)
+    await msg.edit(content=content)
 
 # Create the command delete. This will delete a message from the bot. 
-@bot.command(name = 'disabled_delete')
+@bot.command(name = 'delete')
 async def delete(ctx, channel_id=None, message_id=None):
     def is_correct(m):
         return m.author == ctx.author
     await ctx.message.delete()
-    
-
-    channel_id = helpers.check_channel_id(ctx, channel_id, bot)
-    message_id = helpers.check_message_id(ctx, message_id, bot)
+    channel_id = await helpers.check_channel_id(ctx, channel_id, bot)
+    if channel_id == False:
+        return None
+    message_id = await helpers.check_message_id(ctx, message_id, bot)
+    if message_id == False:
+        return None
 
     msg = await helpers.get_message(bot, channel_id, message_id)        
     
@@ -203,11 +218,10 @@ async def delete(ctx, channel_id=None, message_id=None):
         return await ctx.send('Timedout, Please re-do the command.')
 
     if choice.content.lower() == 'yes':
-        embed = helpers.create_message_info_embed('delete', ctx.author, msg.content, msg)
         await choice.delete()
         await msg.delete()
         await message.delete()
-        await ctx.send(embed=embed)
+        await helpers.send_message_info_embed(ctx, 'delete', ctx.author, msg.content, msg)
     else:
         ctx.send(embed = helpers.create_embed(
             "Message deletion exited.",
@@ -249,7 +263,8 @@ async def fetch(ctx, channel_id, message_id):
 
 @bot.command(name='kill')
 async def kill(ctx):
-    if ctx.author.id in bypassed_users:        
+    if ctx.author.id in bypassed_users:   
+        await ctx.send("Logging out!")     
         await bot.logout()
     else:
         await ctx.send("You need the perms regestered on the bot to do that!")
