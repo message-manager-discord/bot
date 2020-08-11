@@ -12,8 +12,6 @@ discord.log
 # VS-Code 
 .vscode
 
-docs
-
 # aws
 aws_bot_key.pem
 
