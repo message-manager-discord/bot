@@ -1,4 +1,5 @@
 ---
 permalink: /about.html
 ---
-#**About our PAGE**
+[Home](/index.hmtl)                  [About](/about.html)
+# **About our PAGE**

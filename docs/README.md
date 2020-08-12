@@ -1,3 +1,8 @@
+---
+permalink: /index.html
+---
+[Home](/index.hmtl)                  [About](/about.html)
+
 # Custom Helper Bot
 
 This bot is currently in development. BE WARNED
