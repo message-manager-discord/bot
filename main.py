@@ -84,42 +84,6 @@ async def on_guild_join(guild):
     channel.send(embed=embed)
 
 
-# Create the bot command help. 
-@bot.command(name='help', help='Responds with an embed with all the commands and options')
-@commands.check(check_if_right_server)
-async def help(ctx):
-    embed=helpers.create_embed(
-    "Help with commands for the bot",
-    16761035,
-        [
-            [f"`{prefix}ping`", "Replys with the latency of the bot", True],
-            [f"`{prefix}help`", "Displays this view.", True],
-            [f'`{prefix}info`', 'Displays info about the bot', True],
-            [
-                f"`{prefix}send channel_id content`",
-                "Sends a message from the bot in the specificed channel",
-                True
-            ],
-            [
-                f'`{prefix}edit channel_id message_id new_content`',
-                'Edits a message, message **must** be from the bot for it to work',
-                True
-            ],
-            [
-                f"`{prefix}delete channel_id message_id`",
-                "[DISABLED, in development] Deletes the message from the bot. **Must** be from the bot",
-                True
-            ],            
-            [
-                f"`{prefix}list_emojis`",
-                "Lists all the emojis that the bot can access and that have been set in config.",
-                True
-            ],
-
-        ]
-    )    
-    await ctx.send(embed=embed)
-
 # Create the info command.
 @bot.command(name = 'info')
 @commands.check(check_if_right_server)
@@ -275,5 +239,6 @@ async def kill(ctx):
 async def ping(ctx):
     await ctx.send(f"**ping** {round(bot.latency*100)}ms")   # get the bot latency in seconds then conver it into milli seconds.
 
+bot.load_extension('cogs.maincog')
 bot.run(token)
 
