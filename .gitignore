@@ -14,5 +14,7 @@ discord.log
 
 # aws
 aws_bot_key.pem
+awskey.ppk
+awskey.pem
 
 bin
