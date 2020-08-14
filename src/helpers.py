@@ -3,6 +3,7 @@ from discord import Embed
 import discord
 import asyncio
 import os
+import json
 
 # Creating the create embed function. This fuction takes a title, colour and a list of values. 
 # It returns a discord Embed type.
@@ -144,3 +145,12 @@ async def check_content(ctx, content, bot):
 
 if __name__ == "__main__":
     print("Im afraid you ran the wrong file, please run main.py instead.")
+
+def fetch_config(config_select=None):
+    with open('config.json') as f:
+        config_all = json.load(f)
+    
+    if config_select is None:
+        return config_all
+    else:
+        return config_all[config_select]

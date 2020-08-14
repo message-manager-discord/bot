@@ -3,7 +3,7 @@ from discord.ext import commands
 from src import helpers
 # from main import prefix
 
-prefix = '`'
+prefix = helpers.fetch_config('prefix')
 
 class MainCog(commands.Cog):
     def __init__(self, bot):

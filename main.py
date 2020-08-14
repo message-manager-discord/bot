@@ -1,5 +1,4 @@
 # main.py
-import json
 import os
 import discord
 import platform
@@ -16,11 +15,10 @@ handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w'
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
-with open('config.json') as f:
-    config_vars = json.load(f)
-
 
 # load all the enviromental variables 
+config_vars = helpers.fetch_config()
+
 token = config_vars["token"]
 owner = config_vars["owner"]
 prefix = config_vars["prefix"]
