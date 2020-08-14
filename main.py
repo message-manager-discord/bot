@@ -3,10 +3,10 @@ import os
 import discord
 import platform
 import datetime
-import src.helpers as helpers
 import logging
 import asyncio
 from discord.ext import commands
+from src import helpers, checks
 
 # Start up the discord logging module.
 logger = logging.getLogger('discord')
@@ -34,29 +34,8 @@ bot = commands.Bot(command_prefix = prefix, case_insensitive = True)
 bot.remove_command('help')
 
 #creating the check that checks if the bot is being used the server that is specified in env.
-def check_if_right_server(ctx):
-    if allowed_server == 'None':
-        return True
-    elif ctx.message.guild.id == int(allowed_server):
-        return True
-    elif ctx.author.id in bypassed_users:
-        return True
-    else:
-        return False
         
-
-# Creating the check for the management role.
-def check_if_manage_role(ctx):
-    if management_role == "None":
-        return True 
-    elif ctx.author.id in bypassed_users:
-        return True
-    elif True:
-        for role in ctx.author.roles:
-            print(role, role.id, management_role)
-            if int(management_role) == role.id:
-                return True     
-        return False
+@bot.check(checks.check_if_right_server)
 
 # Defining the on_ready event
 @bot.event
@@ -81,162 +60,17 @@ async def on_guild_join(guild):
     )
     channel.send(embed=embed)
 
-
-# Create the info command.
-@bot.command(name = 'info')
-@commands.check(check_if_right_server)
-async def info(ctx):
-    embed_content = [
-         ["Username", bot.user, True],
-         ["Prefix", prefix, True],
-         ["Version", "0.0.0 (in development)", True],
-         ["Docs", "[The Docs](https://anothercat.github.io/custom_helper_bot/)", True],
-         ["Developer",'<@684964314234618044>', True], # The developer (me), Must not be changed, as per the LICENSE
-         ["Discord.py Version", discord.__version__, True],
-         ["Python Version", platform.python_version(), True],
-         ["Number of Servers",len(bot.guilds), True]
-     ]
-    if owner != 'None':
-        embed_content.insert(5,["Owner", f"<@{owner}>", True]) # Check if the config variable owner is not "None", then if not adding the field to the embed.
-
-    embed=helpers.create_embed(
-        "Info about the Bot",
-        discord.Colour(0xc387c1),
-        embed_content
-    )    
-    embed.set_thumbnail(url=f"{bot.user.avatar_url}")
-    embed.set_footer(text = datetime.datetime.now())
-    await ctx.send(embed=embed)
-
-# Create the send command. This command will send a message in the specificed channel.
-@bot.command(name="send", rest_is_raw = True)
-@commands.check(check_if_right_server)
-@commands.check(check_if_manage_role)
-async def send(ctx, channel_id=None, *, content=None):
-    await ctx.message.delete()
-    channel_id = await helpers.check_channel_id(ctx, channel_id, bot)
-    if channel_id == False:
-        return None
-    content = await helpers.check_content(ctx, content, bot)
-    if content == False:
-        return None
-    if content[1:4] == '```'and content[-3:] == '```':
-        content = content[4:-3]
-    channel = bot.get_channel(int(channel_id)) # Get the channel.
-    msg = await channel.send(content)
-    await helpers.send_message_info_embed(ctx, 'Send', ctx.author, content, msg)
-
-# Create the edit command. This command will edit the specificed message. (Message must be from the bot)
-@bot.command(name="edit", rest_is_raw=True)  # rest_is_raw so that the white space will not be cut from the content.
-@commands.check(check_if_right_server)
-@commands.check(check_if_manage_role)
-async def edit(ctx, channel_id=None, message_id=None, *, content=None):
-    await ctx.message.delete()
-    channel_id = await helpers.check_channel_id(ctx, channel_id, bot)
-    if channel_id == False:
-        return None
-    message_id = await helpers.check_message_id(ctx, message_id, bot)
-    if message_id == False:
-        return None
-    content = await helpers.check_content(ctx, content, bot)
-    if content == False:
-        return None
-    if content[1:4] == '```'and content[-3:] == '```':
-        content = content[4:-3]
-    msg = await helpers.get_message(bot, channel_id, message_id)   
-    await helpers.send_message_info_embed(ctx, 'edit', ctx.author, content, msg)
-    await msg.edit(content=content)
-
-# Create the command delete. This will delete a message from the bot. 
-@bot.command(name = 'delete')
-async def delete(ctx, channel_id=None, message_id=None):
-    def is_correct(m):
-        return m.author == ctx.author
-    await ctx.message.delete()
-    channel_id = await helpers.check_channel_id(ctx, channel_id, bot)
-    if channel_id == False:
-        return None
-    message_id = await helpers.check_message_id(ctx, message_id, bot)
-    if message_id == False:
-        return None
-
-    msg = await helpers.get_message(bot, channel_id, message_id)        
-    
-    message = await ctx.send(
-        embed = helpers.create_embed(
-            "Are you sure you want to delete this message?",
-            discord.Color.red(),
-            [
-                ["Channel", msg.channel.mention, False],
-                ["Content", msg.content, False]
-            ]
-        )
-    )
-    
-    
-    try:
-        choice = await bot.wait_for('message', check=is_correct, timeout=20.0)
-    except asyncio.TimeoutError:
-        return await ctx.send('Timedout, Please re-do the command.')
-
-    if choice.content.lower() == 'yes':
-        await choice.delete()
-        await msg.delete()
-        await message.delete()
-        await helpers.send_message_info_embed(ctx, 'delete', ctx.author, msg.content, msg)
-    else:
-        ctx.send(embed = helpers.create_embed(
-            "Message deletion exited.",
-            'red',
-            [
-                ['', f'{ctx.author.mention}chose not to delete the message', False]
-            ]
-        )
-        )
-
-
-@bot.command(name="list_emojis")
-@commands.check(check_if_right_server)
-@commands.check(check_if_manage_role)
-async def list_emojis(ctx):
-    message = ''
-    emojis_all = ''
-    for emoji_id in emojis:
-        if len(message) >1700:
-            message = message + ' \n <:discordbackground1:737583861281718363>'
-            await ctx.send(message)
-            message = ''
-        emoji = bot.get_emoji(int(emoji_id))
-        
-        message = message + f'\n\n`{str(emoji)}`, `:{emoji.name}:`, {str(emoji)}'
-        emojis_all = emojis_all + str(emoji)
-    if message != '':
-        await ctx.send(message)
-        await ctx.send(emojis_all)
-    else:
-        await ctx.send("There do not seem to be any emojis to list. Make sure you have config set up correctly!")
-
-@bot.command(name="fetch")
-@commands.check(check_if_right_server)
-@commands.check(check_if_manage_role)
-async def fetch(ctx, channel_id, message_id):
-    msg = await helpers.get_message(bot, channel_id, message_id)
-    await ctx.send("Original Content:\n" + msg.content)
-
-@bot.command(name='kill')
-async def kill(ctx):
-    if ctx.author.id in bypassed_users:   
-        await ctx.send("Logging out!")     
-        await bot.logout()
-    else:
-        await ctx.send("You need the perms regestered on the bot to do that!")
-
-#  Returns the bot side latency
-@bot.command (name = "ping")
-@commands.check(check_if_right_server)
-async def ping(ctx):
-    await ctx.send(f"**ping** {round(bot.latency*100)}ms")   # get the bot latency in seconds then conver it into milli seconds.
-
+extensions = [
+    'cogs.maincog',
+    'cogs.messages',
+    'cogs.admin'
+]
+for extension in extensions:
+    bot.load_extension(extension)
+"""
 bot.load_extension('cogs.maincog')
+bot.load_extension('cogs.messages')
+bot.load_extension('cogs.admin')
+"""
 bot.run(token)
 
