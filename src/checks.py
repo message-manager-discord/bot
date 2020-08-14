@@ -1,6 +1,6 @@
 import discord
 from src import helpers
-config_vars = helpers.fetch_config
+config_vars = helpers.fetch_config()
 allowed_server = config_vars['allowed_server']
 bypassed_users = config_vars['bypassed_users']
 management_role = config_vars['management_role']
