@@ -21,25 +21,20 @@ class MainCog(commands.Cog):
                 [f"`{prefix}help`", "Displays this view.", True],
                 [f'`{prefix}info`', 'Displays info about the bot', True],
                 [
-                    f"`{prefix}send channel_id content`",
+                    f"`{prefix}send [channel_id] [content]`",
                     "Sends a message from the bot in the specificed channel",
                     True
                 ],
                 [
-                    f'`{prefix}edit channel_id message_id new_content`',
-                    'Edits a message, message **must** be from the bot for it to work',
+                    f'`{prefix}edit [channel_id] [message_id] [new_content]`',
+                    'Edits a message, message **must** be from the bot',
                     True
                 ],
                 [
-                    f"`{prefix}delete channel_id message_id`",
-                    "[DISABLED, in development] Deletes the message from the bot. **Must** be from the bot",
+                    f"`{prefix}delete [channel_id] [message_id]`",
+                    "Deletes the message from the bot. **Must** be from the bot",
                     True
                 ],            
-                [
-                    f"`{prefix}list_emojis`",
-                    "Lists all the emojis that the bot can access and that have been set in config.",
-                    True
-                ],
 
             ]
         )    
@@ -53,7 +48,7 @@ class MainCog(commands.Cog):
             ["Prefix", prefix, True],
             ["Version", "0.0.0 (in development)", True],
             ["Docs", "[The Docs](https://anothercat.github.io/custom_helper_bot/)", True],
-            ["Developer",'<@684964314234618044>', True], # The developer (me), Must not be changed, as per the LICENSE
+            ["Developer",'[Another Cat](https://github.com/AnotherCat)', True], # The developer (me), Must not be changed, as per the LICENSE
             ["Discord.py Version", discord.__version__, True],
             ["Python Version", platform.python_version(), True],
             ["Number of Servers",len(self.bot.guilds), True]
@@ -72,7 +67,9 @@ class MainCog(commands.Cog):
 
     @commands.command (name = "ping")
     async def ping(self, ctx):
-        await ctx.send(f"**ping** {round(self.bot.latency*100)}ms")   # get the bot latency in seconds then conver it into milli seconds.
+        message = await ctx.send('Pong!')
+        ping_time = (message.created_at-ctx.message.created_at).total_seconds() * 1000
+        await message.edit(content=f'Ping! Took: {int(ping_time)}ms')
 
 
     
