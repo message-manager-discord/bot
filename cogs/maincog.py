@@ -9,8 +9,12 @@ owner = helpers.fetch_config('owner')
 class MainCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.start_time = datetime.datetime.utcnow()
 
-    
+    @commands.Cog.listener()
+    async def on_ready(self):
+        self.start_time = datetime.datetime.utcnow()
+
     @commands.command(name='help', help='Responds with an embed with all the commands and options')
     async def help(self, ctx):
         embed=helpers.create_embed(
@@ -43,15 +47,21 @@ class MainCog(commands.Cog):
     # Create the info command.
     @commands.command(name = 'info')
     async def info(self, ctx):
+        total_seconds = (datetime.datetime.utcnow() - self.start_time).total_seconds()
+        days = total_seconds // 86400
+        hours = (total_seconds - (days * 86400)) // 3600
+        minutes = (total_seconds - (days * 86400) - (hours * 3600)) // 60
+        seconds = total_seconds - (days * 86400) - (hours * 3600) - (minutes * 60)
         embed_content = [
             ["Username", self.bot.user, True],
-            ["Prefix", prefix, True],
+            ["Prefix", f'`{prefix}`', True],
             ["Version", "0.0.0 (in development)", True],
             ["Docs", "[The Docs](https://anothercat.github.io/custom_helper_bot/)", True],
             ["Developer",'[Another Cat](https://github.com/AnotherCat)', True], # The developer (me), Must not be changed, as per the LICENSE
             ["Discord.py Version", discord.__version__, True],
             ["Python Version", platform.python_version(), True],
             ["System", platform.system(), True],
+            ["Uptime", f"{int(days)} days {int(hours)} hours {int(minutes)} minutes {int(seconds)} seconds", True],
             ["Number of Servers",len(self.bot.guilds), True]
         ]
         if owner != 'None':
@@ -63,7 +73,7 @@ class MainCog(commands.Cog):
             embed_content
         )    
         embed.set_thumbnail(url=f"{self.bot.user.avatar_url}")
-        embed.set_footer(text = datetime.datetime.now())
+        embed.set_footer(text = datetime.datetime.utcnow())
         await ctx.send(embed=embed)
 
     @commands.command (name = "ping")
