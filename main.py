@@ -25,7 +25,6 @@ prefix = config_vars["prefix"]
 allowed_server = config_vars["allowed_server"]
 management_role = config_vars["management_role"]
 bypassed_users = config_vars["bypassed_users"]
-emojis = config_vars["emojis"]
 
 # Creating the bot class
 bot = commands.Bot(command_prefix = prefix, case_insensitive = True)
