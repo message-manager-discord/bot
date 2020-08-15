@@ -51,6 +51,7 @@ class MainCog(commands.Cog):
             ["Developer",'[Another Cat](https://github.com/AnotherCat)', True], # The developer (me), Must not be changed, as per the LICENSE
             ["Discord.py Version", discord.__version__, True],
             ["Python Version", platform.python_version(), True],
+            ["System", platform.system(), True],
             ["Number of Servers",len(self.bot.guilds), True]
         ]
         if owner != 'None':
