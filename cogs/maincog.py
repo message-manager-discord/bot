@@ -55,7 +55,7 @@ class MainCog(commands.Cog):
         embed_content = [
             ["Username", self.bot.user, True],
             ["Prefix", f'`{prefix}`', True],
-            ["Version", "0.0.0 (in development)", True],
+            ["Version", "v0.1.0-alpha", True],
             ["Docs", "[The Docs](https://anothercat.github.io/custom_helper_bot/)", True],
             ["Developer",'[Another Cat](https://github.com/AnotherCat)', True], # The developer (me), Must not be changed, as per the LICENSE
             ["Discord.py Version", discord.__version__, True],
