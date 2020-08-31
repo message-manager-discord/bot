@@ -27,7 +27,7 @@ class MessagesCog(commands.Cog):
             return None
         if content[1:4] == '```'and content[-3:] == '```':
             content = content[4:-3]
-        channel = self.bot.get_channel(int(channel_id)) # Get the channel.
+        channel = helpers.get_channel(self.bot, channel_id) # Get the channel.
         msg = await channel.send(content)
         await helpers.send_message_info_embed(ctx, 'Send', ctx.author, content, msg)
 

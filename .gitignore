@@ -13,6 +13,9 @@ discord.log
 # VS-Code 
 .vscode
 
+# IDLE's
+.idea
+
 # aws
 aws_bot_key.pem
 awskey.ppk

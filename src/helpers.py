@@ -7,6 +7,17 @@ import json
 
 # Creating the create embed function. This fuction takes a title, colour and a list of values. 
 # It returns a discord Embed type.
+def get_channel(bot, channel_id):
+    if channel_id[:2] == "<#":
+        try:
+            return bot.get_channel(int(channel_id[2:-1]))
+        except:
+            print("Unknown error!")
+    else:
+        try:
+            return bot.get_channel(int(channel_id))
+        except:
+            print("Unknown error!")
 def create_embed(title_value, colour_value, values):
     new_embed = Embed(title=title_value, colour = colour_value)
     for a in values:
@@ -15,7 +26,7 @@ def create_embed(title_value, colour_value, values):
 
 # Create the function get message. This function returns the discord message type.
 async def get_message(bot, channel_id, message_id):
-    channel = bot.get_channel(int(channel_id))
+    channel = get_channel(channel_id)
      
     msg = await channel.fetch_message(int(message_id))
     return msg
