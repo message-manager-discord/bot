@@ -62,14 +62,10 @@ async def on_guild_join(guild):
 extensions = [
     'cogs.maincog',
     'cogs.messages',
-    'cogs.admin'
+    'cogs.admin',
+    'cogs.stats'
 ]
 for extension in extensions:
     bot.load_extension(extension)
-"""
-bot.load_extension('cogs.maincog')
-bot.load_extension('cogs.messages')
-bot.load_extension('cogs.admin')
-"""
+    
 bot.run(token)
-

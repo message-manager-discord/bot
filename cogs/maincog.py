@@ -38,7 +38,12 @@ class MainCog(commands.Cog):
                     f"`{prefix}delete [channel_id] [message_id]`",
                     "Deletes the message from the bot. **Must** be from the bot",
                     True
-                ],            
+                ],    
+                [
+                    f"`{prefix}stats-force-update`",
+                    "Update the stats channels",
+                    True
+                ]        
 
             ]
         )    
