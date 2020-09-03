@@ -66,6 +66,8 @@ This bot uses JSON for environment variables.
 | owner   | string | User ID | This will appear in the info box from the `!info` command. Leave as `None` if you don't want this to appear. | No |
 | allowed_server | string | Server ID | If set the bot will only respond to commands in this server. Leave as `None` to make the bot respond regardless of server.| No |
 | management_role | string | Role ID | Setting this means that only users with this role can use the bot. Leave it as `None` if you don't want this. **Not Advised** as this will allow `@everyone` to use it. | No |
+| member_channel | Int | Voice Channel ID | The channel that the bot will record the number of non bot users in the server to. Bot requires manage channel permission on this channel to do this | No |
+| bot_channel | Int | Voice Channel ID | The channel that the bot will record the number of bot users in the server to. Bot requires manage channel permission on this channel to do this | No |
 | bypassed_users | int[] | User ids in an array | By adding a user to this this will bypass all user checks. This is useful for if you have set allowed_server, but want some users to still be able to use it. **Dangerous** permission to grant. | No |
 
 ## Commands
@@ -84,6 +86,8 @@ Note: The message commands will accept both text in code blocks and not. If a co
 | `!send [channel_id] [message_content]`          | Sends a message to a channel. The channel is the channel which channel_id points to. Bot requires send message permissions in this channel. | Requires the management role (if set) |
 | `!edit [channel_id] [message_id] [new_content]` | Edits the message that can be found in the channel which channel_id points to. The message **must** be from the bot. | Requires the management role (if set) |
 | `!delete [channel_id] [message_id]`             | Deletes the message. The message **must** be from the bot.   | Requires the management role (if set) |
+| `!stats update`             | Update the stats channels | Requires the management role (if set) |
+
 
 ## Important Notes
 

@@ -10,7 +10,7 @@ from src import helpers, checks
 
 # Start up the discord logging module.
 logger = logging.getLogger('discord')
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
@@ -62,14 +62,10 @@ async def on_guild_join(guild):
 extensions = [
     'cogs.maincog',
     'cogs.messages',
-    'cogs.admin'
+    'cogs.admin',
+    'cogs.stats'
 ]
 for extension in extensions:
     bot.load_extension(extension)
-"""
-bot.load_extension('cogs.maincog')
-bot.load_extension('cogs.messages')
-bot.load_extension('cogs.admin')
-"""
+    
 bot.run(token)
-

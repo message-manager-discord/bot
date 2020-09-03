@@ -6,5 +6,7 @@
 	"management_role":"None",
 	"bypassed_users": [
 		
-	]
+	],
+	"member_channel":0,
+	"bot_channel":0
 }
