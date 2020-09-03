@@ -86,7 +86,7 @@ Note: The message commands will accept both text in code blocks and not. If a co
 | `!send [channel_id] [message_content]`          | Sends a message to a channel. The channel is the channel which channel_id points to. Bot requires send message permissions in this channel. | Requires the management role (if set) |
 | `!edit [channel_id] [message_id] [new_content]` | Edits the message that can be found in the channel which channel_id points to. The message **must** be from the bot. | Requires the management role (if set) |
 | `!delete [channel_id] [message_id]`             | Deletes the message. The message **must** be from the bot.   | Requires the management role (if set) |
-| `!stats-force-update`             | Update the stats channels | Requires the management role (if set) |
+| `!stats update`             | Update the stats channels | Requires the management role (if set) |
 
 
 ## Important Notes

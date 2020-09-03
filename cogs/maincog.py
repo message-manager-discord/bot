@@ -40,7 +40,7 @@ class MainCog(commands.Cog):
                     True
                 ],    
                 [
-                    f"`{prefix}stats-force-update`",
+                    f"`{prefix}stats update`",
                     "Update the stats channels",
                     True
                 ]        
