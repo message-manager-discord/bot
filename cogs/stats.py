@@ -29,7 +29,13 @@ class StatsCog(commands.Cog):
         await asyncio.sleep(60)
         await self.update_stats(member)
     
-    @commands.command(name='stats-force-update')
+    @commands.group()
+    async def stats(self, ctx):
+        if ctx.invoked_subcommand is None:
+            pass
+    
+    
+    @stats.command(name='update')
     async def stats_force_update(self, ctx):
         await self.update_stats(ctx)
         await ctx.send("Stats updated!")
