@@ -7,17 +7,19 @@ import json
 
 # Creating the create embed function. This fuction takes a title, colour and a list of values. 
 # It returns a discord Embed type.
+
+class ContentError(discord.ext.commands.CheckFailure):
+    pass
+
 def get_channel(bot, channel_id):
     if channel_id[:2] == "<#":
-        try:
-            return bot.get_channel(int(channel_id[2:-1]))
-        except:
-            print("Unknown error!")
-    else:
-        try:
-            return bot.get_channel(int(channel_id))
-        except:
-            print("Unknown error!")
+        channel_id = channel_id[2:-1]
+
+    try:
+        return bot.get_channel(int(channel_id))
+    except:
+        raise ContentError("I can't find that channel! Please re-do the command.")
+
 def create_embed(title_value, colour_value, values):
     new_embed = Embed(title=title_value, colour = colour_value)
     for a in values:
@@ -25,10 +27,14 @@ def create_embed(title_value, colour_value, values):
     return new_embed
 
 # Create the function get message. This function returns the discord message type.
-async def get_message(bot, channel_id, message_id):
-    channel = get_channel(bot, channel_id)
-     
-    msg = await channel.fetch_message(int(message_id))
+async def get_message(bot, message_id, channel = None):
+    
+    if not isinstance(channel, discord.channel.TextChannel):
+        channel = get_channel(bot, channel)
+    try:
+        msg = await channel.fetch_message(int(message_id))
+    except ValueError:
+        raise ContentError("I can't find that message! Please re-do the command.")
     return msg
 
 # Create the function that create an embed for the message commands.
@@ -97,24 +103,14 @@ async def check_channel_id(ctx, channel_id, bot):
                 []
             )
         )
-        try: 
-            get_channel_id = await bot.wait_for('message', check=is_correct)
-        except asyncio.TimeoutError:
-            try:
-                await message.delete()
-            except discord.errors.Forbidden:
-                pass
-            await ctx.send('Timedout, Please re-do the command.')
-            return False
-
-        channel_id = int(get_channel_id.content)
+        get_channel_id = await bot.wait_for('message', check=is_correct)
         try:
             await get_channel_id.delete()
             await message.delete()   
         except discord.errors.Forbidden:
             pass
-         
-        return channel_id
+        
+        return get_channel_id.content
     else:
         return channel_id
 
@@ -129,23 +125,14 @@ async def check_message_id(ctx, message_id, bot):
                 []
             )
         )
-        try: 
-            get_message_id = await bot.wait_for('message', check=is_correct)
-        except asyncio.TimeoutError:
-            try:
-                await message.delete()
-            except discord.errors.Forbidden:
-                pass
-            await ctx.send('Timedout, Please re-do the command.')
-            return False
-
-        message_id = int(get_message_id.content)
+        get_message_id = await bot.wait_for('message', check=is_correct)
+        
         try:
             await get_message_id.delete()
             await message.delete()
         except discord.errors.Forbidden:
             pass  
-        return message_id
+        return get_message_id.content
     else:
         return message_id
 
@@ -160,16 +147,7 @@ async def check_content(ctx, content, bot):
                 []
             )
         )
-        try: 
-            get_content= await bot.wait_for('message', check=is_correct)
-        except asyncio.TimeoutError:
-            try:
-                await message.delete()
-            except discord.errors.Forbidden:
-                pass
-            await ctx.send('Timedout, Please re-do the command.')
-            return False
-
+        get_content= await bot.wait_for('message', check=is_correct)
         content = get_content.content
         try:
             await get_content.delete()

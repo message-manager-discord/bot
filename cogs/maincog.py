@@ -1,6 +1,7 @@
 import discord, platform, datetime
 from discord.ext import commands
 from src import helpers
+from main import logger
 # from main import prefix
 
 prefix = helpers.fetch_config('prefix')
@@ -10,6 +11,13 @@ class MainCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.start_time = datetime.datetime.utcnow()
+
+    async def on_command_error(self, ctx, error):
+        cog = ctx.cog
+        if cog:
+            if cog._get_overridden_method(cog.cog_command_error) is not None:
+                return
+        logger.error(error)
 
     @commands.Cog.listener()
     async def on_ready(self):

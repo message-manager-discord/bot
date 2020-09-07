@@ -13,7 +13,13 @@ logger = logging.getLogger('discord')
 logger.setLevel(logging.INFO)
 handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+error_handler = logging.FileHandler(filename='discord_errors.log', encoding='utf-8', mode='w')
+error_handler.setLevel(logging.ERROR)
+error_handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+logger.addHandler(error_handler)
 logger.addHandler(handler)
+
+
 
 
 # load all the enviromental variables 
@@ -59,6 +65,9 @@ async def on_guild_join(guild):
     )
     channel.send(embed=embed)
 
+@bot.event
+async def on_error(ctx, error):
+    logger.error(error)
 extensions = [
     'cogs.maincog',
     'cogs.messages',
