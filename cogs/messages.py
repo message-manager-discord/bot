@@ -1,7 +1,7 @@
 import discord, platform, datetime, asyncio
 from discord.ext import commands
 from src import helpers, checks
-# from main import prefix
+from main import logger
 
 prefix = helpers.fetch_config('prefix')
 owner = helpers.fetch_config('owner')
@@ -12,6 +12,15 @@ class MessagesCog(commands.Cog):
     
     def cog_check(self, ctx):
         return checks.check_if_manage_role(ctx)
+    
+    async def cog_command_error(self, ctx, error):
+        if isinstance(error, checks.MissingPermission) or isinstance(error, helpers.ContentError):
+            await ctx.send(error)
+        elif isinstance(error, asyncio.TimeoutError):
+            await ctx.send("Timedout, Please try again.")
+        else:
+            logger.error(error)
+        
 
     @commands.command(name="send", rest_is_raw = True)
     async def send(self, ctx, channel_id=None, *, content=None):
@@ -20,14 +29,10 @@ class MessagesCog(commands.Cog):
         except discord.errors.Forbidden:
             pass
         channel_id = await helpers.check_channel_id(ctx, channel_id, self.bot)
-        if channel_id == False:
-            return None
-        content = await helpers.check_content(ctx, content, self.bot)
-        if content == False:
-            return None
-        if content[1:4] == '```'and content[-3:] == '```':
-            content = content[4:-3]
         channel = helpers.get_channel(self.bot, channel_id) # Get the channel.
+        content = await helpers.check_content(ctx, content, self.bot)
+        if content[1:4] == '```'and content[-3:] == '```':
+            content = content[4:-3]        
         msg = await channel.send(content)
         await helpers.send_message_info_embed(ctx, 'Send', ctx.author, content, msg)
 
@@ -36,17 +41,13 @@ class MessagesCog(commands.Cog):
     async def edit(self, ctx, channel_id=None, message_id=None, *, content=None):
         await ctx.message.delete()
         channel_id = await helpers.check_channel_id(ctx, channel_id, self.bot)
-        if channel_id == False:
-            return None
+        channel = helpers.get_channel(self.bot, channel_id)
         message_id = await helpers.check_message_id(ctx, message_id, self.bot)
-        if message_id == False:
-            return None
+        msg = await helpers.get_message(self.bot, message_id, channel)
         content = await helpers.check_content(ctx, content, self.bot)
-        if content == False:
-            return None
         if content[1:4] == '```'and content[-3:] == '```':
             content = content[4:-3]
-        msg = await helpers.get_message(self.bot, channel_id, message_id)   
+           
         await helpers.send_message_info_embed(ctx, 'edit', ctx.author, content, msg)
         await msg.edit(content=content)
 
@@ -60,14 +61,9 @@ class MessagesCog(commands.Cog):
         except discord.errors.Forbidden:
             pass
         channel_id = await helpers.check_channel_id(ctx, channel_id, self.bot)
-        if channel_id == False:
-            return None
+        channel = helpers.get_channel(self.bot, channel_id)
         message_id = await helpers.check_message_id(ctx, message_id, self.bot)
-        if message_id == False:
-            return None
-
-        msg = await helpers.get_message(self.bot, channel_id, message_id)        
-        
+        msg = await helpers.get_message(self.bot, message_id, channel)        
         message = await ctx.send(
             embed = helpers.create_embed(
                 "Are you sure you want to delete this message?",
@@ -91,7 +87,7 @@ class MessagesCog(commands.Cog):
                 await msg.delete()
                 await message.delete()
             except discord.errors.Forbidden:
-                pass
+                raise helpers.ContentError("There was an unknown error!")
             await helpers.send_message_info_embed(ctx, 'delete', ctx.author, msg.content, msg)
         else:
             ctx.send(embed = helpers.create_embed(
@@ -110,12 +106,9 @@ class MessagesCog(commands.Cog):
         except discord.errors.Forbidden:
             pass
         channel_id = await helpers.check_channel_id(ctx, channel_id, self.bot)
-        if channel_id == False:
-            return None
+        channel = helpers.get_channel(self.bot, channel_id)
         message_id = await helpers.check_message_id(ctx, message_id, self.bot)
-        if message_id == False:
-            return None
-        msg = await helpers.get_message(self.bot, channel_id, message_id)
+        msg = await helpers.get_message(self.bot, message_id, channel)
         await helpers.send_message_info_embed(ctx, 'fetch', ctx.author, msg.content, msg)
 
 def setup(bot):

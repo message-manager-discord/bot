@@ -9,6 +9,7 @@ testingconfig.json
 
 # Logging
 discord.log
+discord_errors.log
 
 # VS-Code 
 .vscode

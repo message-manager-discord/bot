@@ -1,6 +1,7 @@
 import discord, asyncio
 from discord.ext import commands
 from src import helpers, checks
+from main import logger
 
 member_channel = helpers.fetch_config('member_channel')
 bot_channel = helpers.fetch_config('bot_channel')
@@ -8,6 +9,15 @@ bot_channel = helpers.fetch_config('bot_channel')
 class StatsCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot 
+
+    def cog_check(self, ctx):
+        return checks.check_if_manage_role(ctx)
+    
+    async def cog_command_error(self, ctx, error):
+        if isinstance(error, checks.MissingPermission) or isinstance(error, helpers.ContentError):
+            await ctx.send(error)
+        else:
+            logger.error(error)
     
     async def update_stats(self, ctx):
         member_channel_obj = self.bot.get_channel(int(member_channel))
