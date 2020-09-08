@@ -4,8 +4,9 @@ This bot is currently in development. **BE WARNED**
 But feel free to use it now and please tell me about any bugs/issues by opening an issue!
 
 ## To Do
-Add error management
-Add emoji look up functionallity
+
+- Add emoji look up functionality
+- Add database integration and move most setup discord side
 
 
 ## General Info
@@ -15,7 +16,7 @@ This is a general custom made bot.
 Features are:
 
 1. Sending messages in channels and being able to edit them with commands.
-2. Sending announcements. (pending)
+2. Server stats displayed on voice channels
 
 ## Installation
 
@@ -101,7 +102,7 @@ It is still suggested that you read the update notes and update your config as s
 If the first number in the tuple changes, this means that it is no longer backwards compatible.
 This means that you **must** update your configuration after pulling the version.
 
-> Note, as i have not finalized development of the first stage, i have not released any versions. You are free to use it, but be warned it's still in development.
+> Note, as i have not finalised development of the first stage, i have not released any versions. You are free to use it, but be warned it's still in development.
 >
 > Please report any bugs you find in the comments.
 
@@ -109,7 +110,7 @@ This means that you **must** update your configuration after pulling the version
 
 - [ ] Created a application and bot user.
 - [ ] Cloned the repo
-- [ ] Installed the required packages (python 3 with pip, installed requirments.txt)
+- [ ] Installed the required packages (python 3 with pip, installed requirements.txt)
 - [ ] Setup required configuration variables (token and prefix)
 - [ ] Renamed `example_config.json` to `config.json`
 - [ ] Run bot
