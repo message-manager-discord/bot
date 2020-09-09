@@ -7,3 +7,4 @@ idna==2.10
 multidict==4.7.6
 websockets==8.1
 yarl==1.5.1
+asyncpg==0.21.0
