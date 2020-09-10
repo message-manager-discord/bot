@@ -22,27 +22,23 @@ logger.addHandler(error_handler)
 logger.addHandler(handler)
 
 
-database = None
+
 
 # load all the enviromental variables 
 config_vars = helpers.fetch_config()
 
 token = config_vars["token"]
 owner = config_vars["owner"]
-prefix = config_vars["prefix"]
+default_prefix = config_vars["prefix"]
 allowed_server = config_vars["allowed_server"]
 management_role = config_vars["management_role"]
 bypassed_users = config_vars["bypassed_users"]
 
 # Creating the bot class
-bot = commands.Bot(command_prefix = prefix, case_insensitive = True)
+bot = commands.Bot(command_prefix = default_prefix, case_insensitive = True)
 
 # Removing the default help command
 bot.remove_command('help')
-
-#creating the check that checks if the bot is being used the server that is specified in env.
-        
-@bot.check(checks.check_if_right_server)
 
 # Defining the on_ready event
 @bot.event
@@ -54,10 +50,9 @@ async def on_ready():
     await bot.change_presence(
         activity = discord.Game(name="Watching our important messages!")
     )   # Change the presence of the bot
-
     uri = helpers.fetch_config('postgres')
-    database = await db.create_pool(uri)
-    print(database)
+    await db.start_pool(uri)
+    
 
 @bot.event
 async def on_guild_join(guild):
@@ -71,9 +66,20 @@ async def on_guild_join(guild):
     )
     channel.send(embed=embed)
 
-@bot.event
+"""@bot.event
 async def on_error(ctx, error):
-    logger.error(error)
+    logger.error(error)"""
+
+@bot.event
+async def on_message(message):
+    prefix = await db.return_pool().get_prefix(message.guild.id)
+    if not prefix:
+        await bot.process_commands(message)
+    elif message.content.startswith(prefix):
+        message.content = f'{default_prefix}{message.content[len(prefix):]}'
+        await bot.process_commands(message)
+    
+
 extensions = [
     'cogs.maincog',
     'cogs.messages',

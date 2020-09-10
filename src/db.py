@@ -3,12 +3,13 @@ import asyncpg
 from src import helpers
 
 
+
 create_db = """CREATE TABLE IF NOT EXISTS servers (
-    server_id INTEGER NOT NULL UNIQUE,
-    management_role_id INTEGER,
+    server_id bigint NOT NULL UNIQUE,
+    management_role_id bigint,
     prefix VARCHAR(3) DEFAULT '~',
-    bot_channel INTEGER,
-    member_channel INTEGER
+    bot_channel bigint,
+    member_channel bigint
 );"""
 
 async def create_pool(uri):
@@ -31,4 +32,15 @@ class DatabasePool():
     async def _create_tables(self):
         conn = await self.pool.acquire()
         await conn.execute(create_db)
-        print("tables created")
+
+    async def get_prefix(self, server_id):
+        conn = await self.pool.acquire()
+        prefix = await conn.fetch("SELECT prefix FROM servers WHERE server_id=$1", server_id)
+        return prefix[0].get('prefix')
+
+async def start_pool(uri):
+    global pool
+    pool = await create_pool(uri)
+
+def return_pool():
+    return pool
