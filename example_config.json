@@ -1,6 +1,6 @@
 {
 	"token":"token",
-	"prefix":"!",
+	"default_prefix":"!",
 	"allowed_server":"None",
 	"owner":"None",
 	"management_role":"None",

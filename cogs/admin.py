@@ -3,7 +3,7 @@ from discord.ext import commands
 from src import helpers, checks
 from main import logger
 
-prefix = helpers.fetch_config('prefix')
+prefix = helpers.fetch_config('default_prefix')
 owner = helpers.fetch_config('owner')
 
 class AdminCog(commands.Cog):

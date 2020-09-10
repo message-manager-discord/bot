@@ -61,7 +61,7 @@ async def on_guild_join(guild):
         "Hi there!",
         16761035,
         [
-            ["Startup!", "Thank you for inviting me to your server! \nMy prefix here is: `{prefix}`\nHead over to the (README)[https://github.com/AnotherCat/custom_helper_bot/blob/master/README.md] for setup instructions!"]
+            ["Startup!", "Thank you for inviting me to your server! \nMy prefix here is: `{default_prefix}`\nHead over to the (README)[https://github.com/AnotherCat/custom_helper_bot/blob/master/README.md] for setup instructions!"]
         ]
     )
     channel.send(embed=embed)

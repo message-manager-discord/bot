@@ -63,7 +63,7 @@ This bot uses JSON for environment variables.
 | Field         | Type     | Value                                             | Description                                                  | Required |
 | :-------------- | :------------------ | :----------------------------------------------------------- | --------------- | :-------------- |
 | token | string         | Discord Bot Token  | This is the discord bot token.                               | Yes |
-| prefix    | string         | String    | This is the prefix before commands. Default is `!`.          | Yes |
+| default_prefix    | string         | String    | This is the default prefix before commands. Default is `!`.          | Yes |
 | owner   | string | User ID | This will appear in the info box from the `!info` command. Leave as `None` if you don't want this to appear. | No |
 | allowed_server | string | Server ID | If set the bot will only respond to commands in this server. Leave as `None` to make the bot respond regardless of server.| No |
 | management_role | string | Role ID | Setting this means that only users with this role can use the bot. Leave it as `None` if you don't want this. **Not Advised** as this will allow `@everyone` to use it. | No |
@@ -111,7 +111,7 @@ This means that you **must** update your configuration after pulling the version
 - [ ] Created a application and bot user.
 - [ ] Cloned the repo
 - [ ] Installed the required packages (python 3 with pip, installed requirements.txt)
-- [ ] Setup required configuration variables (token and prefix)
+- [ ] Setup required configuration variables (token and default prefix)
 - [ ] Renamed `example_config.json` to `config.json`
 - [ ] Run bot
 - [ ] Invited the bot to your server, and setup the server permissions for it.
