@@ -6,7 +6,9 @@ import datetime
 import logging
 import asyncio
 from discord.ext import commands
-from src import helpers, checks
+from src import helpers, checks, db
+
+
 
 # Start up the discord logging module.
 logger = logging.getLogger('discord')
@@ -20,7 +22,7 @@ logger.addHandler(error_handler)
 logger.addHandler(handler)
 
 
-
+database = None
 
 # load all the enviromental variables 
 config_vars = helpers.fetch_config()
@@ -52,6 +54,10 @@ async def on_ready():
     await bot.change_presence(
         activity = discord.Game(name="Watching our important messages!")
     )   # Change the presence of the bot
+
+    uri = helpers.fetch_config('postgres')
+    database = await db.create_pool(uri)
+    print(database)
 
 @bot.event
 async def on_guild_join(guild):

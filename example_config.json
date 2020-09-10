@@ -8,5 +8,6 @@
 		
 	],
 	"member_channel":0,
-	"bot_channel":0
+	"bot_channel":0,
+	"postgres":"postgresql://user:password@host/database"
 }
