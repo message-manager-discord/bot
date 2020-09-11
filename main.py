@@ -7,6 +7,7 @@ import logging
 import asyncio
 from discord.ext import commands
 from src import helpers, checks, db
+from config import token, default_prefix, bypassed_users, uri
 
 
 
@@ -21,21 +22,12 @@ error_handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s
 logger.addHandler(error_handler)
 logger.addHandler(handler)
 
-
-
-
-# load all the enviromental variables 
-config_vars = helpers.fetch_config()
-
-token = config_vars["token"]
-owner = config_vars["owner"]
-default_prefix = config_vars["prefix"]
-allowed_server = config_vars["allowed_server"]
-management_role = config_vars["management_role"]
-bypassed_users = config_vars["bypassed_users"]
-
 # Creating the bot class
-bot = commands.Bot(command_prefix = default_prefix, case_insensitive = True)
+async def get_prefix(bot, message):
+    prefix = await db.pool.get_prefix(message.guild.id) # Fetch current server prefix from database
+    return commands.when_mentioned_or(*prefix)(bot, message)
+
+bot = commands.Bot(command_prefix = get_prefix, case_insensitive = True)
 
 # Removing the default help command
 bot.remove_command('help')
@@ -50,7 +42,6 @@ async def on_ready():
     await bot.change_presence(
         activity = discord.Game(name="Watching our important messages!")
     )   # Change the presence of the bot
-    uri = helpers.fetch_config('postgres')
     await db.start_pool(uri)
     
 
@@ -65,27 +56,20 @@ async def on_guild_join(guild):
         ]
     )
     channel.send(embed=embed)
-
-"""@bot.event
-async def on_error(ctx, error):
-    logger.error(error)"""
-
-@bot.event
-async def on_message(message):
-    prefix = await db.return_pool().get_prefix(message.guild.id)
-    if not prefix:
-        await bot.process_commands(message)
-    elif message.content.startswith(prefix):
-        message.content = f'{default_prefix}{message.content[len(prefix):]}'
-        await bot.process_commands(message)
+    
     
 
 extensions = [
     'cogs.maincog',
     'cogs.messages',
     'cogs.admin',
-    'cogs.stats'
+    'cogs.stats',
+    'src.checks',
+    'src.db',
+    'src.errors',
+    'src.helpers'
 ]
+print('Loading extensions...')
 for extension in extensions:
     bot.load_extension(extension)
     

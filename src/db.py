@@ -1,8 +1,7 @@
 import asyncpg
 
 from src import helpers
-
-
+from config import default_prefix
 
 create_db = """CREATE TABLE IF NOT EXISTS servers (
     server_id bigint NOT NULL UNIQUE,
@@ -35,12 +34,59 @@ class DatabasePool():
 
     async def get_prefix(self, server_id):
         conn = await self.pool.acquire()
-        prefix = await conn.fetch("SELECT prefix FROM servers WHERE server_id=$1", server_id)
-        return prefix[0].get('prefix')
+        prefix = await conn.fetch(
+            """
+            SELECT prefix 
+            FROM servers 
+            WHERE server_id=$1
+            """,
+            server_id
+        )
+        prefix = prefix[0].get('prefix')
+        if prefix is None:
+            return default_prefix
+        else:
+            return prefix
+
+    async def get_member_channel(self, server_id):
+        conn = await self.pool.acquire()
+        member_channel = await conn.fetch(
+            """
+            SELECT member_channel 
+            FROM servers 
+            WHERE server_id=$1
+            """,
+            server_id
+        )
+        return member_channel[0].get('member_channel')
+
+    async def get_bot_channel(self, server_id):
+        conn = await self.pool.acquire()
+        bot_channel = await conn.fetch(
+            """
+            SELECT bot_channel 
+            FROM servers 
+            WHERE server_id=$1
+            """,
+            server_id
+        )
+        return bot_channel[0].get('bot_channel')
+    
+    async def get_management_role(self, server_id):
+        conn = await self.pool.acquire()
+        management_role = await conn.fetch(
+            """
+            SELECT management_role_id
+            FROM servers 
+            WHERE server_id=$1
+            """,
+            server_id
+        )
+        return management_role[0].get('management_role_id')
 
 async def start_pool(uri):
     global pool
     pool = await create_pool(uri)
 
-def return_pool():
-    return pool
+def setup(bot):
+    print('    Database module!')

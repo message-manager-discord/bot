@@ -4,12 +4,12 @@ import discord
 import asyncio
 import os
 import json
+from src import errors
 
 # Creating the create embed function. This fuction takes a title, colour and a list of values. 
 # It returns a discord Embed type.
 
-class ContentError(discord.ext.commands.CheckFailure):
-    pass
+
 
 def get_channel(bot, channel_id):
     if channel_id[:2] == "<#":
@@ -18,7 +18,7 @@ def get_channel(bot, channel_id):
     try:
         return bot.get_channel(int(channel_id))
     except:
-        raise ContentError("I can't find that channel! Please re-do the command.")
+        raise errors.ContentError("I can't find that channel! Please re-do the command.")
 
 def create_embed(title_value, colour_value, values):
     new_embed = Embed(title=title_value, colour = colour_value)
@@ -34,7 +34,7 @@ async def get_message(bot, message_id, channel = None):
     try:
         msg = await channel.fetch_message(int(message_id))
     except ValueError:
-        raise ContentError("I can't find that message! Please re-do the command.")
+        raise errors.ContentError("I can't find that message! Please re-do the command.")
     return msg
 
 # Create the function that create an embed for the message commands.
@@ -158,15 +158,8 @@ async def check_content(ctx, content, bot):
     else:
         return content
 
-
-def fetch_config(config_select=None):
-    with open('config.json') as f:
-        config_all = json.load(f)
-    
-    if config_select is None:
-        return config_all
-    else:
-        return config_all[config_select]
-
 if __name__ == "__main__":
     print("Im afraid you ran the wrong file, please run main.py instead.")
+
+def setup(bot):
+    print('    Misc functions!')

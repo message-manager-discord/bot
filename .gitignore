@@ -6,6 +6,7 @@ bot-env
 # Local Config
 config.json
 testingconfig.json
+config.py
 
 # Logging
 discord.log
