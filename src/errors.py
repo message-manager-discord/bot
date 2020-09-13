@@ -14,5 +14,8 @@ class ContentError(CheckFailure):
 class MissingPermission(CheckFailure):
     pass
 
+class InputContentIncorrect(CheckFailure):
+    pass
+
 def setup(bot):
     print('    Errors!')

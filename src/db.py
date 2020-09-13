@@ -84,6 +84,18 @@ class DatabasePool():
         )
         return management_role[0].get('management_role_id')
 
+    async def update_prefix(self, server_id, prefix):
+        conn = await self.pool.acquire()
+        await conn.execute(
+            """
+            INSERT INTO servers 
+                (server_id, prefix)
+                VALUES($1, $2)
+                ON CONFLICT (server_id)
+                DO UPDATE SET prefix = $2;
+            """, server_id, prefix
+        )
+
 async def start_pool(uri):
     global pool
     pool = await create_pool(uri)

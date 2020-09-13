@@ -64,10 +64,7 @@ extensions = [
     'cogs.messages',
     'cogs.admin',
     'cogs.stats',
-    'src.checks',
-    'src.db',
-    'src.errors',
-    'src.helpers'
+    'cogs.setup',
 ]
 print('Loading extensions...')
 for extension in extensions:
