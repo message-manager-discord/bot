@@ -1,10 +1,7 @@
 import discord, platform, datetime, asyncio
 from discord.ext import commands
-from src import helpers, checks
+from src import helpers, checks, errors, db
 from main import logger
-
-prefix = helpers.fetch_config('prefix')
-owner = helpers.fetch_config('owner')
 
 class MessagesCog(commands.Cog):
     def __init__(self, bot):
@@ -14,12 +11,12 @@ class MessagesCog(commands.Cog):
         return checks.check_if_manage_role(ctx)
     
     async def cog_command_error(self, ctx, error):
-        if isinstance(error, checks.MissingPermission) or isinstance(error, helpers.ContentError):
+        if isinstance(error, errors.MissingPermission) or isinstance(error, errors.ContentError) or isinstance(error, errors.DifferentServer) or isinstance(error, errors.ConfigNotSet):
             await ctx.send(error)
         elif isinstance(error, asyncio.TimeoutError):
             await ctx.send("Timedout, Please try again.")
         else:
-            logger.error(error)
+            raise error
         
 
     @commands.command(name="send", rest_is_raw = True)
@@ -30,9 +27,12 @@ class MessagesCog(commands.Cog):
             pass
         channel_id = await helpers.check_channel_id(ctx, channel_id, self.bot)
         channel = helpers.get_channel(self.bot, channel_id) # Get the channel.
+        if channel.guild != ctx.guild:
+            raise errors.DifferentServer()
+
         content = await helpers.check_content(ctx, content, self.bot)
         if content[1:4] == '```'and content[-3:] == '```':
-            content = content[4:-3]        
+            content = content[4:-3]   
         msg = await channel.send(content)
         await helpers.send_message_info_embed(ctx, 'Send', ctx.author, content, msg)
 
@@ -42,6 +42,9 @@ class MessagesCog(commands.Cog):
         await ctx.message.delete()
         channel_id = await helpers.check_channel_id(ctx, channel_id, self.bot)
         channel = helpers.get_channel(self.bot, channel_id)
+        if channel.guild != ctx.guild:
+            raise errors.DifferentServer()
+
         message_id = await helpers.check_message_id(ctx, message_id, self.bot)
         msg = await helpers.get_message(self.bot, message_id, channel)
         content = await helpers.check_content(ctx, content, self.bot)
@@ -62,6 +65,9 @@ class MessagesCog(commands.Cog):
             pass
         channel_id = await helpers.check_channel_id(ctx, channel_id, self.bot)
         channel = helpers.get_channel(self.bot, channel_id)
+        if channel.guild != ctx.guild:
+            raise errors.DifferentServer("That channel is not in this server, Please re-do the command")
+
         message_id = await helpers.check_message_id(ctx, message_id, self.bot)
         msg = await helpers.get_message(self.bot, message_id, channel)        
         message = await ctx.send(
@@ -87,7 +93,7 @@ class MessagesCog(commands.Cog):
                 await msg.delete()
                 await message.delete()
             except discord.errors.Forbidden:
-                raise helpers.ContentError("There was an unknown error!")
+                raise errors.ContentError("There was an unknown error!")
             await helpers.send_message_info_embed(ctx, 'delete', ctx.author, msg.content, msg)
         else:
             ctx.send(embed = helpers.create_embed(
@@ -107,9 +113,13 @@ class MessagesCog(commands.Cog):
             pass
         channel_id = await helpers.check_channel_id(ctx, channel_id, self.bot)
         channel = helpers.get_channel(self.bot, channel_id)
+        if channel.guild != ctx.guild:
+            raise errors.DifferentServer("That channel is not in this server, Please re-do the command")
+
         message_id = await helpers.check_message_id(ctx, message_id, self.bot)
         msg = await helpers.get_message(self.bot, message_id, channel)
         await helpers.send_message_info_embed(ctx, 'fetch', ctx.author, msg.content, msg)
 
 def setup(bot):
     bot.add_cog(MessagesCog(bot))
+    print('    Messages cog!')

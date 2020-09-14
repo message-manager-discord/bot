@@ -6,7 +6,7 @@ But feel free to use it now and please tell me about any bugs/issues by opening 
 ## To Do
 
 - Add emoji look up functionality
-- Add database integration and move most setup discord side
+- Add config cog
 
 
 ## General Info
@@ -51,29 +51,27 @@ For windows do the same, but replace `python3` with python and replace `source b
 
 ## Config
 
-This bot uses JSON for environment variables.
+This bot uses a `config.py` file to store config.
 
 ### Setting this up
 
-1. Rename `example_config.json` to `config.json`
+1. Rename `config_example.py` to `config.py`
 2. Set the values as per the table below
 
 #### Config Values
 
-| Field         | Type     | Value                                             | Description                                                  | Required |
-| :-------------- | :------------------ | :----------------------------------------------------------- | --------------- | :-------------- |
-| token | string         | Discord Bot Token  | This is the discord bot token.                               | Yes |
-| prefix    | string         | String    | This is the prefix before commands. Default is `!`.          | Yes |
-| owner   | string | User ID | This will appear in the info box from the `!info` command. Leave as `None` if you don't want this to appear. | No |
-| allowed_server | string | Server ID | If set the bot will only respond to commands in this server. Leave as `None` to make the bot respond regardless of server.| No |
-| management_role | string | Role ID | Setting this means that only users with this role can use the bot. Leave it as `None` if you don't want this. **Not Advised** as this will allow `@everyone` to use it. | No |
-| member_channel | Int | Voice Channel ID | The channel that the bot will record the number of non bot users in the server to. Bot requires manage channel permission on this channel to do this | No |
-| bot_channel | Int | Voice Channel ID | The channel that the bot will record the number of bot users in the server to. Bot requires manage channel permission on this channel to do this | No |
-| bypassed_users | int[] | User ids in an array | By adding a user to this this will bypass all user checks. This is useful for if you have set allowed_server, but want some users to still be able to use it. **Dangerous** permission to grant. | No |
+| Field         | Type     | Value                                             | Description                                                  | Required | Default |
+| :-------------- | :------------------ | :----------------------------------------------------------- | --------------- | :-------------- | --------------- |
+| token | string         | Discord Bot Token  | This is the discord bot token.                               | Yes | `""` |
+| default_prefix    | string         | String    | This is the default prefix before commands. <br>If a server prefix this will be overidden. | Yes | `"!"` |
+| owner   | string | User ID | This will appear in the info box from the `!info` command. Leave as `None` if you don't want this to appear. | No |  |
+| bypassed_users | int[] | User ids in an array | By adding a user to this this will bypass all user checks. This is useful for if you have set allowed_server, but want some users to still be able to use it. **Dangerous** permission to grant. | No |  |
 
 ## Commands
 
 Note: The message commands will accept both text in code blocks and not. If a code block is sent, the triple backticks will be stripped before sending.
+
+Mentioning the bot as a prefix also works for commands.
 
 `<>` Means that that value is required for the command.
 
@@ -111,7 +109,7 @@ This means that you **must** update your configuration after pulling the version
 - [ ] Created a application and bot user.
 - [ ] Cloned the repo
 - [ ] Installed the required packages (python 3 with pip, installed requirements.txt)
-- [ ] Setup required configuration variables (token and prefix)
-- [ ] Renamed `example_config.json` to `config.json`
+- [ ] Setup required configuration variables (token and default prefix)
+- [ ] Renamed `config_example.py` to `config.py`
 - [ ] Run bot
 - [ ] Invited the bot to your server, and setup the server permissions for it.

@@ -1,10 +1,8 @@
 import discord, platform, datetime, asyncio, random, string
 from discord.ext import commands
-from src import helpers, checks
+from src import helpers, checks, errors
 from main import logger
 
-prefix = helpers.fetch_config('prefix')
-owner = helpers.fetch_config('owner')
 
 class AdminCog(commands.Cog):
     def __init__(self, bot):
@@ -14,7 +12,7 @@ class AdminCog(commands.Cog):
         return checks.is_bot_admin(ctx)
 
     async def cog_command_error(self, ctx, error):
-        if isinstance(error, checks.MissingPermission):
+        if isinstance(error, errors.MissingPermission):
             await ctx.send(error)
         else:
             logger.errr(error)
@@ -85,3 +83,4 @@ class AdminCog(commands.Cog):
 
 def setup(bot):
     bot.add_cog(AdminCog(bot))
+    print('    Admin cog!')

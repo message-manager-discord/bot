@@ -1,11 +1,8 @@
 import discord, platform, datetime
 from discord.ext import commands
-from src import helpers
+from src import helpers, db
 from main import logger
-# from main import prefix
-
-prefix = helpers.fetch_config('prefix')
-owner = helpers.fetch_config('owner')
+from config import owner
 
 class MainCog(commands.Cog):
     def __init__(self, bot):
@@ -17,7 +14,7 @@ class MainCog(commands.Cog):
         if cog:
             if cog._get_overridden_method(cog.cog_command_error) is not None:
                 return
-        logger.error(error)
+        raise error
 
     @commands.Cog.listener()
     async def on_ready(self):
@@ -25,6 +22,7 @@ class MainCog(commands.Cog):
 
     @commands.command(name='help', help='Responds with an embed with all the commands and options')
     async def help(self, ctx):
+        prefix = await db.pool.get_prefix(ctx.guild.id)
         embed=helpers.create_embed(
         "Help with commands for the bot",
         16761035,
@@ -60,6 +58,7 @@ class MainCog(commands.Cog):
     # Create the info command.
     @commands.command(name = 'info')
     async def info(self, ctx):
+        prefix = await db.pool.get_prefix(ctx.guild.id)
         total_seconds = (datetime.datetime.utcnow() - self.start_time).total_seconds()
         days = total_seconds // 86400
         hours = (total_seconds - (days * 86400)) // 3600
@@ -77,7 +76,7 @@ class MainCog(commands.Cog):
             ["Uptime", f"{int(days)} days {int(hours)} hours {int(minutes)} minutes {int(seconds)} seconds", True],
             ["Number of Servers",len(self.bot.guilds), True]
         ]
-        if owner != 'None':
+        if owner is not None:
             embed_content.insert(5,["Owner", f"<@{owner}>", True]) # Check if the config variable owner is not "None", then if not adding the field to the embed.
 
         embed=helpers.create_embed(
@@ -99,3 +98,4 @@ class MainCog(commands.Cog):
     
 def setup(bot):
     bot.add_cog(MainCog(bot))
+    print('    Main cog!')

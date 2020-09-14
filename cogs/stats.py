@@ -1,10 +1,7 @@
 import discord, asyncio
 from discord.ext import commands
-from src import helpers, checks
+from src import helpers, checks, errors, db
 from main import logger
-
-member_channel = helpers.fetch_config('member_channel')
-bot_channel = helpers.fetch_config('bot_channel')
 
 class StatsCog(commands.Cog):
     def __init__(self, bot):
@@ -14,20 +11,25 @@ class StatsCog(commands.Cog):
         return checks.check_if_manage_role(ctx)
     
     async def cog_command_error(self, ctx, error):
-        if isinstance(error, checks.MissingPermission) or isinstance(error, helpers.ContentError):
+        if isinstance(error, errors.MissingPermission) or isinstance(error, errors.ContentError) or isinstance(error, errors.ConfigNotSet):
             await ctx.send(error)
         else:
-            logger.error(error)
+            raise error
     
     async def update_stats(self, ctx):
-        member_channel_obj = self.bot.get_channel(int(member_channel))
-        bot_channel_obj = self.bot.get_channel(int(bot_channel))
-        member_count = len([m for m in ctx.guild.members if not m.bot])
-        bot_count = len([m for m in ctx.guild.members if m.bot])
-        if not member_channel_obj.name[12:] == str(member_count):
-            await member_channel_obj.edit(name = f'User Count: {int(member_count)}')
-        if not bot_channel_obj.name[11:] == str(bot_count):
-            await bot_channel_obj.edit(name = f'Bot Count: {int(bot_count)}')
+        member_channel = await db.pool.get_member_channel(ctx.guild.id)
+        bot_channel = await db.pool.get_bot_channel(ctx.guild.id)
+        if member_channel is not None:
+            member_channel_obj = self.bot.get_channel(int(member_channel))
+            member_count = len([m for m in ctx.guild.members if not m.bot])
+            if not member_channel_obj.name[12:] == str(member_count):
+                await member_channel_obj.edit(name = f'User Count: {int(member_count)}')
+        
+        if bot_channel is not None:
+            bot_channel_obj = self.bot.get_channel(int(bot_channel))
+            bot_count = len([m for m in ctx.guild.members if m.bot])
+            if not bot_channel_obj.name[11:] == str(bot_count):
+                await bot_channel_obj.edit(name = f'Bot Count: {int(bot_count)}')
     
     @commands.Cog.listener()
     async def on_member_join(self, member):
@@ -47,10 +49,15 @@ class StatsCog(commands.Cog):
     
     @stats.command(name='update')
     async def stats_force_update(self, ctx):
+        prefix = await db.pool.get_prefix(ctx.guild.id)
         await self.update_stats(ctx)
-        await ctx.send("Stats updated!")
+        if updated_something:
+            await ctx.send("Stats updated!")
+        else:
+            raise errors.ConfigNotSet(f"You have not set any stats channels!\nDo this with the `{prefix}config` command")
 
 
 
 def setup(bot):
     bot.add_cog(StatsCog(bot))
+    print('    Stats cog!')

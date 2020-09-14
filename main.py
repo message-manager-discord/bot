@@ -6,7 +6,10 @@ import datetime
 import logging
 import asyncio
 from discord.ext import commands
-from src import helpers, checks
+from src import helpers, checks, db
+from config import token, default_prefix, bypassed_users, uri
+
+
 
 # Start up the discord logging module.
 logger = logging.getLogger('discord')
@@ -19,28 +22,15 @@ error_handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s
 logger.addHandler(error_handler)
 logger.addHandler(handler)
 
-
-
-
-# load all the enviromental variables 
-config_vars = helpers.fetch_config()
-
-token = config_vars["token"]
-owner = config_vars["owner"]
-prefix = config_vars["prefix"]
-allowed_server = config_vars["allowed_server"]
-management_role = config_vars["management_role"]
-bypassed_users = config_vars["bypassed_users"]
-
 # Creating the bot class
-bot = commands.Bot(command_prefix = prefix, case_insensitive = True)
+async def get_prefix(bot, message):
+    prefix = await db.pool.get_prefix(message.guild.id) # Fetch current server prefix from database
+    return commands.when_mentioned_or(*prefix)(bot, message)
+
+bot = commands.Bot(command_prefix = get_prefix, case_insensitive = True)
 
 # Removing the default help command
 bot.remove_command('help')
-
-#creating the check that checks if the bot is being used the server that is specified in env.
-        
-@bot.check(checks.check_if_right_server)
 
 # Defining the on_ready event
 @bot.event
@@ -52,6 +42,8 @@ async def on_ready():
     await bot.change_presence(
         activity = discord.Game(name="Watching our important messages!")
     )   # Change the presence of the bot
+    await db.start_pool(uri)
+    
 
 @bot.event
 async def on_guild_join(guild):
@@ -60,20 +52,21 @@ async def on_guild_join(guild):
         "Hi there!",
         16761035,
         [
-            ["Startup!", "Thank you for inviting me to your server! \nMy prefix here is: `{prefix}`\nHead over to the (README)[https://github.com/AnotherCat/custom_helper_bot/blob/master/README.md] for setup instructions!"]
+            ["Startup!", "Thank you for inviting me to your server! \nMy prefix here is: `{default_prefix}`\nHead over to the (README)[https://github.com/AnotherCat/custom_helper_bot/blob/master/README.md] for setup instructions!"]
         ]
     )
     channel.send(embed=embed)
+    
+    
 
-@bot.event
-async def on_error(ctx, error):
-    logger.error(error)
 extensions = [
     'cogs.maincog',
     'cogs.messages',
     'cogs.admin',
-    'cogs.stats'
+    'cogs.stats',
+    'cogs.setup',
 ]
+print('Loading extensions...')
 for extension in extensions:
     bot.load_extension(extension)
     
