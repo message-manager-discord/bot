@@ -6,7 +6,7 @@ But feel free to use it now and please tell me about any bugs/issues by opening 
 ## To Do
 
 - Add emoji look up functionality
-- Add config cog
+- Create docs for users as well as people who want to run the bot.
 
 
 ## General Info
@@ -64,8 +64,9 @@ This bot uses a `config.py` file to store config.
 | :-------------- | :------------------ | :----------------------------------------------------------- | --------------- | :-------------- | --------------- |
 | token | string         | Discord Bot Token  | This is the discord bot token.                               | Yes | `""` |
 | default_prefix    | string         | String    | This is the default prefix before commands. <br>If a server prefix this will be overidden. | Yes | `"!"` |
-| owner   | string | User ID | This will appear in the info box from the `!info` command. Leave as `None` if you don't want this to appear. | No |  |
-| bypassed_users | int[] | User ids in an array | By adding a user to this this will bypass all user checks. This is useful for if you have set allowed_server, but want some users to still be able to use it. **Dangerous** permission to grant. | No |  |
+| owner   | string | User ID | This will appear in the info box from the `!info` command. Leave as `None` if you don't want this to appear. | No | `None` |
+| bypassed_users | int[] | User ids in an array | By adding a user to this this will bypass all user checks. This is useful for if you have set allowed_server, but want some users to still be able to use it. **Dangerous** permission to grant. | No | `[]` |
+| uri | string | postgres uri | This gives the bot access to the database. You'll need to setup a postgres user and database. | Yes | see config file |
 
 ## Commands
 
