@@ -3,6 +3,9 @@ from discord.ext.commands import CheckFailure
 class ConfigNotSet(CheckFailure):
     pass
 
+class ConfigError(CheckFailure):
+    pass
+
 class DifferentServer(CheckFailure):
     def __init__(self, **kwargs):
         self.message = "That channel is not in this server, Please re-do the command"

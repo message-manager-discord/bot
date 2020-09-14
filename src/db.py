@@ -96,6 +96,42 @@ class DatabasePool():
             """, server_id, prefix
         )
 
+    async def update_admin_role(self, server_id, role_id):
+        conn = await self.pool.acquire()
+        await conn.execute(
+            """
+            INSERT INTO servers 
+                (server_id, management_role_id)
+                VALUES($1, $2)
+                ON CONFLICT (server_id)
+                DO UPDATE SET management_role_id = $2;
+            """, server_id, role_id
+        )
+    
+    async def update_bot_channel(self, server_id, channel_id):
+        conn = await self.pool.acquire()
+        await conn.execute(
+            """
+            INSERT INTO servers 
+                (server_id, bot_channel)
+                VALUES($1, $2)
+                ON CONFLICT (server_id)
+                DO UPDATE SET bot_channel = $2;
+            """, server_id, channel_id
+        )
+
+    async def update_user_channel(self, server_id, channel_id):
+        conn = await self.pool.acquire()
+        await conn.execute(
+            """
+            INSERT INTO servers 
+                (server_id, member_channel)
+                VALUES($1, $2)
+                ON CONFLICT (server_id)
+                DO UPDATE SET member_channel = $2;
+            """, server_id, channel_id
+        )
+
 async def start_pool(uri):
     global pool
     pool = await create_pool(uri)
