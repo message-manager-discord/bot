@@ -42,6 +42,8 @@ class DatabasePool():
             """,
             server_id
         )
+        if prefix == []:
+            return default_prefix
         prefix = prefix[0].get('prefix')
         if prefix is None:
             return default_prefix
@@ -58,6 +60,8 @@ class DatabasePool():
             """,
             server_id
         )
+        if member_channel == []:
+            return None
         return member_channel[0].get('member_channel')
 
     async def get_bot_channel(self, server_id):
@@ -70,6 +74,8 @@ class DatabasePool():
             """,
             server_id
         )
+        if bot_channel == []:
+            return None
         return bot_channel[0].get('bot_channel')
     
     async def get_management_role(self, server_id):
@@ -82,6 +88,8 @@ class DatabasePool():
             """,
             server_id
         )
+        if management_role == []:
+            return None
         return management_role[0].get('management_role_id')
 
     async def update_prefix(self, server_id, prefix):
