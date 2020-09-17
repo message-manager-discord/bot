@@ -31,6 +31,7 @@ class DatabasePool():
     async def _create_tables(self):
         conn = await self.pool.acquire()
         await conn.execute(create_db)
+        await self.pool.release(conn)
 
     async def get_prefix(self, server_id):
         conn = await self.pool.acquire()
@@ -45,6 +46,7 @@ class DatabasePool():
         if prefix == []:
             return default_prefix
         prefix = prefix[0].get('prefix')
+        await self.pool.release(conn)
         if prefix is None:
             return default_prefix
         else:
@@ -60,6 +62,7 @@ class DatabasePool():
             """,
             server_id
         )
+        await self.pool.release(conn)
         if member_channel == []:
             return None
         return member_channel[0].get('member_channel')
@@ -74,6 +77,7 @@ class DatabasePool():
             """,
             server_id
         )
+        await self.pool.release(conn)
         if bot_channel == []:
             return None
         return bot_channel[0].get('bot_channel')
@@ -88,6 +92,7 @@ class DatabasePool():
             """,
             server_id
         )
+        await self.pool.release(conn)
         if management_role == []:
             return None
         return management_role[0].get('management_role_id')
@@ -103,6 +108,7 @@ class DatabasePool():
                 DO UPDATE SET prefix = $2;
             """, server_id, prefix
         )
+        await self.pool.release(conn)
 
     async def update_admin_role(self, server_id, role_id):
         conn = await self.pool.acquire()
@@ -115,6 +121,7 @@ class DatabasePool():
                 DO UPDATE SET management_role_id = $2;
             """, server_id, role_id
         )
+        await self.pool.release(conn)
     
     async def update_bot_channel(self, server_id, channel_id):
         conn = await self.pool.acquire()
@@ -127,6 +134,7 @@ class DatabasePool():
                 DO UPDATE SET bot_channel = $2;
             """, server_id, channel_id
         )
+        await self.pool.release(conn)
 
     async def update_user_channel(self, server_id, channel_id):
         conn = await self.pool.acquire()
@@ -139,6 +147,7 @@ class DatabasePool():
                 DO UPDATE SET member_channel = $2;
             """, server_id, channel_id
         )
+        await self.pool.release(conn)
 
 async def start_pool(uri):
     global pool
