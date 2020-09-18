@@ -1,7 +1,7 @@
 import asyncpg
 
 from src import helpers
-from config import default_prefix
+from config import default_prefix, uri as default_uri
 
 create_db = """CREATE TABLE IF NOT EXISTS servers (
     server_id bigint NOT NULL UNIQUE,
@@ -32,6 +32,9 @@ class DatabasePool():
         conn = await self.pool.acquire()
         await conn.execute(create_db)
         await self.pool.release(conn)
+
+    async def close(self):
+        await self.pool.close()
 
     async def get_prefix(self, server_id):
         conn = await self.pool.acquire()
@@ -137,6 +140,7 @@ class DatabasePool():
         await self.pool.release(conn)
 
     async def update_user_channel(self, server_id, channel_id):
+        print('1')
         conn = await self.pool.acquire()
         await conn.execute(
             """
@@ -152,6 +156,14 @@ class DatabasePool():
 async def start_pool(uri):
     global pool
     pool = await create_pool(uri)
+    print('poolmake')
+
+"""async def return_pool():
+    try:
+        return pool
+    except:
+        await start_pool(default_uri)
+        return pool"""
 
 def setup(bot):
     print('    Database module!')

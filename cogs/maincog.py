@@ -1,13 +1,15 @@
-import discord, platform, datetime
+import platform
+from datetime import datetime, timezone
+import discord
 from discord.ext import commands
-from src import helpers, db
-from main import logger
+from src import helpers
+
 from config import owner
 
 class MainCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.start_time = datetime.datetime.utcnow()
+        self.start_time = datetime.utcnow()
 
     async def on_command_error(self, ctx, error):
         cog = ctx.cog
@@ -18,11 +20,32 @@ class MainCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        self.start_time = datetime.datetime.utcnow()
+        self.start_time = datetime.utcnow()
+        # Print the bot invite link
+        print(f"https://discord.com/api/oauth2/authorize?client_id={self.bot.user.id}&permissions=519232&scope=bot")
+        print(f"Logged on as {self.bot.user}!")
+        
+        await self.bot.change_presence(
+            activity = discord.Game(name="Watching our important messages!")
+        )   # Change the presence of the bot
+
+        print(self.bot.checks)
+
+    @commands.Cog.listener()
+    async def on_guild_join(self, guild):
+        channel = guild.system_channel
+        prefix = self.bot.db.get_prefix(guild.id)
+        embed = discord.Embed(
+            title = "Hi there!",
+            colour = discord.Colour(16761035),
+            description = "Thank you for inviting me to your server! \nMy prefix here is: `{prefix}`\nHead over to the (README)[https://github.com/AnotherCat/custom_helper_bot/blob/master/README.md] for setup instructions!",
+            timestamp = datetime.now(timezone.utc)
+        )
+        channel.send(embed=embed)
 
     @commands.command(name='help', help='Responds with an embed with all the commands and options')
     async def help(self, ctx):
-        prefix = await db.pool.get_prefix(ctx.guild.id)
+        prefix = await self.bot.db.get_prefix(ctx.guild.id)
         embed=helpers.create_embed(
         "Help with commands for the bot",
         16761035,
@@ -58,8 +81,8 @@ class MainCog(commands.Cog):
     # Create the info command.
     @commands.command(name = 'info')
     async def info(self, ctx):
-        prefix = await db.pool.get_prefix(ctx.guild.id)
-        total_seconds = (datetime.datetime.utcnow() - self.start_time).total_seconds()
+        prefix = await self.bot.db.get_prefix(ctx.guild.id)
+        total_seconds = (datetime.utcnow() - self.start_time).total_seconds()
         days = total_seconds // 86400
         hours = (total_seconds - (days * 86400)) // 3600
         minutes = (total_seconds - (days * 86400) - (hours * 3600)) // 60

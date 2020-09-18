@@ -1,73 +1,68 @@
 # main.py
-import os
 import discord
-import platform
-import datetime
-import logging
 import asyncio
+import logging
+from src import db, checks, errors
+from datetime import datetime, timezone
 from discord.ext import commands
-from src import helpers, checks, db
-from config import token, default_prefix, bypassed_users, uri
+from config import token, uri
 
+async def run():
+    database = db.DatabasePool(uri)
+    await database._init()
 
+    logger = logging.getLogger('discord')
+    logger.setLevel(logging.INFO)
+    handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
+    handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+    error_handler = logging.FileHandler(filename='discord_errors.log', encoding='utf-8', mode='w')
+    error_handler.setLevel(logging.ERROR)
+    error_handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+    logger.addHandler(error_handler)
+    logger.addHandler(handler)
 
-# Start up the discord logging module.
-logger = logging.getLogger('discord')
-logger.setLevel(logging.INFO)
-handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
-handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
-error_handler = logging.FileHandler(filename='discord_errors.log', encoding='utf-8', mode='w')
-error_handler.setLevel(logging.ERROR)
-error_handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
-logger.addHandler(error_handler)
-logger.addHandler(handler)
-
-# Creating the bot class
-async def get_prefix(bot, message):
-    prefix = await db.pool.get_prefix(message.guild.id) # Fetch current server prefix from database
-    return commands.when_mentioned_or(*prefix)(bot, message)
-
-bot = commands.Bot(command_prefix = get_prefix, case_insensitive = True)
-
-# Removing the default help command
-bot.remove_command('help')
-
-# Defining the on_ready event
-@bot.event
-async def on_ready():
-    # Print the bot invite link
-    print(f"https://discord.com/api/oauth2/authorize?client_id={bot.user.id}&permissions=519232&scope=bot")
-    print(f"Logged on as {bot.user}!")
-    
-    await bot.change_presence(
-        activity = discord.Game(name="Watching our important messages!")
-    )   # Change the presence of the bot
-    await db.start_pool(uri)
-    
-
-@bot.event
-async def on_guild_join(guild):
-    channel = guild.system_channel
-    embed = helpers.create_embed(
-        "Hi there!",
-        16761035,
-        [
-            ["Startup!", "Thank you for inviting me to your server! \nMy prefix here is: `{default_prefix}`\nHead over to the (README)[https://github.com/AnotherCat/custom_helper_bot/blob/master/README.md] for setup instructions!"]
-        ]
+    bot = Bot(
+        db=database,
+        logger=logger,
+        checks = checks,
+        errors = errors
     )
-    channel.send(embed=embed)
-    
-    
 
-extensions = [
-    'cogs.maincog',
-    'cogs.messages',
-    'cogs.admin',
-    'cogs.stats',
-    'cogs.setup',
-]
-print('Loading extensions...')
-for extension in extensions:
-    bot.load_extension(extension)
+    bot.remove_command('help')
+
+    extensions = [
+        'cogs.maincog',
+        'cogs.messages',
+        'cogs.admin',
+        'cogs.stats',
+        'cogs.setup',
+    ]
+    print('Loading extensions...')
+    for extension in extensions:
+        bot.load_extension(extension)
+
+    try:
+        await bot.start(token)
+    except KeyboardInterrupt:
+        await db.close()
+        await bot.logout()
+
+class Bot(commands.Bot):
+    def __init__(self, **kwargs):
+        super().__init__(
+            command_prefix = self.get_prefix,
+            case_insensitive = True
+        )
+        self.db = kwargs.pop('db')
+        self.logger = kwargs.pop('logger')
+        self.checks = kwargs.pop('checks')
+        self.errors = kwargs.pop('errors')
+
+
+    async def get_prefix(self, message):
+        prefix = await self.db.get_prefix(message.guild.id) # Fetch current server prefix from database
+        return commands.when_mentioned_or(*prefix)(self, message)
+
     
-bot.run(token)
+loop = asyncio.get_event_loop()
+loop.run_until_complete(run())
