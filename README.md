@@ -6,7 +6,7 @@ But feel free to use it now and please tell me about any bugs/issues by opening 
 ## To Do
 
 - Add emoji look up functionality
-- Create docs for users as well as people who want to run the bot.
+- Create docs for users as well as people who want to run the bot themselves.
 
 
 ## General Info
@@ -21,11 +21,12 @@ Features are:
 ## Installation
 
 1. Clone this repo
-2. Make sure you have the latest version of python
-3. Creating a discord application and a bot user at the [discord dev website](https://discord.com/developers/applications), setup guide [here](https://discordpy.readthedocs.io/en/latest/discord.html#creating-a-bot-account)
-4. [Setting up config](#config)
-5. Running `main.py`
-6. Inviting the bot to your server, there will be an invite link in the python shell after you run it.
+2. Make sure you have the latest version of python and postgresql
+3. Setting up the database and roles
+4. Creating a discord application and a bot user at the [discord dev website](https://discord.com/developers/applications), setup guide [here](https://discordpy.readthedocs.io/en/latest/discord.html#creating-a-bot-account)
+5. [Setting up config](#config)
+6. Running `main.py`
+7. Inviting the bot to your server, there will be an invite link in the python shell after you run it.
 
 ### Setup Example (linux)
 
@@ -44,6 +45,7 @@ Note: This assumes that you have the following packages installed:
 
 - The latest version of python with pip and venv installed.
 - The latest version of git.
+- The latest version of postgresql
 
 Some commands may require sudo privileges depending on your system.
 
@@ -52,6 +54,21 @@ For windows do the same, but replace `python3` with python and replace `source b
 ## Config
 
 This bot uses a `config.py` file to store config.
+
+### Setting up PostgreSQL
+1. Install PostgreSQL
+2. Create a role for the bot to use
+3. Create the bot's database
+
+```bash
+$sudo -u postgres psql
+postgres=# CREATE ROLE bot LOGIN PASSWORD 'password' SUPERUSER; # Create the role for the bot to use. You can do it without superuser, look up the docs to see what's needed.
+postgres=# CREATE DATABASE bot OWNER bot; # Create a database with the same name as the role, so that you can login easier
+postgres=# CREATE DATABASE message_bot OWNER bot; # Create the database the bot will use
+postgres=# \q
+```
+Then enter the values into the postgres_uri config.
+
 
 ### Setting this up
 
