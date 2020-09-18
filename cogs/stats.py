@@ -29,7 +29,6 @@ class StatsCog(commands.Cog):
         self.stats_update_loop.cancel()
     
     async def update_stats(self, guild):
-        print(1)
         member_true = False
         bot_true = False
         pool = self.bot.db
@@ -37,32 +36,22 @@ class StatsCog(commands.Cog):
         bot_channel = await pool.get_bot_channel(guild.id)
         if member_channel is not None:
             member_true = True
-            print(2)
             member_channel_obj = self.bot.get_channel(int(member_channel))
-            print(member_channel_obj.name[:12])
             member_count = len([m for m in guild.members if not m.bot])
             if not member_channel_obj.name[12:] == str(member_count):
-                print(3)
                 try:
                     await member_channel_obj.edit(name = f'User Count: {int(member_count)}')
-                    print(4)
-                except Exception as a:
-                    print(5)
-                    print(e)
+                except discord.Forbidden:
                     pass
         
         if bot_channel is not None:
             bot_true = True
-            print(6)
             bot_channel_obj = self.bot.get_channel(int(bot_channel))
             bot_count = len([m for m in guild.members if m.bot])
             if not bot_channel_obj.name[11:] == str(bot_count):
-                print(7)
                 try:
-                    print(8)
                     await bot_channel_obj.edit(name = f'Bot Count: {int(bot_count)}')
                 except discord.errors.Forbidden:
-                    print(9)
                     pass
         return member_true or bot_true
     
@@ -79,8 +68,6 @@ class StatsCog(commands.Cog):
         pool = self.bot.db
         prefix = await pool.get_prefix(ctx.guild.id)
         updated = await self.update_stats(ctx.guild)
-        print(updated)
-        print(1)
         if updated:
             await ctx.send("Stats updated!")
         else:

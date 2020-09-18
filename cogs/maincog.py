@@ -29,7 +29,6 @@ class MainCog(commands.Cog):
             activity = discord.Game(name="Watching our important messages!")
         )   # Change the presence of the bot
 
-        print(self.bot.checks)
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild):

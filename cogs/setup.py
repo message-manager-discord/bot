@@ -238,7 +238,6 @@ class SetupCog(commands.Cog):
                 )
 
         else:
-            print('hi')
             if channel_id.lower() == 'none':
                 channel_id = None
                 await self.bot.db.update_user_channel(ctx.guild.id, channel_id)
