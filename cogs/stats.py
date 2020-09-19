@@ -1,6 +1,5 @@
 import discord, asyncio
 from discord.ext import commands, tasks
-from src import helpers
 
 
 class StatsCog(commands.Cog):
@@ -29,13 +28,10 @@ class StatsCog(commands.Cog):
         self.stats_update_loop.cancel()
     
     async def update_stats(self, guild):
-        member_true = False
-        bot_true = False
         pool = self.bot.db
         member_channel = await pool.get_member_channel(guild.id)
         bot_channel = await pool.get_bot_channel(guild.id)
         if member_channel is not None:
-            member_true = True
             member_channel_obj = self.bot.get_channel(int(member_channel))
             member_count = len([m for m in guild.members if not m.bot])
             if not member_channel_obj.name[12:] == str(member_count):
@@ -45,7 +41,6 @@ class StatsCog(commands.Cog):
                     pass
         
         if bot_channel is not None:
-            bot_true = True
             bot_channel_obj = self.bot.get_channel(int(bot_channel))
             bot_count = len([m for m in guild.members if m.bot])
             if not bot_channel_obj.name[11:] == str(bot_count):
@@ -53,7 +48,10 @@ class StatsCog(commands.Cog):
                     await bot_channel_obj.edit(name = f'Bot Count: {int(bot_count)}')
                 except discord.errors.Forbidden:
                     pass
-        return member_true or bot_true
+        if bot_channel is None and member_channel is None:
+            return False
+        else:
+            return True
     
     
     @commands.group()
@@ -75,8 +73,12 @@ class StatsCog(commands.Cog):
     
     @tasks.loop(minutes=30)
     async def stats_update_loop(self):
+        time_to_wait = (30 * 0.5 * 60) / len(self.bot.guilds)
         for guild in self.bot.guilds:
-            await self.update_stats(guild)
+            updated = await self.update_stats(guild)
+            if updated:
+                await asyncio.sleep(time_to_wait)
+
     
     @stats_update_loop.before_loop
     async def before_stats_update_loop(self):
