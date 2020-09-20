@@ -20,5 +20,5 @@
 
 ## 5. How to contact me if there is a concern of you want your records deleted
 Either:
-- Join the discord (server)[https://discord.gg/xFZu29t]
+- Join the discord [server](https://discord.gg/xFZu29t)
 - Emailing anothercat1259@gmail.com
