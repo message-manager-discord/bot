@@ -34,10 +34,6 @@ Set this with `~setup botstats <channel>`
 `<channel>` Must be the id of a voice channel.  
 This requires the bot to have manage channel on this channel.
 
-{% page-ref page="./stats/INDEX.md" %}
-
-
-
 ## Member Stats Voice Channel
 
 This will set the voice channel to update member numbers to.
@@ -46,8 +42,4 @@ Set this with `~setup userstats <channel>`
 
 Must be the id of a voice channel.  
 This requires the bot to have manage channel on this channel.
-
-{% page-ref page="./stats/INDEX.md" %}
-
-
 

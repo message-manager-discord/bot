@@ -1,17 +1,17 @@
-‌# Table Of Contents
-
-## Startup
+# Table of contents
 
 * [Introduction](INDEX.md)
 
-* [Setup](setup/INDEX.md)    
-    * [Permissions](setup/permissions.md)    
-    * [Config](setup/config.md)
+## Startup
+
+* [Introduction](startup/index.md)
+* [Setup](startup/index-1/README.md)
+  * [Permissions](startup/index-1/permissions.md)
+  * [Config](startup/index-1/config.md)
 
 ## Functions
 
-* [Messages](messages/INDEX.md)
+* [Messages](functions/index.md)
+* [Stats](functions/index-1.md)
+* [Commands](functions/commands.md)
 
-* [Stats](stats/INDEX.md)
-    
-* [Commands](commands/README.md)
