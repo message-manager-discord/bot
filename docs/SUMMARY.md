@@ -4,14 +4,13 @@
 
 ## Startup
 
-* [Introduction](startup/index.md)
-* [Setup](startup/index-1/README.md)
-  * [Permissions](startup/index-1/permissions.md)
-  * [Config](startup/index-1/config.md)
+* [Setup](startup/setup/README.md)
+  * [Permissions](startup/setup/permissions.md)
+  * [Config](startup/setup/config.md)
 
 ## Functions
 
-* [Messages](functions/index.md)
-* [Stats](functions/index-1.md)
+* [Messages](functions/messages.md)
+* [Stats](functions/stats.md)
 * [Commands](functions/commands.md)
 

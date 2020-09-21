@@ -16,3 +16,5 @@ The default prefix is `~`
 Type `~setup` to start setup  
 See the config page for more info:
 
+{% page-ref page="config.md" %}
+

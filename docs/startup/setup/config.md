@@ -5,9 +5,9 @@ For each config command if you leave out the field in `<>` it will output the cu
 
 All config commands are locked to users with administration permissions
 
-If you put `None` in the place of the setting eg:  
-`~setup admin None`  
-This will either remove the setting or reset it to it's default value.
+If you put `None` in the place of the setting it will either remove the setting or reset it to it's default value.
+
+`~setup admin None`
 
 ## Prefix
 
