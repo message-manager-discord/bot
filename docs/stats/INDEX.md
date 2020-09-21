@@ -1,2 +1,0 @@
-# Stats
-Documentation in progress
