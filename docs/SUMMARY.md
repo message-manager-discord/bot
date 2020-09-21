@@ -1,13 +1,11 @@
-# Table of contents
+‌# Table Of Contents
 
-* [Introduction](INDEX.md)
+* [Setup](setup/INDEX.md)    
+    * [Permissions](setup/permissions.md)    
+    * [Config](setup/config.md)
 
-## Setup
+* [Messages](messages/INDEX.md)
 
-* [Setup](setup/index/README.md)
-  * [Permissions](setup/index/permissions.md)
-  * [Config](setup/index/config.md)
-* [Messages](setup/index-1.md)
-* [Stats](setup/index-2.md)
-* [Commands](setup/commands.md)
-
+* [Stats](stats/INDEX.md)
+    
+* [Commands](page2/README.md)
