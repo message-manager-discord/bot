@@ -1,5 +1,7 @@
 ‌# Table Of Contents
 
+* [Introduction](INDEX.md)
+
 * [Setup](setup/INDEX.md)    
     * [Permissions](setup/permissions.md)    
     * [Config](setup/config.md)
@@ -8,4 +10,4 @@
 
 * [Stats](stats/INDEX.md)
     
-* [Commands](page2/README.md)
+* [Commands](commands/README.md)
