@@ -34,7 +34,7 @@ Set this with `~setup botstats <channel>`
 `<channel>` Must be the id of a voice channel.  
 This requires the bot to have manage channel on this channel.
 
-{% page-ref page="../index-2.md" %}
+{% page-ref page="./stats/INDEX.md" %}
 
 
 
@@ -47,7 +47,7 @@ Set this with `~setup userstats <channel>`
 Must be the id of a voice channel.  
 This requires the bot to have manage channel on this channel.
 
-{% page-ref page="../index-2.md" %}
+{% page-ref page="./stats/INDEX.md" %}
 
 
 
