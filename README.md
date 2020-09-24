@@ -1,5 +1,5 @@
 # Custom Helper Bot
-[Support server](https://discord.gg/xFZu29t)
+[Support server](https://discord.gg/xFZu29t)  
 ![Support Server](https://discord.com/api/guilds/742373263593963614/embed.png)
 
 This bot is currently in development. **BE WARNED**
