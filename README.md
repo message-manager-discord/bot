@@ -1,6 +1,8 @@
 # Custom Helper Bot
 ![Support Server](https://discord.com/api/guilds/742373263593963614/embed.png)
 
+<iframe src="https://canary.discordapp.com/widget?id=742373263593963614&theme=dark" width="350" height="500" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
+
 This bot is currently in development. **BE WARNED**
 But feel free to use it now and please tell me about any bugs/issues by opening an issue!
 
