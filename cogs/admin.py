@@ -7,18 +7,27 @@ class AdminCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    def cog_check(self, ctx):
-        return self.bot.checks.is_bot_admin(ctx)
+    async def cog_check(self, ctx : commands.Context):
+        if await self.bot.is_owner(ctx.author):
+            return True
+        else:
+            raise self.bot.errors.MissingPermission("You need to be a bot dev to do that!")
 
-    async def cog_command_error(self, ctx, error):
+    async def cog_command_error(self, ctx : commands.Context, error):
         if isinstance(error, self.bot.errors.MissingPermission):
             await ctx.send(error)
         else:
-            self.bot.logger.errr(error)
+            await ctx.send(
+                "There was an unknown error! "
+                "This has been reported to the devs."
+                "\nIf by any chance this broke something, "
+                "contact us through our support server"
+            )
+            raise error
 
 
     @commands.command(hidden=True)
-    async def load(self, ctx, *, module : str):
+    async def load(self, ctx : commands.Context, *, module : str):
         try:
             self.bot.load_extension(module)
         except Exception as error:
@@ -27,7 +36,23 @@ class AdminCog(commands.Cog):
             await ctx.send(f'The module {module} was loaded!')
 
     @commands.command(hidden=True)
-    async def unload(self, ctx, *, module : str):
+    async def listservers(self, ctx : commands.Context):
+        servers = []
+        x = 0
+        for guild in self.bot.guilds:
+            try:
+                servers[int(x/50)]= servers[int(x/50)] + f'\n"{guild.name}", {len(guild.members)}'
+            except IndexError:
+                servers.append(f'\n"{guild.name}", {len(guild.members)}')
+            x += 1
+        await ctx.author.send(f"I am in {len(self.bot.guilds)} servers!")
+        for item in servers:
+            await ctx.author.trigger_typing()
+            await asyncio.sleep(1)
+            await ctx.author.send(item)
+    
+    @commands.command(hidden=True)
+    async def unload(self, ctx : commands.Context, *, module : str):
         """Unloads a module."""
         try:
             self.bot.unload_extension(module)
@@ -37,7 +62,7 @@ class AdminCog(commands.Cog):
             await ctx.send(f'The module {module} was unloaded!')
 
     @commands.command(name='reload', hidden=True)
-    async def _reload(self, ctx, *, module : str):
+    async def _reload(self, ctx : commands.Context, *, module : str):
         """Reloads a module."""
         try:
             self.bot.unload_extension(module)
@@ -48,7 +73,7 @@ class AdminCog(commands.Cog):
             await ctx.send(f'The module {module} was reloaded!')
 
     @commands.command()
-    async def kill(self, ctx):  
+    async def kill(self, ctx : commands.Context):  
         message = await ctx.send("Are you sure you want to kill me?")
         def is_correct(m):
             return m.author == ctx.author

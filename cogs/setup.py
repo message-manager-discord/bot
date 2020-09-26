@@ -1,7 +1,6 @@
-import discord, platform, asyncio, random, string
+import discord 
 from datetime import datetime, timezone
 from discord.ext import commands
-from src import helpers, db
 
 
 
@@ -9,7 +8,7 @@ class SetupCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    async def cog_command_error(self, ctx, error):
+    async def cog_command_error(self, ctx : commands.Context, error):
         if isinstance(
             error,
             (
@@ -19,23 +18,22 @@ class SetupCog(commands.Cog):
                 self.bot.errors.ConfigError
             )
         ):
-            """embed = discord.Embed(
-                title = "An error has occured!",
-                colour = discord.Colour.red(),
-                timestamp = datetime.now(timezone.utc),
-                description = error.message
-            )
-            await ctx.send(embed=embed)"""
             await ctx.send(error)
             
         else:
+            await ctx.send(
+                "There was an unknown error! "
+                "This has been reported to the devs."
+                "\nIf by any chance this broke something, "
+                "contact us through our support server"
+            )
             raise error
     
     @commands.has_guild_permissions(administrator=True)
     @commands.group()
-    async def setup(self, ctx):
+    async def setup(self, ctx : commands.Context):
         if ctx.invoked_subcommand is None:
-            prefix = await self.bot.db.get_prefix(ctx.guild.id)
+            prefix = await self.bot.db.get_prefix(ctx.guild)
             embed = discord.Embed(
                 title = "Setup!",
                 description = "Setup values for your server!",
@@ -66,17 +64,27 @@ class SetupCog(commands.Cog):
 
     @commands.has_guild_permissions(administrator=True)
     @setup.command(name='prefix')
-    async def return_prefix(self, ctx, new_prefix = None):
-        prefix = await self.bot.db.get_prefix(ctx.guild.id)
+    async def return_prefix(self, ctx : commands.Context, new_prefix = None):
+        prefix = await self.bot.db.get_prefix(ctx.guild)
         if new_prefix == None:
             await ctx.send(f"My prefix for this server is: `{prefix}`")
+        elif new_prefix.lower() == 'none':
+            await self.bot.db.update_prefix(ctx.guild, self.bot.default_prefix)
+            await ctx.send(
+                embed = discord.Embed(
+                    title = 'Config updated!',
+                    description = f"Server prefex updated from `{prefix}` to `{self.bot.default_prefix}`",
+                    timestamp = datetime.now(timezone.utc),
+                    colour = discord.Colour(15653155)
+                )
+            )
         else:
             if len(new_prefix) >1:
                 raise self.bot.errors.InputContentIncorrect(
                 "Prefix's can only be 1 character long!"
             )
             else:
-                await self.bot.db.update_prefix(ctx.guild.id, new_prefix)
+                await self.bot.db.update_prefix(ctx.guild, new_prefix)
                 await ctx.send(
                     embed = discord.Embed(
                         title = 'Config updated!',
@@ -88,8 +96,8 @@ class SetupCog(commands.Cog):
     
     @commands.has_guild_permissions(administrator=True)
     @setup.command()
-    async def admin(self, ctx, role_id = None):
-        original_role_id = await self.bot.db.get_management_role(ctx.guild.id)
+    async def admin(self, ctx : commands.Context, role_id = None):
+        original_role_id = await self.bot.db.get_management_role(ctx.guild)
         if original_role_id is None and role_id is None:
             raise self.bot.errors.ConfigNotSet('The admin role has not been set yet!')
         original_role = ctx.guild.get_role(original_role_id)
@@ -109,7 +117,7 @@ class SetupCog(commands.Cog):
 
         else:
             if role_id.lower() == 'none':
-                await self.bot.db.update_admin_role(ctx.guild.id, None)
+                await self.bot.db.update_admin_role(ctx.guild, None)
                 
                 embed = discord.Embed(
                     title = 'Config updated!',
@@ -136,7 +144,7 @@ class SetupCog(commands.Cog):
                     raise self.bot.errors.InputContentIncorrect(
                     "I could not find that role! Please try again"
                 )
-                await self.bot.db.update_admin_role(ctx.guild.id, role_id)
+                await self.bot.db.update_admin_role(ctx.guild, role_id)
                 
                 embed = discord.Embed(
                     title = 'Config updated!',
@@ -152,8 +160,8 @@ class SetupCog(commands.Cog):
 
     @commands.has_guild_permissions(administrator=True)
     @setup.command()
-    async def botstats(self, ctx, channel_id = None):
-        original_channel_id = await self.bot.db.get_bot_channel(ctx.guild.id)
+    async def botstats(self, ctx : commands.Context, channel_id = None):
+        original_channel_id = await self.bot.db.get_bot_channel(ctx.guild)
         if original_channel_id is not None:
             original_channel = ctx.guild.get_channel(original_channel_id)
             if original_channel is None:
@@ -174,7 +182,7 @@ class SetupCog(commands.Cog):
         else:
             if channel_id.lower() == 'none':
                 channel_id = None
-                await self.bot.db.update_bot_channel(ctx.guild.id, channel_id)
+                await self.bot.db.update_bot_channel(ctx.guild, channel_id)
                 
                 embed = discord.Embed(
                     title = 'Config updated!',
@@ -192,7 +200,7 @@ class SetupCog(commands.Cog):
                     channel_id = channel_id[2:-1]
                 try:
                     channel_id = int(channel_id)
-                    if channel_id == await self.bot.db.get_member_channel(ctx.guild.id):
+                    if channel_id == await self.bot.db.get_member_channel(ctx.guild):
                         raise self.bot.errors.InputContentIncorrect('Bot stats channel can\'t be the same as user stats channel!')
                     channel = ctx.guild.get_channel(channel_id)
                     if channel is None or not isinstance(channel, discord.VoiceChannel):
@@ -203,7 +211,8 @@ class SetupCog(commands.Cog):
                     raise self.bot.errors.InputContentIncorrect(
                     "I could not find that channel! Please try again"
                 )
-                await self.bot.db.update_bot_channel(ctx.guild.id, channel_id)
+                await self.bot.db.update_bot_channel(ctx.guild, channel_id)
+                await ctx.invoke(self.bot.get_command('stats _update'))
                 
                 embed = discord.Embed(
                     title = 'Config updated!',
@@ -218,8 +227,8 @@ class SetupCog(commands.Cog):
 
     @commands.has_guild_permissions(administrator=True)
     @setup.command()
-    async def userstats(self, ctx, channel_id = None):
-        original_channel_id = await self.bot.db.get_member_channel(ctx.guild.id)
+    async def userstats(self, ctx : commands.Context, channel_id = None):
+        original_channel_id = await self.bot.db.get_member_channel(ctx.guild)
         if original_channel_id is not None:
             original_channel = ctx.guild.get_channel(original_channel_id)
             if original_channel is None:
@@ -240,7 +249,7 @@ class SetupCog(commands.Cog):
         else:
             if channel_id.lower() == 'none':
                 channel_id = None
-                await self.bot.db.update_user_channel(ctx.guild.id, channel_id)
+                await self.bot.db.update_user_channel(ctx.guild, channel_id)
                 
                 embed = discord.Embed(
                     title = 'Config updated!',
@@ -258,7 +267,7 @@ class SetupCog(commands.Cog):
                     channel_id = channel_id[2:-1]
                 try:
                     channel_id = int(channel_id)
-                    if channel_id == await self.bot.db.get_bot_channel(ctx.guild.id):
+                    if channel_id == await self.bot.db.get_bot_channel(ctx.guild):
                         raise self.bot.errors.InputContentIncorrect(
                         "User stats channel can't be the same as bot stats channel!"
                     )
@@ -271,8 +280,8 @@ class SetupCog(commands.Cog):
                     raise self.bot.errors.InputContentIncorrect(
                     "I could not find that channel! Please try again"
                 )
-                await self.bot.db.update_user_channel(ctx.guild.id, channel_id)
-                await ctx.invoke(self.bot.get_command('stats update'))
+                await self.bot.db.update_user_channel(ctx.guild, channel_id)
+                await ctx.invoke(self.bot.get_command('stats _update'))
                 
                 embed = discord.Embed(
                     title = 'Config updated!',
@@ -289,8 +298,8 @@ class SetupCog(commands.Cog):
 
 
     @commands.command(name='prefix')
-    async def prefix(self, ctx):
-        prefix = await self.bot.db.get_prefix(ctx.guild.id)
+    async def prefix(self, ctx : commands.Context):
+        prefix = await self.bot.db.get_prefix(ctx.guild)
         await ctx.send(f"My prefix for this server is: `{prefix}`")
         
 

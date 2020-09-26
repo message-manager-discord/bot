@@ -7,14 +7,16 @@ class StatsCog(commands.Cog):
         self.bot = bot 
         self.stats_update_loop.start()
 
-    def cog_check(self, ctx):
-        return self.bot.checks.check_if_manage_role(self.bot, ctx)
+    async def cog_check(self, ctx : commands.Context):
+        return await self.bot.checks.check_if_manage_role(self.bot, ctx)
+
     
-    async def cog_command_error(self, ctx, error):
+    async def cog_command_error(self, ctx : commands.Context, error):
         if isinstance(error, (
             self.bot.errors.MissingPermission,
             self.bot.errors.ContentError,
-            self.bot.errors.ConfigNotSet
+            self.bot.errors.ConfigNotSet,
+            commands.NoPrivateMessage
         )):
             await ctx.send(error)
         elif isinstance(error, commands.CommandOnCooldown):
@@ -22,6 +24,12 @@ class StatsCog(commands.Cog):
             sec = int(error.retry_after % 60)
             await ctx.send(f'That command is on cool down for another {mins} minutes and {sec} seconds!\n{error.retry_after}')
         else:
+            await ctx.send(
+                "There was an unknown error! "
+                "This has been reported to the devs."
+                "\nIf by any chance this broke something, "
+                "contact us through our support server"
+            )
             raise error
 
     async def cog_unload(self):
@@ -29,8 +37,8 @@ class StatsCog(commands.Cog):
     
     async def update_stats(self, guild):
         pool = self.bot.db
-        member_channel = await pool.get_member_channel(guild.id)
-        bot_channel = await pool.get_bot_channel(guild.id)
+        member_channel = await pool.get_member_channel(guild)
+        bot_channel = await pool.get_bot_channel(guild)
         if member_channel is not None:
             member_channel_obj = self.bot.get_channel(int(member_channel))
             member_count = len([m for m in guild.members if not m.bot])
@@ -55,21 +63,23 @@ class StatsCog(commands.Cog):
     
     
     @commands.group()
-    async def stats(self, ctx):
+    async def stats(self, ctx : commands.Context):
         if ctx.invoked_subcommand is None:
             pass
     
     
-    @stats.command(name='update')
+    @stats.command(name='update', aliases = ['_update'])
     @commands.cooldown(1, 600, commands.BucketType.guild)
-    async def stats_force_update(self, ctx):
+    @commands.guild_only()
+    async def stats_force_update(self, ctx : commands.Context):
         pool = self.bot.db
-        prefix = await pool.get_prefix(ctx.guild.id)
+        prefix = await pool.get_prefix(ctx.guild)
         updated = await self.update_stats(ctx.guild)
-        if updated:
-            await ctx.send("Stats updated!")
-        else:
-            raise self.bot.errors.ConfigNotSet(f"You have not set any stats channels!\nDo this with the `{prefix}config` command")
+        if ctx.invoked_with == 'update':
+            if updated:
+                await ctx.send("Stats updated!")
+            else:
+                raise self.bot.errors.ConfigNotSet(f"You have not set any stats channels!\nDo this with the `{prefix}config` command")
     
     @tasks.loop(minutes=30)
     async def stats_update_loop(self):

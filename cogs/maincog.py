@@ -2,116 +2,175 @@ import platform
 from datetime import datetime, timezone
 import discord
 from discord.ext import commands
-from src import helpers
 
 from config import owner
 
 class MainCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.start_time = datetime.utcnow()
 
-    async def on_command_error(self, ctx, error):
+    async def on_command_error(self, ctx : commands.Context, error):
         cog = ctx.cog
         if cog:
             if cog._get_overridden_method(cog.cog_command_error) is not None:
                 return
+        await ctx.send(
+                "There was an unknown error! "
+                "This has been reported to the devs."
+                "\nIf by any chance this broke something, "
+                "contact us through our support server"
+            )
         raise error
 
     @commands.Cog.listener()
     async def on_ready(self):
-        self.start_time = datetime.utcnow()
         # Print the bot invite link
         print(f"https://discord.com/api/oauth2/authorize?client_id={self.bot.user.id}&permissions=519232&scope=bot")
         print(f"Logged on as {self.bot.user}!")
-        
-        await self.bot.change_presence(
-            activity = discord.Game(name="Watching our important messages!")
-        )   # Change the presence of the bot
+        # Change the presence of the bot
 
 
     @commands.Cog.listener()
-    async def on_guild_join(self, guild):
+    async def on_guild_join(self, guild : discord.Guild):
         channel = guild.system_channel
-        prefix = self.bot.db.get_prefix(guild.id)
+        prefix = await self.bot.db.get_prefix(guild)
         embed = discord.Embed(
             title = "Hi there!",
             colour = discord.Colour(16761035),
-            description = "Thank you for inviting me to your server! \nMy prefix here is: `{prefix}`\nHead over to the (README)[https://github.com/AnotherCat/custom_helper_bot/blob/master/README.md] for setup instructions!",
+            description = "Thank you for inviting me to your server!",
             timestamp = datetime.now(timezone.utc)
         )
-        channel.send(embed=embed)
+        embed.add_field(name = 'Prefix', value = f'My prefix here is: `{prefix}`')
+        embed.add_field(
+            name='Help',
+            value="Have a look at my [docs](https://anothercat1259.gitbook.io/message-bot/) "
+            "If you've got any other questions, or join our [support server](https://discord.gg/)"
+        )
+        await channel.send(embed=embed)
+        if not self.bot.self_hosted:
+            embed = discord.Embed(
+                title = "Joined a new server!",
+                colour = discord.Colour(16761035),
+                timestamp = datetime.now(timezone.utc)
+            )
+            embed.add_field(name = 'Server',value = f'{guild.name}, `{guild.id}`')
+            await self.bot.get_channel(self.bot.join_log_channel).send(embed=embed)
+
 
     @commands.command(name='help', help='Responds with an embed with all the commands and options')
-    async def help(self, ctx):
-        prefix = await self.bot.db.get_prefix(ctx.guild.id)
-        embed=helpers.create_embed(
-        "Help with commands for the bot",
-        16761035,
-            [
-                [f"`{prefix}ping`", "Replys with the latency of the bot", True],
-                [f"`{prefix}help`", "Displays this view.", True],
-                [f'`{prefix}info`', 'Displays info about the bot', True],
-                [
-                    f"`{prefix}send [channel_id] [content]`",
-                    "Sends a message from the bot in the specificed channel",
-                    True
-                ],
-                [
-                    f'`{prefix}edit [channel_id] [message_id] [new_content]`',
-                    'Edits a message, message **must** be from the bot',
-                    True
-                ],
-                [
-                    f"`{prefix}delete [channel_id] [message_id]`",
-                    "Deletes the message from the bot. **Must** be from the bot",
-                    True
-                ],    
-                [
-                    f"`{prefix}stats update`",
-                    "Update the stats channels",
-                    True
-                ]        
-
-            ]
+    async def help(self, ctx : commands.Context):
+        prefix = await self.bot.db.get_prefix(ctx.guild)
+        embed = discord.Embed(
+            title = "Help!",
+            colour = 16761035,
+            timestamp = datetime.now(timezone.utc)
+        )
+        embed.add_field(
+            name=f"`{prefix}ping`", 
+            value="Replys with the latency of the bot", 
+            inline=True
+        )
+        embed.add_field(
+            name=f"`{prefix}help`", 
+            value="Displays this view.", 
+            inline=True
+        ),
+        embed.add_field(
+            name=f'`{prefix}info`', 
+            value='Displays info about the bot', 
+            inline=True
+        ),
+        embed.add_field(
+            name = f"`{prefix}send [channel_id] [content]`",
+            value="Sends a message from the bot in the specificed channel",
+            inline=True
+        )
+        embed.add_field(
+            name=f'`{prefix}edit [channel_id] [message_id] [new_content]`',
+            value='Edits a message, message **must** be from the bot',
+            inline=True
+        )
+        embed.add_field(
+            name=f"`{prefix}delete [channel_id] [message_id]`",
+            value="Deletes the message from the bot. **Must** be from the bot",
+            inline=True
+        )
+        embed.add_field(
+            name=f"`{prefix}stats update`",
+            value="Update the stats channels",
+            inline=True
         )    
         await ctx.send(embed=embed)
 
     # Create the info command.
     @commands.command(name = 'info')
-    async def info(self, ctx):
-        prefix = await self.bot.db.get_prefix(ctx.guild.id)
-        total_seconds = (datetime.utcnow() - self.start_time).total_seconds()
+    async def info(self, ctx : commands.Context):
+        prefix = await self.bot.db.get_prefix(ctx.guild)
+        total_seconds = (datetime.utcnow() - self.bot.start_time).total_seconds()
         days = total_seconds // 86400
         hours = (total_seconds - (days * 86400)) // 3600
         minutes = (total_seconds - (days * 86400) - (hours * 3600)) // 60
         seconds = total_seconds - (days * 86400) - (hours * 3600) - (minutes * 60)
-        embed_content = [
-            ["Username", self.bot.user, True],
-            ["Prefix", f'`{prefix}`', True],
-            ["Version", "v0.1.0-alpha", True],
-            ["Docs", "[The Docs](https://anothercat.github.io/custom_helper_bot/)", True],
-            ["Developer",'[Another Cat](https://github.com/AnotherCat)', True], # The developer (me), Must not be changed, as per the LICENSE
-            ["Discord.py Version", discord.__version__, True],
-            ["Python Version", platform.python_version(), True],
-            ["System", platform.system(), True],
-            ["Uptime", f"{int(days)} days {int(hours)} hours {int(minutes)} minutes {int(seconds)} seconds", True],
-            ["Number of Servers",len(self.bot.guilds), True]
-        ]
-        if owner is not None:
-            embed_content.insert(5,["Owner", f"<@{owner}>", True]) # Check if the config variable owner is not "None", then if not adding the field to the embed.
-
-        embed=helpers.create_embed(
-            "Info about the Bot",
-            discord.Colour(0xc387c1),
-            embed_content
-        )    
+        embed = discord.Embed(
+            title="Info about the bot",
+            colour=discord.Colour(0xc387c1),
+            timestamp =datetime.now(timezone.utc)
+        )
+        embed.add_field(
+            name="Username", 
+            value=self.bot.user, 
+            inline=True
+        ),
+        embed.add_field(
+            name="Prefix", 
+            value=f'`{prefix}`', 
+            inline=True
+        ),
+        embed.add_field(
+            name="Version", 
+            value="v0.3.0",
+            inline=True
+        ),
+        embed.add_field(
+            name="Docs", 
+            value="[The Docs](https://anothercat1259.gitbook.io/message-bot/)", 
+            inline=True
+        ),
+        embed.add_field(
+            name="Developer",
+            value='[Another Cat](https://github.com/AnotherCat)', 
+            inline=True
+        ), # The developer (me), Must not be changed, as per the LICENSE
+        embed.add_field(
+            name="Discord.py Version", 
+            value=discord.__version__, 
+            inline=True
+        ),
+        embed.add_field(
+            name="Python Version", 
+            value=platform.python_version(), 
+            inline=True
+        ),
+        embed.add_field(
+            name="System", 
+            value=platform.system(), 
+            inline=True
+        ),
+        embed.add_field(
+            name="Uptime", 
+            value=f"{int(days)} days {int(hours)} hours {int(minutes)} minutes {int(seconds)} seconds", 
+            inline=True
+        ),
+        embed.add_field(
+            name="Number of Servers",
+            value=len(self.bot.guilds), 
+            inline=True
+        )   
         embed.set_thumbnail(url=f"{self.bot.user.avatar_url}")
-        embed.set_footer(text = datetime.datetime.utcnow())
         await ctx.send(embed=embed)
 
     @commands.command (name = "ping")
-    async def ping(self, ctx):
+    async def ping(self, ctx : commands.Context):
         message = await ctx.send('Pong!')
         ping_time = (message.created_at-ctx.message.created_at).total_seconds() * 1000
         await message.edit(content=f'Ping! Took: {int(ping_time)}ms')
