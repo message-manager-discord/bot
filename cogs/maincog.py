@@ -59,11 +59,16 @@ class MainCog(commands.Cog):
                 description = "Thank you for inviting me to your server!",
                 timestamp = datetime.now(timezone.utc)
             )
-            embed.add_field(name = 'Prefix', value = f'My prefix here is: `{prefix}`')
+            embed.add_field(
+                name = 'Prefix',
+                value = f'My prefix here is: `{prefix}`',
+                inline = False
+            )
             embed.add_field(
                 name='Help',
-                value="Have a look at my [docs](https://anothercat1259.gitbook.io/message-bot/) "
-                "If you've got any other questions, or join our [support server](https://discord.gg/)"
+                value="Have a look at my [docs](https://anothercat1259.gitbook.io/message-bot/startup/setup) "
+                "If you've got any questions or join our [support server](https://discord.gg/xFZu29t)",
+                inline = False
             )
             await channel.send(embed=embed)
         if not self.bot.self_hosted:
@@ -72,7 +77,8 @@ class MainCog(commands.Cog):
                 colour = discord.Colour(16761035),
                 timestamp = datetime.now(timezone.utc)
             )
-            embed.add_field(name = 'Server',value = f'{guild.name}, `{guild.id}`')
+            embed.add_field(name='Name',value=guild.name,inline=False)
+            embed.add_field(name="ID",value=guild.id,inline=False)
             await self.bot.get_channel(self.bot.join_log_channel).send(embed=embed)
 
 
