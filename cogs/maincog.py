@@ -36,18 +36,18 @@ class MainCog(commands.Cog):
             
         if guild.system_channel is None:
             for c in guild.text_channels:
-                perm = c.permissions_for(self.bot.user)
+                perm = c.permissions_for(guild.me)
                 if perm.send_messages and perm.embed_links:
                     channel = c
                     break
         else:
             system_channel = guild.system_channel
-            perms = system_channel.permissions_for(self.bot.user)
+            perms = system_channel.permissions_for(guild.me)
             if perms.send_messages and perms.embed_links:
                 channel = system_channel
             else:
                 for c in guild.text_channels:
-                    perm = c.permissions_for(self.bot.user)
+                    perm = c.permissions_for(guild.me)
                     if perm.send_messages and perm.embed_links:
                         channel = c
                         break
