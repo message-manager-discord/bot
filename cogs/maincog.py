@@ -32,21 +32,40 @@ class MainCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild : discord.Guild):
-        channel = guild.system_channel
-        prefix = await self.bot.db.get_prefix(guild)
-        embed = discord.Embed(
-            title = "Hi there!",
-            colour = discord.Colour(16761035),
-            description = "Thank you for inviting me to your server!",
-            timestamp = datetime.now(timezone.utc)
-        )
-        embed.add_field(name = 'Prefix', value = f'My prefix here is: `{prefix}`')
-        embed.add_field(
-            name='Help',
-            value="Have a look at my [docs](https://anothercat1259.gitbook.io/message-bot/) "
-            "If you've got any other questions, or join our [support server](https://discord.gg/)"
-        )
-        await channel.send(embed=embed)
+        
+            
+        if guild.system_channel is None:
+            for c in guild.text_channels:
+                perm = c.permissions_for(self.bot.user)
+                if perm.send_messages and perm.embed_links:
+                    channel = c
+                    break
+        else:
+            system_channel = guild.system_channel
+            perms = system_channel.permissions_for(self.bot.user)
+            if perms.send_messages and perms.embed_links:
+                channel = system_channel
+            else:
+                for c in guild.text_channels:
+                    perm = c.permissions_for(self.bot.user)
+                    if perm.send_messages and perm.embed_links:
+                        channel = c
+                        break
+        if channel is not None:
+            prefix = await self.bot.db.get_prefix(guild)
+            embed = discord.Embed(
+                title = "Hi there!",
+                colour = discord.Colour(16761035),
+                description = "Thank you for inviting me to your server!",
+                timestamp = datetime.now(timezone.utc)
+            )
+            embed.add_field(name = 'Prefix', value = f'My prefix here is: `{prefix}`')
+            embed.add_field(
+                name='Help',
+                value="Have a look at my [docs](https://anothercat1259.gitbook.io/message-bot/) "
+                "If you've got any other questions, or join our [support server](https://discord.gg/)"
+            )
+            await channel.send(embed=embed)
         if not self.bot.self_hosted:
             embed = discord.Embed(
                 title = "Joined a new server!",
