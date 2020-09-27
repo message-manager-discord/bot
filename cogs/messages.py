@@ -187,6 +187,11 @@ class MessagesCog(commands.Cog):
         channel = await self.check_channel(ctx, channel) # Get the channel.
         if channel.guild != ctx.guild:
             raise self.bot.errors.DifferentServer()
+        perms = channel.permissions_for(ctx.guild.me)
+        if not (perms.send_messages and perms.embed_links):
+            raise self.bot.errors.InputContentIncorrect(
+        'I do not the the `SEND MESSAGES` permission in that channel!'
+        )
 
         content = await self.check_content(ctx, content)
         if content[1:4] == '```'and content[-3:] == '```':
