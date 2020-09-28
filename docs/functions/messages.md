@@ -21,7 +21,7 @@ description: >-
 All message commands are interactive.  
 This means that if parts of the command are not given, you will be prompted for them. An example of the `send` command and this being used is below:
 
-![Interactive example](../.gitbook/assets/send_interactive.png)
+![Interactive example](../.gitbook/assets/send_interactive%20%281%29.png)
 
 ### Sending messages
 
@@ -36,11 +36,11 @@ The `<channel>` can be either the channel id or the channel mention.
 
 Example:
 
-![Sending a message](../.gitbook/assets/send_1.png)
+![Sending a message](../.gitbook/assets/send_1%20%281%29.png)
 
-![You can also do this](../.gitbook/assets/send_1_code_block.png)
+![You can also do this](../.gitbook/assets/send_1_code_block%20%281%29.png)
 
-![And the result](../.gitbook/assets/send_2.png)
+![And the result](../.gitbook/assets/send_2%20%281%29.png)
 
 ### Editing Messages
 
@@ -49,9 +49,9 @@ The bot cannot edit messages that were not sent from the bot.
 
 `~edit <channel> <message id> <new content>`
 
-![Editing the message](../.gitbook/assets/edit_1.png)
+![Editing the message](../.gitbook/assets/edit_1%20%281%29.png)
 
-![The edited message](../.gitbook/assets/edit_2.png)
+![The edited message](../.gitbook/assets/edit_2%20%281%29.png)
 
 ### Fetching messages
 
@@ -61,19 +61,17 @@ This is useful because it mean that you can view and change the exact content th
 `~fetch <channel> <message id>`
 
 {% code title="Content.txt" %}
-
 ```text
 Content:
 
 This message was edited!
 ```
-
 {% endcode %}
 
 ### Deleting messages
 
 The bot can delete messages that it has sent. This is useful in situations where you don't have the `MANAGE MESSAGES` permission.  
-You will be prompted to confirm the deletion  
+You will be prompted to confirm the deletion
 
 {% hint style="info" %}
 A `.txt` file will be returned if the content is too long.
@@ -81,4 +79,5 @@ A `.txt` file will be returned if the content is too long.
 
 `~delete <channel> <message id>`
 
-![Deleting a message](../.gitbook/assets/delete.png)
+![Deleting a message](../.gitbook/assets/delete%20%281%29.png)
+
