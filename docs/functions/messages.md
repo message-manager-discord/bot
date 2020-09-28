@@ -6,7 +6,7 @@ description: >-
 
 # Messages
 
-### Features
+## Features
 
 * Sending messages remotely \(from another channel\)
 * Editing messages that were 'sent' by someone else
@@ -18,16 +18,14 @@ description: >-
 
 ### Interactive modes
 
-All message commands are interactive.
-
+All message commands are interactive.  
 This means that if parts of the command are not given, you will be prompted for them. An example of the `send` command and this being used is below:
 
-![](../.gitbook/assets/send_interactive.png)
+![Interactive example](../.gitbook/assets/send_interactive.png)
 
 ### Sending messages
 
-To send a message you must specify the channel and content to send.
-
+To send a message you must specify the channel and content to send.  
 The content may be either just the exact message after the channel or enclosed in a code block with triple backticks \( \`\`\` \). If it is the code block will be removed before sending. If you would like to send a code block just put six backticks instead of three.
 
 {% hint style="info" %}
@@ -46,8 +44,7 @@ Example:
 
 ### Editing Messages
 
-To edit messages you need to provide the channel, message id and the new content. 
-
+To edit messages you need to provide the channel, message id and the new content  
 The bot cannot edit messages that were not sent from the bot.
 
 `~edit <channel> <message id> <new content>`
@@ -58,23 +55,25 @@ The bot cannot edit messages that were not sent from the bot.
 
 ### Fetching messages
 
-When you 'fetch' a message it will return a `.txt` file. This is useful because it mean that you can view and change the exact content that the bot handles without any of discord's formatting.
+When you 'fetch' a message it will return a `.txt` file.  
+This is useful because it mean that you can view and change the exact content that the bot handles without any of discord's formatting.
 
 `~fetch <channel> <message id>`
 
 {% code title="Content.txt" %}
+
 ```text
 Content:
 
 This message was edited!
 ```
+
 {% endcode %}
 
 ### Deleting messages
 
-The bot can delete messages that it has sent. This is useful in situations where you don't have the `MANAGE MESSAGES` permission.
-
-You will be prompted to confirm the deletion. 
+The bot can delete messages that it has sent. This is useful in situations where you don't have the `MANAGE MESSAGES` permission.  
+You will be prompted to confirm the deletion  
 
 {% hint style="info" %}
 A `.txt` file will be returned if the content is too long.
@@ -82,9 +81,4 @@ A `.txt` file will be returned if the content is too long.
 
 `~delete <channel> <message id>`
 
-![](../.gitbook/assets/delete.png)
-
-
-
-
-
+![Deleting a message](../.gitbook/assets/delete.png)
