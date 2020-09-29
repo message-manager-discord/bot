@@ -1,7 +1,7 @@
 import discord
 import aiohttp
 import json
-from discord.ext import commands
+from discord.ext import commands, tasks
 
 class ListingCog(commands.Cog):
     def __init__(self, bot):
@@ -26,7 +26,30 @@ class ListingCog(commands.Cog):
                 }
             ) as r:
                 returned = await r.json()
-                print(returned)
+                if not returned['success']:
+                    print('Posting to discordbotlist.com failed!')
+                else:
+                    print('Posting to discordbotlist.com successful!')
+        
+        """
+        Not currently approved on discord boats
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                url = f'https://discord.boats/api/bot/{self.bot.user.id}',
+                headers = {
+                    'Authorization' : self.bot.dboats_token,
+                    'Content-Type' : 'application/json'
+                },
+                json = {
+                    'server_count' : len(self.bot.guilds)
+                }
+            ) as r:
+                returned = await r.json()
+                if returned['error']:
+                    print('Posting to discord.boats failed!' +returned['message'])
+                else:
+                    print('Posting to discord.boats successful!')""" 
+        
 
 
 def setup(bot):
