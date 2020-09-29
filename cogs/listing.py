@@ -26,7 +26,7 @@ class ListingCog(commands.Cog):
                 'Content-Type' : 'application/json'
             },
             json = {
-                name_of_param, len(self.bot.guilds)
+                name_of_param : len(self.bot.guilds)
             }
         ) as r:
             returned = await r.json()
