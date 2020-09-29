@@ -45,8 +45,10 @@ async def run():
     ]
     if not config.self_host:
         bot.join_log_channel = config.join_logs
+        bot.dbl_token = config.dbl_token
         extensions.append(
         "jishaku",
+        "cogs.listing"
         )
     print('Loading extensions...')
     for extension in extensions:
