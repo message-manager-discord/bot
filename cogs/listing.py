@@ -53,7 +53,7 @@ class ListingCog(commands.Cog):
                 session,
                 f'https://discord.boats/api/bot/{self.bot.user.id}',
                 'server_count',
-                self.bots.dboats_token,
+                self.bot.dboats_token,
                 'error',
                 False
             )
