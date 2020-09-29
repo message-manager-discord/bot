@@ -14,9 +14,17 @@ async def run():
     logging.basicConfig(filename='discord.log', filemode='w', level=logging.INFO)
 
     logging.info('Started logging!')
+
+    intents = discord.Intents(
+        guilds = True,
+        members = True,
+        messages = True
+    )
+
     bot = Bot(
         owner_ids = config.owners,
         activity = discord.Game(name="Watching our important messages!"),
+        intents = intents,
         db=database,
         logger=logging,
         checks = checks,
@@ -54,7 +62,8 @@ class Bot(commands.Bot):
     def __init__(self, **kwargs):
         super().__init__(
             command_prefix = self.get_prefix,
-            case_insensitive = True
+            case_insensitive = True,
+            **kwargs
         )
         self.db = kwargs.pop('db')
         self.logger = kwargs.pop('logger')
