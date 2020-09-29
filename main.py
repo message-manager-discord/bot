@@ -47,6 +47,7 @@ async def run():
         bot.join_log_channel = config.join_logs
         bot.dbl_token = config.dbl_token
         bot.dboats_token = config.dboats_token
+        bot.del_token = config.def_token
         extensions.append(
         "jishaku"
         )

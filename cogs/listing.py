@@ -31,9 +31,9 @@ class ListingCog(commands.Cog):
         ) as r:
             returned = await r.json()
             if not returned[error_name] is expected_returned_value:
-                print(f'Error posting to {url}')
+                print(f'Error posting to {url}\n{returned}')
             else:
-                print(f'Posted to {url}')
+                print(f'Posted to {url}\n{returned}')
 
 
     
@@ -54,6 +54,16 @@ class ListingCog(commands.Cog):
                 f'https://discord.boats/api/bot/{self.bot.user.id}',
                 'server_count',
                 self.bot.dboats_token,
+                'error',
+                False
+            )
+
+            
+            await self.post_guild_stats(
+                session,
+                f'https://api.discordextremelist.xyz/v2/bot/{self.bot.user.id}/stats',
+                'guildCount',
+                self.bot.del_token,
                 'error',
                 False
             )
