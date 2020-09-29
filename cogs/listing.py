@@ -31,8 +31,7 @@ class ListingCog(commands.Cog):
                 else:
                     print('Posting to discordbotlist.com successful!')
         
-        """
-        Not currently approved on discord boats
+    
         async with aiohttp.ClientSession() as session:
             async with session.post(
                 url = f'https://discord.boats/api/bot/{self.bot.user.id}',
@@ -48,7 +47,7 @@ class ListingCog(commands.Cog):
                 if returned['error']:
                     print('Posting to discord.boats failed!' +returned['message'])
                 else:
-                    print('Posting to discord.boats successful!')""" 
+                    print('Posting to discord.boats successful!')
         
 
 
