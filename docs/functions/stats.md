@@ -12,10 +12,11 @@ Stats will be updated every 30 minutes or so, this is on a loop and not on a joi
 
 ## Force updating
 
-If for some reason you want to update the stats you can force update them. This command has a 10 minute guild wide cooldown.  
+If for some reason you want to update the stats you can force update them. This command has a 10 minute guild wide cooldown.
 
 {% hint style="warning" %}
 This requires the management role.
 {% endhint %}
 
 `~stats update`
+
