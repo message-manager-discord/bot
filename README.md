@@ -13,7 +13,7 @@ If you want to contrubite to the docs or the code of the bot feel free to open a
 
 ## Docs
 
-Offical docs are [here](https://anothercat1259.gitbook.io/message-bot/). Read them before asking questions please :slight_smile:
+Offical docs are [here](https://anothercat1259.gitbook.io/message-bot/). Read them before asking questions please :smile:
 
 ## Installation
 
