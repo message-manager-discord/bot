@@ -1,8 +1,6 @@
 import discord, platform, asyncio, random, string
 from datetime import datetime, timezone
 from discord.ext import commands
-from src import helpers, db
-
 
 
 class SetupCog(commands.Cog):
@@ -43,22 +41,22 @@ class SetupCog(commands.Cog):
                 colour = discord.Colour(15653155)
             )
             embed.add_field(
-                name=f"`{prefix}setup admin <role>`",
+                name=f"`{prefix}setup admin ""{role}`",
                 value="This is the role that allows admin access to admin commands.",
                 inline = False
             )
             embed.add_field(
-                name=f"`{prefix}setup prefix <prefix>`",
+                name=f"`{prefix}setup prefix ""{prefix}`",
                 value="Sets the prefix for this server.",
                 inline = False
             )
             embed.add_field(
-                name=f"`{prefix}setup botstats <channel>`",
+                name=f"`{prefix}setup botstats ""{channel}`",
                 value="Sets the voice channel for the bot count",
                 inline = False
             )
             embed.add_field(
-                name=f"`{prefix}setup userstats <channel>`",
+                name=f"`{prefix}setup userstats ""{channel}`",
                 value="Sets the voice channel for the user count",
                 inline = False
             )
