@@ -1,6 +1,4 @@
 import asyncpg
-
-from src import helpers
 from config import default_prefix, uri as default_uri
 
 create_db = """CREATE TABLE IF NOT EXISTS servers (
@@ -36,7 +34,9 @@ class DatabasePool():
     async def close(self):
         await self.pool.close()
 
-    async def get_prefix(self, server_id):
+    async def get_prefix(self, guild):
+        if guild is None:
+            return default_prefix
         conn = await self.pool.acquire()
         prefix = await conn.fetch(
             """
@@ -44,7 +44,7 @@ class DatabasePool():
             FROM servers 
             WHERE server_id=$1
             """,
-            server_id
+            guild.id
         )
         if prefix == []:
             return default_prefix
@@ -55,7 +55,7 @@ class DatabasePool():
         else:
             return prefix
 
-    async def get_member_channel(self, server_id):
+    async def get_member_channel(self, guild):
         conn = await self.pool.acquire()
         member_channel = await conn.fetch(
             """
@@ -63,14 +63,14 @@ class DatabasePool():
             FROM servers 
             WHERE server_id=$1
             """,
-            server_id
+            guild.id
         )
         await self.pool.release(conn)
         if member_channel == []:
             return None
         return member_channel[0].get('member_channel')
 
-    async def get_bot_channel(self, server_id):
+    async def get_bot_channel(self, guild):
         conn = await self.pool.acquire()
         bot_channel = await conn.fetch(
             """
@@ -78,14 +78,14 @@ class DatabasePool():
             FROM servers 
             WHERE server_id=$1
             """,
-            server_id
+            guild.id
         )
         await self.pool.release(conn)
         if bot_channel == []:
             return None
         return bot_channel[0].get('bot_channel')
     
-    async def get_management_role(self, server_id):
+    async def get_management_role(self, guild):
         conn = await self.pool.acquire()
         management_role = await conn.fetch(
             """
@@ -93,14 +93,14 @@ class DatabasePool():
             FROM servers 
             WHERE server_id=$1
             """,
-            server_id
+            guild.id
         )
         await self.pool.release(conn)
         if management_role == []:
             return None
         return management_role[0].get('management_role_id')
 
-    async def update_prefix(self, server_id, prefix):
+    async def update_prefix(self, guild, prefix):
         conn = await self.pool.acquire()
         await conn.execute(
             """
@@ -109,11 +109,11 @@ class DatabasePool():
                 VALUES($1, $2)
                 ON CONFLICT (server_id)
                 DO UPDATE SET prefix = $2;
-            """, server_id, prefix
+            """, guild.id, prefix
         )
         await self.pool.release(conn)
 
-    async def update_admin_role(self, server_id, role_id):
+    async def update_admin_role(self, guild, role_id):
         conn = await self.pool.acquire()
         await conn.execute(
             """
@@ -122,11 +122,11 @@ class DatabasePool():
                 VALUES($1, $2)
                 ON CONFLICT (server_id)
                 DO UPDATE SET management_role_id = $2;
-            """, server_id, role_id
+            """, guild.id, role_id
         )
         await self.pool.release(conn)
     
-    async def update_bot_channel(self, server_id, channel_id):
+    async def update_bot_channel(self, guild, channel_id):
         conn = await self.pool.acquire()
         await conn.execute(
             """
@@ -135,11 +135,11 @@ class DatabasePool():
                 VALUES($1, $2)
                 ON CONFLICT (server_id)
                 DO UPDATE SET bot_channel = $2;
-            """, server_id, channel_id
+            """, guild.id, channel_id
         )
         await self.pool.release(conn)
 
-    async def update_user_channel(self, server_id, channel_id):
+    async def update_user_channel(self, guild, channel_id):
         conn = await self.pool.acquire()
         await conn.execute(
             """
@@ -148,7 +148,7 @@ class DatabasePool():
                 VALUES($1, $2)
                 ON CONFLICT (server_id)
                 DO UPDATE SET member_channel = $2;
-            """, server_id, channel_id
+            """, guild.id, channel_id
         )
         await self.pool.release(conn)
 
