@@ -21,9 +21,10 @@ Offical docs are [here](https://anothercat1259.gitbook.io/message-bot/). Read th
 2. Make sure you have the latest version of python and postgresql
 3. Setting up the database and roles
 4. Creating a discord application and a bot user at the [discord dev website](https://discord.com/developers/applications), setup guide [here](https://discordpy.readthedocs.io/en/latest/discord.html#creating-a-bot-account)
-5. [Setting up config](#config)
-6. Running `main.py`
-7. Inviting the bot to your server, there will be an invite link in the python shell after you run it.
+5. You **MUST** enable member intents on the bot page for the bot to load.
+6. [Setting up config](#config)
+7. Running `main.py`
+8. Inviting the bot to your server, there will be an invite link in the python shell after you run it.
 
 ### Setup Example (linux)
 
