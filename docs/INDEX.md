@@ -5,10 +5,14 @@ Source code is available at [AnotherCat/message-bot](https://github.com/AnotherC
 
 ## Functions
 
+- Message management (editing and sending)
+- Automatic user stats
+- Customizable prefix and server settings
+
 ### Stats Voice Channels
 
 You can set a voice channel for bot and user stats to be displayed on.  
-This is automatically updated at around every 30 mins. 
+This is automatically updated at around every 30 mins.  
 
 {% page-ref page="functions/stats.md" %}
 
@@ -16,7 +20,11 @@ This is automatically updated at around every 30 mins.
 
 We've all had the issue of wanting to edit an important server information message, but can't because the person that send the message is offline.  
 This bot aims to be an easy to use solution to this.  
-With a few simple, interactive commands you can send messages from the bot, and more importantly edit those messages with another command. 
+With a few simple, interactive commands you can send messages from the bot, and more importantly edit those messages with another command.  
 
 {% page-ref page="functions/messages.md" %}
 
+## Privacy Policy
+
+We **do** store data about you.  
+By using this bot you acknowledge that you have read the privacy policy located on [github](https://github.com/AnotherCat/message-bot/blob/master/PRIVACY_POLICY.md)

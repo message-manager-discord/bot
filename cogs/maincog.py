@@ -200,6 +200,48 @@ class MainCog(commands.Cog):
         ping_time = (message.created_at-ctx.message.created_at).total_seconds() * 1000
         await message.edit(content=f'Ping! Took: {int(ping_time)}ms')
 
+    @commands.command()
+    async def privacy(self, ctx :commands.Context):
+        embed = discord.Embed(
+            title='Privacy Policy',
+            description = 'We do store data. Please read our privacy policy.',
+            url = 'https://github.com/AnotherCat/message-bot/blob/master/PRIVACY_POLICY.md',
+            colour = discord.Colour.red(),
+            timestamp = datetime.now(timezone.utc)
+
+        )
+        embed.add_field(
+            name='Where to find the privacy policy',
+            value='My privacy policy is located on [github](https://github.com/AnotherCat/message-bot/blob/master/PRIVACY_POLICY.md)'
+        )
+        await ctx.send(embed=embed)
+    
+    @commands.command()
+    async def invite(self, ctx : commands.Context):
+        await ctx.send(
+            embed = discord.Embed(
+                title = "Invite me to your server!",
+                description = "[Click here](https://discord.com/api/oauth2/authorize?client_id=735395698278924359&permissions=388176&scope=bot) to invite me!",
+                url = 'https://discord.com/api/oauth2/authorize?client_id=735395698278924359&permissions=388176&scope=bot',
+                colour = discord.Colour(0xc387c1),
+                timestamp = datetime.now(timezone.utc)
+            )
+        )
+
+    @commands.command()
+    async def docs(self, ctx : commands.Context):
+        await ctx.send(
+            embed = discord.Embed(
+                title = "Docs!",
+                description = "My docs are [here](https://anothercat1259.gitbook.io/message-bot/)",
+                url = 'https://anothercat1259.gitbook.io/message-bot/',
+                colour = discord.Colour(0xc387c1),
+                timestamp = datetime.now(timezone.utc)
+            )
+        )
+
+
+
 
     
 def setup(bot):
