@@ -14,7 +14,12 @@ class AdminCog(commands.Cog):
             raise self.bot.errors.MissingPermission("You need to be a bot dev to do that!")
 
     async def cog_command_error(self, ctx : commands.Context, error):
-        if isinstance(error, self.bot.errors.MissingPermission):
+        if isinstance(
+            error,
+            (
+                self.bot.errors.MissingPermission,
+                commands.errors.MissingRequiredArgument
+            )):
             await ctx.send(error)
         else:
             await ctx.send(

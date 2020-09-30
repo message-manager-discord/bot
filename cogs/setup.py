@@ -13,7 +13,8 @@ class SetupCog(commands.Cog):
                 self.bot.errors.MissingPermission,
                 self.bot.errors.InputContentIncorrect,
                 self.bot.errors.ConfigNotSet,
-                self.bot.errors.ConfigError
+                self.bot.errors.ConfigError,
+                commands.errors.MissingPermissions
             )
         ):
             await ctx.send(error)

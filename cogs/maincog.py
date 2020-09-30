@@ -70,6 +70,10 @@ class MainCog(commands.Cog):
                 "If you've got any questions or join our [support server](https://discord.gg/xFZu29t)",
                 inline = False
             )
+            embed.add_field(
+                name='Privacy Policy',
+                value='Please read my [privacy policy](). \nBy using the bot you are confirming that you have read the privacy policy.'
+            )
             await channel.send(embed=embed)
         if not self.bot.self_hosted:
             embed = discord.Embed(
@@ -83,49 +87,62 @@ class MainCog(commands.Cog):
 
 
     @commands.command(name='help', help='Responds with an embed with all the commands and options')
-    async def help(self, ctx : commands.Context):
-        prefix = await self.bot.db.get_prefix(ctx.guild)
-        embed = discord.Embed(
-            title = "Help!",
-            colour = 16761035,
-            timestamp = datetime.now(timezone.utc)
-        )
-        embed.add_field(
-            name=f"`{prefix}ping`", 
-            value="Replys with the latency of the bot", 
-            inline=True
-        )
-        embed.add_field(
-            name=f"`{prefix}help`", 
-            value="Displays this view.", 
-            inline=True
-        ),
-        embed.add_field(
-            name=f'`{prefix}info`', 
-            value='Displays info about the bot', 
-            inline=True
-        ),
-        embed.add_field(
-            name = f"`{prefix}send [channel_id] [content]`",
-            value="Sends a message from the bot in the specificed channel",
-            inline=True
-        )
-        embed.add_field(
-            name=f'`{prefix}edit [channel_id] [message_id] [new_content]`',
-            value='Edits a message, message **must** be from the bot',
-            inline=True
-        )
-        embed.add_field(
-            name=f"`{prefix}delete [channel_id] [message_id]`",
-            value="Deletes the message from the bot. **Must** be from the bot",
-            inline=True
-        )
-        embed.add_field(
-            name=f"`{prefix}stats update`",
-            value="Update the stats channels",
-            inline=True
-        )    
-        await ctx.send(embed=embed)
+    async def help(self, ctx : commands.Context, option : str = None):
+        if option is None or option.lower() != 'setup':
+            prefix = await self.bot.db.get_prefix(ctx.guild)
+            embed = discord.Embed(
+                title = "Help!",
+                colour = 16761035,
+                timestamp = datetime.now(timezone.utc)
+            )
+            embed.add_field(
+                name=f"`{prefix}ping`", 
+                value="Replys with the latency of the bot", 
+                inline=True
+            )
+            embed.add_field(
+                name=f"`{prefix}help`", 
+                value="Displays this view.", 
+                inline=True
+            ),
+            embed.add_field(
+                name=f'`{prefix}info`', 
+                value='Displays info about the bot', 
+                inline=True
+            ),
+            embed.add_field(
+                name = f"`{prefix}send [channel_id] [content]`",
+                value="Sends a message from the bot in the specificed channel",
+                inline=True
+            )
+            embed.add_field(
+                name=f'`{prefix}edit [channel_id] [message_id] [new_content]`',
+                value='Edits a message, message **must** be from the bot',
+                inline=True
+            )
+            embed.add_field(
+                name=f"`{prefix}delete [channel_id] [message_id]`",
+                value="Deletes the message from the bot. **Must** be from the bot",
+                inline=True
+            )
+            embed.add_field(
+                name=f"`{prefix}stats update`",
+                value="Update the stats channels",
+                inline=True
+            )
+            embed.add_field(
+                name=f"`{prefix}setup`",
+                value="Starts setup, Requires the user to have admin permissions",
+                inline=True
+            )    
+            await ctx.send(embed=embed)
+        else:
+            try:
+                await ctx.invoke(self.bot.get_command('setup'))
+                return
+            except Exception as e:
+                await ctx.invoke(self.bot.get_command('help'))
+        
 
     # Create the info command.
     @commands.command(name = 'info')
