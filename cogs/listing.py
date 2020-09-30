@@ -67,6 +67,15 @@ class ListingCog(commands.Cog):
                 'error',
                 False
             )
+            await self.post_guild_stats(
+                session,
+                f'https://discord.bots.gg/api/v1/bots/{self.bot.user.id}/stats',
+                'guildCount',
+                self.bot.dbgg_token,
+                'guildCount',
+                len(self.bot.guilds)
+
+            )
         
 
 def setup(bot):
