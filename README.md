@@ -1,6 +1,7 @@
 # Custom Helper Bot
 
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Support Server Invite](https://discord.com/api/guilds/742373263593963614/embed.png)](https://discord.gg/xFZu29t)
 
 If you find a bug or if you want to make a feature request, either join the [discord server](https://discord.gg/xFZu29t) or open an issue.  
 If you want to contrubite to the docs or the code of the bot feel free to open a pull request.
