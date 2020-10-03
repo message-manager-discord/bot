@@ -9,12 +9,14 @@ create_db = """CREATE TABLE IF NOT EXISTS servers (
     member_channel bigint
 );"""
 
+
 async def create_pool(uri):
     pool = DatabasePool(uri)
     await pool._init()
     return pool
 
-class DatabasePool():
+
+class DatabasePool:
     def __init__(self, uri):
         self.pool = None
         self.uri = uri
@@ -37,18 +39,18 @@ class DatabasePool():
         if guild is None:
             return default_prefix
         async with self.pool.acquire() as conn:
-            
+
             prefix = await conn.fetch(
                 """
                 SELECT prefix 
                 FROM servers 
                 WHERE server_id=$1
                 """,
-                guild.id
+                guild.id,
             )
             if prefix == []:
                 return default_prefix
-            prefix = prefix[0].get('prefix')
+            prefix = prefix[0].get("prefix")
             if prefix is None:
                 return default_prefix
             else:
@@ -62,11 +64,11 @@ class DatabasePool():
                 FROM servers 
                 WHERE server_id=$1
                 """,
-                guild.id
+                guild.id,
             )
             if member_channel == []:
                 return None
-            return member_channel[0].get('member_channel')
+            return member_channel[0].get("member_channel")
 
     async def get_bot_channel(self, guild):
         async with self.pool.acquire() as conn:
@@ -76,12 +78,12 @@ class DatabasePool():
                 FROM servers 
                 WHERE server_id=$1
                 """,
-                guild.id
+                guild.id,
             )
             if bot_channel == []:
                 return None
-            return bot_channel[0].get('bot_channel')
-    
+            return bot_channel[0].get("bot_channel")
+
     async def get_management_role(self, guild):
         async with self.pool.acquire() as conn:
             management_role = await conn.fetch(
@@ -90,11 +92,11 @@ class DatabasePool():
                 FROM servers 
                 WHERE server_id=$1
                 """,
-                guild.id
+                guild.id,
             )
             if management_role == []:
                 return None
-            return management_role[0].get('management_role_id')
+            return management_role[0].get("management_role_id")
 
     async def update_prefix(self, guild, prefix):
         async with self.pool.acquire() as conn:
@@ -105,7 +107,9 @@ class DatabasePool():
                     VALUES($1, $2)
                     ON CONFLICT (server_id)
                     DO UPDATE SET prefix = $2;
-                """, guild.id, prefix
+                """,
+                guild.id,
+                prefix,
             )
 
     async def update_admin_role(self, guild, role_id):
@@ -117,9 +121,11 @@ class DatabasePool():
                     VALUES($1, $2)
                     ON CONFLICT (server_id)
                     DO UPDATE SET management_role_id = $2;
-                """, guild.id, role_id
+                """,
+                guild.id,
+                role_id,
             )
-    
+
     async def update_bot_channel(self, guild, channel_id):
         async with self.pool.acquire() as conn:
             await conn.execute(
@@ -129,7 +135,9 @@ class DatabasePool():
                     VALUES($1, $2)
                     ON CONFLICT (server_id)
                     DO UPDATE SET bot_channel = $2;
-                """, guild.id, channel_id
+                """,
+                guild.id,
+                channel_id,
             )
 
     async def update_user_channel(self, guild, channel_id):
@@ -141,9 +149,11 @@ class DatabasePool():
                     VALUES($1, $2)
                     ON CONFLICT (server_id)
                     DO UPDATE SET member_channel = $2;
-                """, guild.id, channel_id
+                """,
+                guild.id,
+                channel_id,
             )
 
 
 def setup(bot):
-    print('    Database module!')
+    print("    Database module!")

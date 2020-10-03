@@ -2,24 +2,26 @@ import discord, asyncio, random, string
 from discord.ext import commands
 
 
-
 class AdminCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    async def cog_check(self, ctx : commands.Context):
+    async def cog_check(self, ctx: commands.Context):
         if await self.bot.is_owner(ctx.author):
             return True
         else:
-            raise self.bot.errors.MissingPermission("You need to be a bot dev to do that!")
+            raise self.bot.errors.MissingPermission(
+                "You need to be a bot dev to do that!"
+            )
 
-    async def cog_command_error(self, ctx : commands.Context, error):
+    async def cog_command_error(self, ctx: commands.Context, error):
         if isinstance(
             error,
             (
                 self.bot.errors.MissingPermission,
-                commands.errors.MissingRequiredArgument
-            )):
+                commands.errors.MissingRequiredArgument,
+            ),
+        ):
             await ctx.send(error)
         else:
             await ctx.send(
@@ -30,23 +32,24 @@ class AdminCog(commands.Cog):
             )
             raise error
 
-
     @commands.command(hidden=True)
-    async def load(self, ctx : commands.Context, *, module : str):
+    async def load(self, ctx: commands.Context, *, module: str):
         try:
             self.bot.load_extension(module)
         except Exception as error:
-            await ctx.send(f'{type(error).__name__}: {error}')
+            await ctx.send(f"{type(error).__name__}: {error}")
         else:
-            await ctx.send(f'The module {module} was loaded!')
+            await ctx.send(f"The module {module} was loaded!")
 
     @commands.command(hidden=True)
-    async def listservers(self, ctx : commands.Context):
+    async def listservers(self, ctx: commands.Context):
         servers = []
         x = 0
         for guild in self.bot.guilds:
             try:
-                servers[int(x/50)]= servers[int(x/50)] + f'\n"{guild.name}", {len(guild.members)}'
+                servers[int(x / 50)] = (
+                    servers[int(x / 50)] + f'\n"{guild.name}", {len(guild.members)}'
+                )
             except IndexError:
                 servers.append(f'\n"{guild.name}", {len(guild.members)}')
             x += 1
@@ -55,61 +58,70 @@ class AdminCog(commands.Cog):
             await ctx.author.trigger_typing()
             await asyncio.sleep(1)
             await ctx.author.send(item)
-    
+
     @commands.command(hidden=True)
-    async def unload(self, ctx : commands.Context, *, module : str):
+    async def unload(self, ctx: commands.Context, *, module: str):
         """Unloads a module."""
         try:
             self.bot.unload_extension(module)
         except Exception as error:
-            await ctx.send(f'{type(error).__name__}: {error}')
+            await ctx.send(f"{type(error).__name__}: {error}")
         else:
-            await ctx.send(f'The module {module} was unloaded!')
+            await ctx.send(f"The module {module} was unloaded!")
 
-    @commands.command(name='reload', hidden=True)
-    async def _reload(self, ctx : commands.Context, *, module : str):
+    @commands.command(name="reload", hidden=True)
+    async def _reload(self, ctx: commands.Context, *, module: str):
         """Reloads a module."""
         try:
             self.bot.unload_extension(module)
             self.bot.load_extension(module)
         except Exception as error:
-            await ctx.send(f'{type(error).__name__}: {error}')
+            await ctx.send(f"{type(error).__name__}: {error}")
         else:
-            await ctx.send(f'The module {module} was reloaded!')
+            await ctx.send(f"The module {module} was reloaded!")
 
     @commands.command()
-    async def kill(self, ctx : commands.Context):  
+    async def kill(self, ctx: commands.Context):
         message = await ctx.send("Are you sure you want to kill me?")
+
         def is_correct(m):
             return m.author == ctx.author
-        try:
-            choice = await self.bot.wait_for('message', check=is_correct)
-        except asyncio.TimeoutError:
-            return await ctx.send('Timedout, Please re-do the command.')
 
-        if choice.content.lower() == 'yes':
+        try:
+            choice = await self.bot.wait_for("message", check=is_correct)
+        except asyncio.TimeoutError:
+            return await ctx.send("Timedout, Please re-do the command.")
+
+        if choice.content.lower() == "yes":
             try:
                 await choice.delete()
                 await message.delete()
             except discord.errors.Forbidden:
                 pass
-            verify_message = ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(6))
-            message = await ctx.send("Are you still **absolutely** sure you want to log the bot out?\n"
-            "**WARNING: This will disconnect the bot. It will have to be started from the console.\n"
-            f"If you are absloutly sure then reply with the following code: `{verify_message}`"
+            verify_message = "".join(
+                random.SystemRandom().choice(string.ascii_letters + string.digits)
+                for _ in range(6)
+            )
+            message = await ctx.send(
+                "Are you still **absolutely** sure you want to log the bot out?\n"
+                "**WARNING: This will disconnect the bot. It will have to be started from the console.\n"
+                f"If you are absloutly sure then reply with the following code: `{verify_message}`"
             )
             try:
-                choice = await self.bot.wait_for('message', check=is_correct, timeout=280.0)
+                choice = await self.bot.wait_for(
+                    "message", check=is_correct, timeout=280.0
+                )
             except asyncio.TimeoutError:
-                return await ctx.send('Timedout, Please re-do the command.')
+                return await ctx.send("Timedout, Please re-do the command.")
 
             if choice.content == verify_message:
                 await ctx.send("Logging out")
                 try:
                     await self.bot.logout()
                 except Exception as error:
-                    await ctx.send(f'{type(error).__name__}: {error}')
+                    await ctx.send(f"{type(error).__name__}: {error}")
+
 
 def setup(bot):
     bot.add_cog(AdminCog(bot))
-    print('    Admin cog!')
+    print("    Admin cog!")
