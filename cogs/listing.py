@@ -30,10 +30,17 @@ class ListingCog(commands.Cog):
             }
         ) as r:
             returned = await r.json()
-            if not returned[error_name] is expected_returned_value:
-                print(f'Error posting to {url}\n{returned}')
-            else:
-                print(f'Posted to {url}\n{returned}')
+            try:
+                if not returned[error_name] is expected_returned_value:
+                    print(f'Error posting to {url}\nError:\n\n{returned}\n')
+                else:
+                    print(f'Posted to {url}\n{returned}\n')
+            except Exception as e:
+                print(
+                    f'An error has occured in posting to {url}!\nError:\n\n' +
+                    str(e) +
+                    f'\n\nReturned data:\n{returned}'
+                    )
 
 
     
