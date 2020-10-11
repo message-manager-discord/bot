@@ -98,3 +98,7 @@ It is still suggested that you read the update notes and update your config as s
 
 If the first number in the tuple changes, this means that it is no longer backwards compatible.
 This means that you **must** update your configuration after pulling the version.
+
+
+[![time tracker](https://wakatime.com/badge/github/AnotherCat/message-bot.svg)](https://wakatime.com/badge/github/AnotherCat/message-bot)
+(Not accurate as i've only just started using it)
