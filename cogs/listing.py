@@ -2,12 +2,16 @@ import discord
 import aiohttp
 import json
 from discord.ext import commands, tasks
+from src import list_wrappers
 
 
 class ListingCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.stats_post_loop.start()
+        self.de_list = list_wrappers.Del(self.bot.del_token, self.bot)
+        self.dbl = list_wrappers.Dbl(self.bot.dbl_token, self.bot)
+        self.dboats = list_wrappers.DBoats(self.bot.dboats_token, self.bot)
 
     def cog_unload(self):
         self.stats_post_loop.cancel()
@@ -36,32 +40,11 @@ class ListingCog(commands.Cog):
     @tasks.loop(minutes=30)
     async def stats_post_loop(self):
         await self.bot.wait_until_ready()
+        await self.de_list.post_guild_stats()
+        await self.dbl.post_guild_stats()
+        await self.dboats.post_guild_stats()
         async with aiohttp.ClientSession() as session:
-            await self.post_guild_stats(
-                session,
-                f"https://discordbotlist.com/api/v1/bots/{self.bot.user.id}/stats",
-                "guilds",
-                self.bot.dbl_token,
-                "success",
-                True,
-            )
-            await self.post_guild_stats(
-                session,
-                f"https://discord.boats/api/bot/{self.bot.user.id}",
-                "server_count",
-                self.bot.dboats_token,
-                "error",
-                False,
-            )
 
-            await self.post_guild_stats(
-                session,
-                f"https://api.discordextremelist.xyz/v2/bot/{self.bot.user.id}/stats",
-                "guildCount",
-                self.bot.del_token,
-                "error",
-                False,
-            )
             await self.post_guild_stats(
                 session,
                 f"https://discord.bots.gg/api/v1/bots/{self.bot.user.id}/stats",
