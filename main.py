@@ -1,11 +1,15 @@
 # main.py
 import asyncio
-import logging
 import datetime
+import logging
+
 import discord
-import config
-from src import db, checks, errors
+
 from discord.ext import commands
+
+import config
+
+from src import checks, db, errors
 
 starttime = datetime.datetime.utcnow()
 

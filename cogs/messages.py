@@ -1,5 +1,11 @@
-import discord, platform, asyncio, os
+import asyncio
+import os
+import platform
+
 from datetime import datetime, timezone
+
+import discord
+
 from discord.ext import commands
 
 

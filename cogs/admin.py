@@ -1,6 +1,13 @@
-import discord, asyncio, random, string, datetime
-from discord.ext import commands
+import asyncio
+import datetime
+import random
+import string
+
 from math import floor
+
+import discord
+
+from discord.ext import commands
 
 
 class AdminCog(commands.Cog):

@@ -1,7 +1,10 @@
-import discord
-import aiohttp
 import json
+
+import aiohttp
+import discord
+
 from discord.ext import commands, tasks
+
 from src import list_wrappers
 
 

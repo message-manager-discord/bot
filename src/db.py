@@ -1,5 +1,7 @@
 import asyncpg
-from config import default_prefix, uri as default_uri
+
+from config import default_prefix
+from config import uri as default_uri
 
 create_db = """CREATE TABLE IF NOT EXISTS servers (
     server_id bigint NOT NULL UNIQUE,
