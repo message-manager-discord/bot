@@ -7,6 +7,8 @@ import config
 from src import db, checks, errors
 from discord.ext import commands
 
+starttime = datetime.datetime.utcnow()
+
 
 async def run():
     database = db.DatabasePool(config.uri)
@@ -28,7 +30,7 @@ async def run():
         default_prefix=config.default_prefix,
         self_hosted=config.self_host,
     )
-    bot.start_time = datetime.datetime.utcnow()
+    bot.start_time = starttime
 
     bot.remove_command("help")
 
@@ -69,6 +71,7 @@ class Bot(commands.Bot):
         self.errors = kwargs.pop("errors")
         self.default_prefix = kwargs.pop("default_prefix")
         self.self_hosted = kwargs.pop("self_hosted")
+        self.load_time = None
 
     async def get_prefix(self, message):
         prefix = await self.db.get_prefix(

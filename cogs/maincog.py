@@ -30,7 +30,8 @@ class MainCog(commands.Cog):
             f"https://discord.com/api/oauth2/authorize?client_id={self.bot.user.id}&permissions=519232&scope=bot"
         )
         print(f"Logged on as {self.bot.user}!")
-        # Change the presence of the bot
+        if self.bot.load_time is None:
+            self.bot.load_time = datetime.utcnow()
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild: discord.Guild):

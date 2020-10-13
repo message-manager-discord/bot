@@ -1,5 +1,6 @@
-import discord, asyncio, random, string
+import discord, asyncio, random, string, datetime
 from discord.ext import commands
+from math import floor
 
 
 class AdminCog(commands.Cog):
@@ -120,6 +121,23 @@ class AdminCog(commands.Cog):
                     await self.bot.logout()
                 except Exception as error:
                     await ctx.send(f"{type(error).__name__}: {error}")
+
+    @commands.command()
+    async def loadtime(self, ctx):
+        diff = self.bot.load_time - self.bot.start_time
+        hours = floor(diff.seconds / 3600)
+        minutes = floor((diff.seconds - (hours * 3600)) / 60)
+        seconds = floor(diff.seconds - (hours * 3600 + minutes * 60))
+        milliseconds = floor(diff.microseconds / 1000)
+        microseconds = diff.microseconds - (milliseconds * 1000)
+        await ctx.send(
+            embed=discord.Embed(
+                title="Time it took to load",
+                description=f"{hours} Hours, {minutes} Minutes, {seconds} Seconds, {milliseconds} Milliseconds, {microseconds} Microseconds",
+                colour=discord.Colour(16761035),
+                timestamp=datetime.datetime.now(datetime.timezone.utc),
+            )
+        )
 
 
 def setup(bot):
