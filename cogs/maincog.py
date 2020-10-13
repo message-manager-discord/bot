@@ -33,6 +33,48 @@ class MainCog(commands.Cog):
         if self.bot.load_time is None:
             self.bot.load_time = datetime.utcnow()
 
+    async def on_guild_join(self, guild: discord.Guild):
+
+        if guild.system_channel is None:
+            for c in guild.text_channels:
+                perm = c.permissions_for(guild.me)
+                if perm.send_messages and perm.embed_links:
+                    channel = c
+                    break
+        else:
+            system_channel = guild.system_channel
+            perms = system_channel.permissions_for(guild.me)
+            if perms.send_messages and perms.embed_links:
+                channel = system_channel
+            else:
+                for c in guild.text_channels:
+                    perm = c.permissions_for(guild.me)
+                    if perm.send_messages and perm.embed_links:
+                        channel = c
+                        break
+        if channel is not None:
+            prefix = await self.bot.db.get_prefix(guild)
+            embed = discord.Embed(
+                title="Hi there!",
+                colour=discord.Colour(16761035),
+                description="Thank you for inviting me to your server!",
+                timestamp=datetime.now(timezone.utc),
+            )
+            embed.add_field(
+                name="Prefix", value=f"My prefix here is: `{prefix}`", inline=False
+            )
+            embed.add_field(
+                name="Help",
+                value="Have a look at my [docs](https://anothercat1259.gitbook.io/message-bot/startup/setup) "
+                "If you've got any questions or join our [support server](https://discord.gg/xFZu29t)",
+                inline=False,
+            )
+            embed.add_field(
+                name="Privacy Policy",
+                value="Please read my [privacy policy](). \nBy using the bot you are confirming that you have read the privacy policy.",
+            )
+            await channel.send(embed=embed)
+
     @commands.Cog.listener()
     async def on_guild_remove(self, guild: discord.Guild):
         if not self.bot.self_hosted:
