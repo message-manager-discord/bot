@@ -12,7 +12,15 @@ If you want to contrubite to the docs or the code of the bot feel free to open a
 
 ## To Do
 
+### Planned
+
 - Add support for the shift click message ids `(<channelid>-<messageid>)`
+- Add web dashboard for managing messages and settings
+- Add ticketing / mod mail function
+
+### In the works
+
+None right now
 
 ## Docs
 
