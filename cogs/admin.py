@@ -88,9 +88,9 @@ class AdminCog(commands.Cog):
         else:
             await ctx.send(f"The module {module} was reloaded!")
 
-    @commands.command()
-    async def kill(self, ctx: commands.Context):
-        message = await ctx.send("Are you sure you want to kill me?")
+    @commands.command(aliases=["restart"])
+    async def stop(self, ctx: commands.Context):
+        message = await ctx.send("Are you sure you want to stop the current process?")
 
         def is_correct(m):
             return m.author == ctx.author
@@ -112,7 +112,8 @@ class AdminCog(commands.Cog):
             )
             message = await ctx.send(
                 "Are you still **absolutely** sure you want to log the bot out?\n"
-                "**WARNING: This will disconnect the bot. It will have to be started from the console.\n"
+                "**WARNING: This will disconnect the bot. Depending on the process manager it may have to be started from the console.\n"
+                "Yhis could potentally cause to bot to be offline for a siginificant amount to time, depending on how the script is run.\n"
                 f"If you are absloutly sure then reply with the following code: `{verify_message}`"
             )
             try:
