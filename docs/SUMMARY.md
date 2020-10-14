@@ -14,3 +14,6 @@
 * [Stats](functions/stats.md)
 * [Commands](functions/commands.md)
 
+## Self Hosting
+
+* [Installing](self-hosting/installing.md)
