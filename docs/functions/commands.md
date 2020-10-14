@@ -5,6 +5,7 @@ description: A list of all the commands
 # Commands
 
 {% hint style="info" %}
+
 1. The default prefix is used below for simplicity. Replace this with your prefix for the server.
 2. `<>` means a required parameter and `{}` means a optional parameter.
 {% endhint %}
