@@ -18,5 +18,7 @@ If you want to contrubite to the docs or the code of the bot feel free to open a
 
 Offical docs are [here](https://anothercat1259.gitbook.io/message-bot/). Read them before asking questions please :smile:
 
+Self Hosting instructions can also be found in the docs
+
 [![time tracker](https://wakatime.com/badge/github/AnotherCat/message-bot.svg)](https://wakatime.com/badge/github/AnotherCat/message-bot)
 (Not accurate as i've only just started using it)

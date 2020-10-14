@@ -6,7 +6,7 @@ I do not provide support for running your own instance of this bot other than th
 
 ## Installation
 
-1. Clone this repo
+1. Clone [the repo](https://github.com/AnotherCat/message-bot)
 2. Make sure you have the latest version of python and postgresql
 3. Setting up the database and roles
 4. Creating a discord application and a bot user at the [discord dev website](https://discord.com/developers/applications), setup guide [here](https://discordpy.readthedocs.io/en/latest/discord.html#creating-a-bot-account)
