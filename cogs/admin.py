@@ -112,8 +112,8 @@ class AdminCog(commands.Cog):
             )
             message = await ctx.send(
                 "Are you still **absolutely** sure you want to log the bot out?\n"
-                "**WARNING: This will disconnect the bot. Depending on the process manager it may have to be started from the console.\n"
-                "Yhis could potentally cause to bot to be offline for a siginificant amount to time, depending on how the script is run.\n"
+                "**WARNING:** This will disconnect the bot. Depending on the process manager it may have to be started from the console.\n"
+                "This could potentally cause to bot to be offline for a siginificant amount to time, depending on how the script is run.\n"
                 f"If you are absloutly sure then reply with the following code: `{verify_message}`"
             )
             try:
