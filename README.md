@@ -6,6 +6,8 @@
 If you find a bug or if you want to make a feature request, either join the [discord server](https://discord.gg/xFZu29t) or open an issue.  
 If you want to contrubite to the docs or the code of the bot feel free to open a pull request.
 
+Current version: `v1.0.0`
+
 ## Invite link
 
 [Click here to invite the bot](https://discord.com/api/oauth2/authorize?client_id=735395698278924359&permissions=388176&scope=bot)

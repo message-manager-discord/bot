@@ -2,14 +2,7 @@ import asyncpg
 
 from config import default_prefix
 from config import uri as default_uri
-
-create_db = """CREATE TABLE IF NOT EXISTS servers (
-    server_id bigint NOT NULL UNIQUE,
-    management_role_id bigint,
-    prefix VARCHAR(3) DEFAULT '~',
-    bot_channel bigint,
-    member_channel bigint
-);"""
+from src.db.startup import init_db
 
 
 async def create_pool(uri):
@@ -25,14 +18,10 @@ class DatabasePool:
 
     async def _init(self):
         await self._create_pool(self.uri)
-        await self._create_tables()
+        await init_db(self.pool)
 
     async def _create_pool(self, uri):
         self.pool = await asyncpg.create_pool(dsn=uri)
-
-    async def _create_tables(self):
-        async with self.pool.acquire() as conn:
-            await conn.execute(create_db)
 
     async def close(self):
         await self.pool.close()

@@ -17,3 +17,4 @@
 ## Self Hosting
 
 * [Installing](self-hosting/installing.md)
+* [Maintaning](self-hosting/maintaning.md)
