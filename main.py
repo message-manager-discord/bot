@@ -9,9 +9,12 @@ from discord.ext import commands
 
 import config
 
-from src import checks, db, errors
+from src import checks, errors
+from src.db import db
 
 starttime = datetime.datetime.utcnow()
+
+version = "v1.0.0"
 
 
 async def run():
@@ -33,6 +36,7 @@ async def run():
         errors=errors,
         default_prefix=config.default_prefix,
         self_hosted=config.self_host,
+        version=version,
     )
     bot.start_time = starttime
 
@@ -75,6 +79,7 @@ class Bot(commands.Bot):
         self.errors = kwargs.pop("errors")
         self.default_prefix = kwargs.pop("default_prefix")
         self.self_hosted = kwargs.pop("self_hosted")
+        self.version = kwargs.pop("version")
         self.load_time = None
 
     async def get_prefix(self, message):
