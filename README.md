@@ -8,6 +8,11 @@ If you want to contrubite to the docs or the code of the bot feel free to open a
 
 Current version: `v1.0.0`
 
+## License
+
+Message Manager is licensed under the [GNU Affero General Public License](https://github.com/AnotherCat/message-bot/blob/master/LICENSE)  
+Here is a [simplified version](https://tldrlegal.com/license/gnu-affero-general-public-license-v3-(agpl-3.0)#summary)
+
 ## Invite link
 
 [Click here to invite the bot](https://discord.com/api/oauth2/authorize?client_id=735395698278924359&permissions=388176&scope=bot)
