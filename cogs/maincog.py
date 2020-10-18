@@ -258,8 +258,8 @@ class MainCog(commands.Cog):
         await ctx.send(
             embed=discord.Embed(
                 title="Source Code!",
-                description="My source code",
-                url="https://github.com/anothercat/message-bot",
+                description="My [source code](https://github.com/AnotherCat/message-bot)",
+                url="https://github.com/AnotherCat/message-bot",
                 colour=discord.Colour(0xC387C1),
                 timestamp=datetime.now(timezone.utc),
             )
