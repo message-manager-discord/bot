@@ -1,3 +1,23 @@
+# cogs/maincog.py
+
+"""
+Message Manager - A bot for discord
+Copyright (C) 2020  AnotherCat
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published
+by the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+"""
+
 import platform
 
 from datetime import datetime, timezone
@@ -228,6 +248,18 @@ class MainCog(commands.Cog):
                 title="Docs!",
                 description="My docs are [here](https://anothercat1259.gitbook.io/message-bot/)",
                 url="https://anothercat1259.gitbook.io/message-bot/",
+                colour=discord.Colour(0xC387C1),
+                timestamp=datetime.now(timezone.utc),
+            )
+        )
+
+    @commands.command()
+    async def source(self, ctx: commands.Context):
+        await ctx.send(
+            embed=discord.Embed(
+                title="Source Code!",
+                description="My source code",
+                url="https://github.com/anothercat/message-bot",
                 colour=discord.Colour(0xC387C1),
                 timestamp=datetime.now(timezone.utc),
             )
