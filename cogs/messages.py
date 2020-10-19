@@ -51,6 +51,12 @@ class MessagesCog(commands.Cog):
             await ctx.send(error)
         elif isinstance(error, asyncio.TimeoutError):
             await ctx.send("Timedout, Please try again.")
+        elif isinstance(error, commands.ChannelNotFound):
+            await ctx.send(
+                "I could not find that channel!\n"
+                "Please check that the id is correct\n"
+                "Run the command without pararameters to be guided through the input!"
+            )
         else:
             await ctx.send(
                 "There was an unknown error! "
