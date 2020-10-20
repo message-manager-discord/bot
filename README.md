@@ -22,12 +22,11 @@ Here is a [simplified version](https://tldrlegal.com/license/gnu-affero-general-
 ### Planned
 
 - Add support for the shift click message ids `(<channelid>-<messageid>)`
-- Add web dashboard for managing messages and settings
 - Add ticketing / mod mail function
 
 ### In the works
 
-None right now
+- Add web dashboard for managing messages and settings
 
 ## Docs
 
