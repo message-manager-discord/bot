@@ -97,6 +97,15 @@ class MainCog(commands.Cog):
                 value="Please read my [privacy policy](). \nBy using the bot you are confirming that you have read the privacy policy.",
             )
             await channel.send(embed=embed)
+        if not self.bot.self_hosted:
+            embed = discord.Embed(
+                title="Joined a server!",
+                colour=discord.Colour(16761035),
+                timestamp=datetime.now(timezone.utc),
+            )
+            embed.add_field(name="Name", value=guild.name, inline=False)
+            embed.add_field(name="ID", value=guild.id, inline=False)
+            await self.bot.get_channel(self.bot.join_log_channel).send(embed=embed)
 
     @commands.Cog.listener()
     async def on_guild_remove(self, guild: discord.Guild):
