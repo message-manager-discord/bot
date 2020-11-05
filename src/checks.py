@@ -24,7 +24,9 @@ import discord
 async def check_if_manage_role(bot, ctx):
     if guild_only(bot, ctx):
         management_role = await bot.db.get_management_role(ctx.guild)
-        if management_role is None:
+        if ctx.author == ctx.guild.owner:
+            return True
+        elif management_role is None:
             prefix = await bot.db.get_prefix(ctx.guild)
             raise bot.errors.ConfigNotSet(
                 f"You have not set the management role!\nDo this with the `{prefix}setup` command"
