@@ -73,6 +73,19 @@ Then enter the values into the postgres_uri config.
 | bypassed_users | int[] | User ids in an array | By adding a user to this this will bypass all user checks. This is useful for if you have set allowed_server, but want some users to still be able to use it. **Dangerous** permission to grant. | No | `[]` |
 | uri | string | postgres uri | This gives the bot access to the database. You'll need to setup a postgres user and database. | Yes | see config file |
 
+## Website
+
+I **really** would prefer if you don't run an instance of the website.
+However as per the open source license terms (that i choose) i am required to provide you with installation instructions.
+
+I use Quart an asyncio version of Flask to power my site.
+To run it you will need to:
+
+- Set a `secret_key` in `web/config.py`
+- Setup a production server, see Quart's docs for more instructions
+
+You are also required to provide the source code to all viewers under the terms of the license, doing this and changing other references such as invite links, support server links, etc is up to you to go into the code and change.
+
 ### Updates
 
 I will be using the standard version naming.

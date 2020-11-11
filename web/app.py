@@ -21,10 +21,12 @@ from error_handlers import blueprint as error_handlers
 from index import blueprint as index_blueprint
 from quart import Quart
 
+from config import secret_key
+
 
 def create_app():
     app = Quart(__name__)
-    app.secret_key = b"M\xc0/\xf2\xdb\xb3i\xf1\x08t\xb6>\xc2B\x1e\xa6"
+    app.secret_key = secret_key
     app.register_blueprint(index_blueprint)
     app.register_blueprint(error_handlers)
     return app
