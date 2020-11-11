@@ -1,0 +1,190 @@
+body {
+    background-color: #1a1a1a;
+    margin: 0 auto;
+    line-height: 1.5;
+}
+
+/* Header Styles */
+
+nav {
+    display: flex;
+    padding: 0 3%;
+    background-color: #25006b;
+    color: white;
+}
+
+nav img {
+    height: 3.125rem;
+}
+
+.left-header {
+    flex-grow: 1;
+    align-items: center;
+    display: flex;
+    min-width: 17.5rem;
+    max-width: 25rem;
+}
+
+.right-header {
+    flex-grow: 1;
+    min-width: 6.25rem;
+}
+
+.left-header ul {
+    display: flex;
+    margin: 0;
+    list-style-type: none;
+    padding: 0;
+    justify-content: space-between;
+    flex-grow: 1;
+}
+
+.left-header li a {
+    text-decoration: none;
+    color: inherit;
+    padding: 0.3125rem;
+    border-bottom: 1px solid #ffd666;
+    transition: border-bottom 0.3s;
+}
+
+.left-header li a:hover, .left-header .active {
+    border-bottom: 3px solid #ffd666;
+}
+
+.left-header li {
+    padding: 0.625rem;
+}
+
+/* Main Body / Content styles */
+
+.content {
+    margin: 0 auto;
+    width: 100%;
+    color: white;
+    padding: 0.5rem;
+}
+
+.content p, .content ol, .content ul {
+    font-size: 0.8rem;
+}
+
+.content hr {
+    width: 85%;
+    color: gray;
+}
+
+.header {
+    color: #ffd666;
+}
+
+h2 {
+    font-size: 1.85em;
+}
+
+h1 {
+    font-size: 1.9em;
+}
+
+.splash {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.splash .header {
+    margin-bottom: 0;
+}
+
+.splash img {
+    height: 18rem;
+}
+
+.splash .buttons {
+    display: inline-flex;
+    justify-content: space-around;
+}
+
+.splash .buttons a {
+    padding: 0.625rem;
+    border: 3px solid #ffd666;
+    margin: 0 1rem;
+    border-radius: 10px;
+    color: #ffd666;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.splash .buttons a:hover {
+    background-color: #ffd6665e;
+}
+
+.description, .features, .setup, .contributing {
+    padding: 1% 10%;
+}
+
+.setup code {
+    background-color: #333333;
+    border-radius: 4px;
+    font-family: inherit;
+    padding: 0.125rem;
+}
+
+.setup ol {
+    margin: 0;
+}
+
+.contributing a {
+    text-decoration: none;
+    color: #ffd666;
+    transition: color 5;
+}
+
+.contributing a:hover {
+    color: #ffe6a2;
+}
+
+/* Footer Styles */
+
+.footer ul {
+    display: flex;
+    justify-content: center;
+    list-style-type: none;
+    flex-wrap: wrap;
+}
+
+.footer li {
+    color: #ffffff;
+    padding: 0 0.6em;
+    font-size: 0.8rem;
+}
+
+.footer a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}
+
+/* Style overrides for wide screens */
+
+@media screen and (min-width: 600px) {
+    nav {
+        padding: 0 10%;
+    }
+    .left-header ul {
+        padding: 0 0 0 1rem;
+    }
+    .splash img {
+        height: 27rem;
+    }
+    .content {
+        width: 80%;
+    }
+    .content p, .content ol, .content ul {
+        font-size: 0.9rem;
+    }
+    h1 {
+        font-size: 2.4em;
+    }
+}

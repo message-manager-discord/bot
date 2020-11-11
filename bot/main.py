@@ -35,27 +35,33 @@ starttime = datetime.datetime.utcnow()
 version = "v1.0.0"
 
 
+class Bot(commands.Bot):
+    def __init__(self, **kwargs):
+        super().__init__(
+            command_prefix=self.get_prefix, case_insensitive=True, **kwargs
+        )
+        self.logger = kwargs.pop("logger")
+        self.checks = kwargs.pop("checks")
+        self.errors = kwargs.pop("errors")
+        self.default_prefix = kwargs.pop("default_prefix")
+        self.self_hosted = kwargs.pop("self_hosted")
+        self.version = kwargs.pop("version")
+        self.load_time = None
+
+    async def get_prefix(self, message):
+        prefix = await self.db.get_prefix(
+            message.guild
+        )  # Fetch current server prefix from database
+        if message.guild is None:
+            prefix = [prefix, ""]
+        return commands.when_mentioned_or(*prefix)(self, message)
+
+
 async def run():
     database = db.DatabasePool(config.uri)
     await database._init()
-    logging.basicConfig(filename="discord.log", filemode="w", level=logging.INFO)
+    bot.db = database
 
-    logging.info("Started logging!")
-
-    intents = discord.Intents(guilds=True, members=True, messages=True)
-
-    bot = Bot(
-        owner_ids=config.owners,
-        activity=discord.Game(name="Watching our important messages!"),
-        intents=intents,
-        db=database,
-        logger=logging,
-        checks=checks,
-        errors=errors,
-        default_prefix=config.default_prefix,
-        self_hosted=config.self_host,
-        version=version,
-    )
     bot.start_time = starttime
 
     bot.remove_command("help")
@@ -86,28 +92,22 @@ async def run():
         await bot.logout()
 
 
-class Bot(commands.Bot):
-    def __init__(self, **kwargs):
-        super().__init__(
-            command_prefix=self.get_prefix, case_insensitive=True, **kwargs
-        )
-        self.db = kwargs.pop("db")
-        self.logger = kwargs.pop("logger")
-        self.checks = kwargs.pop("checks")
-        self.errors = kwargs.pop("errors")
-        self.default_prefix = kwargs.pop("default_prefix")
-        self.self_hosted = kwargs.pop("self_hosted")
-        self.version = kwargs.pop("version")
-        self.load_time = None
+logging.basicConfig(filename="discord.log", filemode="w", level=logging.INFO)
 
-    async def get_prefix(self, message):
-        prefix = await self.db.get_prefix(
-            message.guild
-        )  # Fetch current server prefix from database
-        if message.guild is None:
-            prefix = [prefix, ""]
-        return commands.when_mentioned_or(*prefix)(self, message)
+logging.info("Started logging!")
 
+intents = discord.Intents(guilds=True, members=True, messages=True)
 
+bot = Bot(
+    owner_ids=config.owners,
+    activity=discord.Game(name="Watching our important messages!"),
+    intents=intents,
+    logger=logging,
+    checks=checks,
+    errors=errors,
+    default_prefix=config.default_prefix,
+    self_hosted=config.self_host,
+    version=version,
+)
 loop = asyncio.get_event_loop()
 loop.run_until_complete(run())

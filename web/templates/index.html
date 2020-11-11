@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block nav_home %} class='active' {% endblock %}
+{% block content %}
+<div class='splash'>
+    <div>
+        <h1 class='header'>Message Manager</h1>
+    </div>
+    <div><img src="{{url_for('static', filename='img/avatar.png') }}" alt="Bot&#39;s avatar"></div>
+    <div class='buttons'>
+        <a href="{{url_for('index.invite') }}">Invite</a>
+        <a href="{{url_for('index.docs') }}">Documentation</a>
+    </div>
+</div>
+<hr>
+<div class=description>
+    <h2 class='header'>About</h2>
+    <p>Message Manager is designed to make the management of important messages in servers
+        easier.<br>It
+        allows the editing on a single message by more than one staff member.</p>
+</div>
+<hr>
+<div class='features'>
+    <h2 id="features" class='header'>Features</h2>
+    <ul>
+        <li>Message management (editing and sending)</li>
+        <li>Automatic user stats</li>
+        <li>Customizable prefix and server settings</li>
+    </ul>
+</div>
+<hr>
+<div class='setup'>
+    <h2 id="setup" class='header'>Setup</h2>
+    <ol>
+        <li>Invite the bot to your server</li>
+        <li>Setup the prefix with <code>~setup prefix</code></li>
+        <li>Then setup the rest of the configuration. </li>
+    </ol>
+</div>
+<hr>
+<div class='contributing'>
+    <h2 id="contributing" class='header'>Contributing</h2>
+    <p>This bot is open source, the code can be found on <a href='https://github.com/AnotherCat/message-bot'
+            target='_blank'>github</a>.<br>Issues on github and the support server can be
+        used to raise issues and or feature requests.<br>If you want to contribute to the bot's code please open a pull
+        request.</p>
+</div>
+{% endblock %}
