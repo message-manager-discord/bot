@@ -1,0 +1,3 @@
+Sitemap: https://messagemanager.xyz/sitemap.xml
+User-agent:*
+Disallow:
