@@ -35,6 +35,19 @@ class HttpClient:
             return r.status
 
 
+class TopGG(HttpClient):
+    def __init__(self, bot, **kwargs):
+        self.base_url = "https://top.gg/api/"
+        self.bot = bot
+        super().__init__(bot, **kwargs)
+
+    async def post_guild_stats(self):
+        url = f"bots/{self.bot.user.id}/stats"
+        guild_count = len(self.bot.guilds)
+        payload = {"server_count": guild_count}
+        r = await self._request(url=url, method="POST", json=payload)
+
+
 class Del(HttpClient):
     def __init__(self, bot, **kwargs):
         self.base_url = "https://api.discordextremelist.xyz/v2/"

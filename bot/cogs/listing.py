@@ -45,6 +45,9 @@ class ListingCog(commands.Cog):
         self.dbgg = list_wrappers.Dbgg(
             token=self.bot.dbgg_token, bot=self.bot, session=self.session
         )
+        self.topgg = list_wrappers.TopGG(
+            token=self.bot.topgg_token, bot=self.bot, session=self.session
+        )
 
     def cog_unload(self):
         self.stats_post_loop.cancel()
@@ -56,6 +59,7 @@ class ListingCog(commands.Cog):
         await self.dbl.post_guild_stats()
         await self.dboats.post_guild_stats()
         await self.dbgg.post_guild_stats()
+        await self.topgg.post_guild_stats()
 
 
 def setup(bot):
