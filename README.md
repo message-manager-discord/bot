@@ -32,7 +32,7 @@ Here is a [simplified version](https://tldrlegal.com/license/gnu-affero-general-
 
 ## Docs
 
-Offical docs are [here](https://anothercat1259.gitbook.io/message-bot/). Read them before asking questions please :smile:
+Offical docs are [here](https://docs.messagemanager.xyz). Read them before asking questions please :smile:
 
 Self Hosting instructions can also be found in the docs
 

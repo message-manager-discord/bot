@@ -82,13 +82,14 @@ class MainCog(commands.Cog):
                 colour=discord.Colour(16761035),
                 description="Thank you for inviting me to your server!",
                 timestamp=datetime.now(timezone.utc),
+                url="https://messagemanager.xyz",
             )
             embed.add_field(
                 name="Prefix", value=f"My prefix here is: `{prefix}`", inline=False
             )
             embed.add_field(
                 name="Help",
-                value="Have a look at my [docs](https://anothercat1259.gitbook.io/message-bot/startup/setup) "
+                value="Have a look at my [docs](https://docs.messagemanager.xyz) "
                 "If you've got any questions or join our [support server](https://discord.gg/xFZu29t)",
                 inline=False,
             )
@@ -126,7 +127,10 @@ class MainCog(commands.Cog):
         if option is None or option.lower() != "setup":
             prefix = await self.bot.db.get_prefix(ctx.guild)
             embed = discord.Embed(
-                title="Help!", colour=16761035, timestamp=datetime.now(timezone.utc)
+                title="Help!",
+                colour=16761035,
+                timestamp=datetime.now(timezone.utc),
+                url="https://docs.messagemanager.xyz",
             )
             embed.add_field(
                 name=f"`{prefix}ping`",
@@ -185,13 +189,14 @@ class MainCog(commands.Cog):
             title="Info about the bot",
             colour=discord.Colour(0xC387C1),
             timestamp=datetime.now(timezone.utc),
+            url="https://messagemanager.xyz",
         )
         embed.add_field(name="Username", value=self.bot.user, inline=True),
         embed.add_field(name="Prefix", value=f"`{prefix}`", inline=True),
         embed.add_field(name="Version", value="v0.3.0", inline=True),
         embed.add_field(
             name="Docs",
-            value="[The Docs](https://anothercat1259.gitbook.io/message-bot/)",
+            value="[The Docs](https://docs.messagemanager.xyz)",
             inline=True,
         ),
         embed.add_field(
@@ -255,8 +260,8 @@ class MainCog(commands.Cog):
         await ctx.send(
             embed=discord.Embed(
                 title="Docs!",
-                description="My docs are [here](https://anothercat1259.gitbook.io/message-bot/)",
-                url="https://anothercat1259.gitbook.io/message-bot/",
+                description="My docs are [here](https://docs.messagemanager.xyz)",
+                url="https://docs.messagemanager.xyz",
                 colour=discord.Colour(0xC387C1),
                 timestamp=datetime.now(timezone.utc),
             )
