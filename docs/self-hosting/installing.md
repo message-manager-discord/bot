@@ -12,7 +12,7 @@ I do not provide support for running your own instance of this bot other than th
 4. Creating a discord application and a bot user at the [discord dev website](https://discord.com/developers/applications), setup guide [here](https://discordpy.readthedocs.io/en/latest/discord.html#creating-a-bot-account)
 5. You **MUST** enable member intents on the bot page for the bot to load.
 6. [Setting up config](#config)
-7. Running `bot/main.py`
+7. Running `main.py`
 8. Inviting the bot to your server, there will be an invite link in the python shell after you run it.
 
 ### Setup Example (linux)
@@ -25,7 +25,7 @@ I do not provide support for running your own instance of this bot other than th
 (bot-env) ~$ cd message-bot # Navigate to the main directory for the project.
 (bot-env) ~/message-bot$ pip install -r requirments.txt # Install the required python packages.
 # Now you need to setup the config variables, see Config below
-(bot-env) ~/message-bot$ python3 bot/main.py # Run the bot
+(bot-env) ~/message-bot$ python3 main.py # Run the bot
 ```
 
 Note: This assumes that you have the following packages installed:
@@ -60,7 +60,7 @@ Then enter the values into the postgres_uri config.
 
 ### Setting up config
 
-1. Rename `bot/config_example.py` to `bot/config.py`
+1. Rename `config_example.py` to `config.py`
 2. Set the values as per the table below
 
 #### Config Values
@@ -81,7 +81,8 @@ However as per the open source license terms (that i choose) i am required to pr
 I use Quart an asyncio version of Flask to power my site.
 To run it you will need to:
 
-- Set a `secret_key` in `web/config.py`
+- Clone AnotherCat/message-manager-site
+- Set a `secret_key` in `config.py`
 - Setup a production server, see Quart's docs for more instructions
 
 You are also required to provide the source code to all viewers under the terms of the license, doing this and changing other references such as invite links, support server links, etc is up to you to go into the code and change.
