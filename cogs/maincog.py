@@ -154,6 +154,11 @@ class MainCog(commands.Cog):
                 inline=True,
             )
             embed.add_field(
+                name=f"`{prefix}fetch [channel_id] [message_id]`",
+                value="Returns raw content of the message in a .txt file",
+                inline=True,
+            )
+            embed.add_field(
                 name=f"`{prefix}delete [channel_id] [message_id]`",
                 value="Deletes the message from the bot. **Must** be from the bot",
                 inline=True,
