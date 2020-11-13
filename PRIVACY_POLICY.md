@@ -1,32 +1,64 @@
 # Privacy Policy
 
-## 1. What data do we store
+Message Manager provides a service through the Website (the "Site"), and the Discord Bot (the "Bot"), collectivity (the 'Service'). These services are provided to you by the Message Manager Dev Team ('we' or 'us') for users ('you').
+
+## Data We Collect
+
+### Data you provide
+
+The Service has settings that administrators of servers can set up on a per server basis. Setting these settings will store the following data when provided.
 
 - Guild ids
 - Role ids
 - Channel ids
 
-## 2. Why do we need that data
+### Data automatically collected
 
-1. Guild id -- Guild id is needed to set server specific settings
-2. Role id -- Role ids are stored as part of the per server config
-3. Channel id -- Channel ids are stored as part of the per server config
+When you connect to the site traffic is provided through a proxy from cloudflare for security and performance reasons. Cloudflare collects anonymous data which may include but is not limited IP addresses, country, device and browser type, http request type and time. Cloudflare's privacy policy can be found [here](https://www.cloudflare.com/privacy)
 
-## 3. How do we use this data
+#### Cookies
 
-The data is used for fetching server settings, with relation to the server the bot is in  
-Users from other servers will not be able to access data not related to their server
+Cookies are only currently used by Cloudflare to detect bad actors and block them, and to provide their other services to us. These cookies do not allow cross site tracking and in most cases log data retrieved using these cookies is only stored for 24 hours by Cloudflare on their servers.
 
-Data may be used in testing and bug fixing. Efforts have been taken to ensure the saftey of your data.
+## Where do we store your data
 
-## 4. Other than Discord and the users that share servers it, who is sent confidential data
+Data is currently stored in the US and both services are hosted in the US.
 
-- The bot devs and admins will have access to most of the data
-- Other than that we don't share your data with any third parties
+## Why do we need that data
 
-## 5. How to contact me if there is a concern of you want your records deleted
+### To provide functionality
 
-Either:
+Data that is set by admins (guild-ids, role-ids, channel-ids) are required for certain features to work.  
+Role ids are needed to confirm that a user has a set management role and thus permissions.
+Guild ids are needed to link server specific settings to their relative servers.
+Channel ids are needed to enable the vc-channel stats function to find the right channel.
 
-- Join the discord [server](https://discord.gg/xFZu29t) and contacting me at `Another Cat#3829`
-- Emailing anothercat1259@gmail.com
+### To protect the Service
+
+Data collected by Cloudflare is collected to protect the service from DDoS attacks among others attacks.
+
+### To help us improve the Service
+
+Anonymous data is collected by Cloudflare that contains approximate location, device type, http request info, browser type and other device data. None of this data is personally identifiable. We use this data to give us insight on how the Service is used, and this helps us improve the Service.
+
+Data may also be used in development and testing.
+
+## Who is your data shared with
+
+Other than Discord, users of the Service and developers of the Service your data is not currently shared with anyone else. However Cloudflare does collect data on our behalf regarding usage statics and preventing attacks on the service. We do not send any data that we don't collect through Cloudflare to Cloudflare.
+
+## How to contact us
+
+If you have a concern about the bot you can contact us a few ways.  
+You can:
+
+- Join the discord [server](https://discord.gg/xFZu29t) and contact me at `Another Cat#3829`
+- Emailing [privacy@messagemanager.xyz](mailto:privacy@messagemanager.xyz)
+
+## How to get your data removed
+
+If you would like us to remove your data please reach out to us and ask.
+
+## Changes to the policy
+
+Note: This Privacy Policy was last updated on the 14/11/2020. The privacy policy can be updated at anytime without any notice, however we will make an effort to inform you about the change.
