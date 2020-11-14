@@ -38,12 +38,7 @@ class MainCog(commands.Cog):
         if cog:
             if cog._get_overridden_method(cog.cog_command_error) is not None:
                 return
-        await ctx.send(
-            "There was an unknown error! "
-            "This has been reported to the devs."
-            "\nIf by any chance this broke something, "
-            "contact us through our support server"
-        )
+        await ctx.send("There was an unknown error!\n" f"Error: {error}")
         raise error
 
     @commands.Cog.listener()
@@ -57,7 +52,7 @@ class MainCog(commands.Cog):
             self.bot.load_time = datetime.utcnow()
 
     async def on_guild_join(self, guild: discord.Guild):
-
+        channel = None
         if guild.system_channel is None:
             for c in guild.text_channels:
                 perm = c.permissions_for(guild.me)
@@ -134,7 +129,7 @@ class MainCog(commands.Cog):
             )
             embed.add_field(
                 name=f"`{prefix}ping`",
-                value="Replys with the latency of the bot",
+                value="Replies with the latency of the bot",
                 inline=True,
             )
             embed.add_field(

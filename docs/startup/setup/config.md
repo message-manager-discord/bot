@@ -50,4 +50,3 @@ Must be the id of a voice channel.
 This requires the bot to have manage channel on this channel.
 
 ![Example of setting the user stats voice channel](../../.gitbook/assets/userstats.png)
-

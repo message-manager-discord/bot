@@ -6,7 +6,7 @@
 -->
 
 If you find a bug or if you want to make a feature request<!--, either join the [discord server](https://discord.gg/xFZu29t) or --> open an issue.  
-If you want to contrubite to the docs or the code of the bot feel free to open a pull request.
+If you want to contribute to the docs or the code of the bot feel free to open a pull request.
 
 Current version: `v1.0.0`
 
@@ -32,7 +32,7 @@ Here is a [simplified version](https://tldrlegal.com/license/gnu-affero-general-
 
 ## Docs
 
-Offical docs are [here](https://docs.messagemanager.xyz). Read them before asking questions please :smile:
+Official docs are [here](https://docs.messagemanager.xyz). Read them before asking questions please :smile:
 
 Self Hosting instructions can also be found in the docs
 

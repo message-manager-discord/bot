@@ -58,12 +58,7 @@ class MessagesCog(commands.Cog):
                 "Run the command without pararameters to be guided through the input!"
             )
         else:
-            await ctx.send(
-                "There was an unknown error! "
-                "This has been reported to the devs."
-                "\nIf by any chance this broke something, "
-                "contact us through our support server"
-            )
+            await ctx.send("There was an unknown error!\n" f"Error: {error}")
             raise error
 
     async def check_channel(self, ctx: commands.Context, channel):
@@ -194,7 +189,7 @@ class MessagesCog(commands.Cog):
                     )
                     del list_content[2:4]
                 elif command_type == "fetch":
-                    f.write(f"Cotent:\n\n{content}")
+                    f.write(f"Content:\n\n{content}")
                     del list_content[2:3]
                 else:
                     f.write(f"Content:\n\n{content}")

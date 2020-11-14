@@ -13,4 +13,3 @@ This permissions is needed for a number of functions
 
 This permission is needed for the stats function to function.  
 You can just give it this permission for the specific voice channels, or server wide.
-

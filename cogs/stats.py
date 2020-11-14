@@ -51,12 +51,7 @@ class StatsCog(commands.Cog):
                 f"That command is on cool down for another {mins} minutes and {sec} seconds!\n{error.retry_after}"
             )
         else:
-            await ctx.send(
-                "There was an unknown error! "
-                "This has been reported to the devs."
-                "\nIf by any chance this broke something, "
-                "contact us through our support server"
-            )
+            await ctx.send("There was an unknown error!\n" f"Error: {error}")
             raise error
 
     async def cog_unload(self):

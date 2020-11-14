@@ -1,7 +1,7 @@
 # Self Hosting
 
 {% hint style="warning" %}
-I do not provide support for running your own instance of this bot other than these docs, and I would prefer if you invite the offical instance instead. However you can run it if you want to, and you can reach out if you think you have found a bug.
+I do not provide support for running your own instance of this bot other than these docs, and I would prefer if you invite the official instance instead. However you can run it if you want to, and you can reach out if you think you have found a bug.
 {% endhint %}
 
 ## Installation
@@ -20,10 +20,10 @@ I do not provide support for running your own instance of this bot other than th
 ```bash
 ~$ python3 #check if python is installed.
 ~$ git clone https://github.com/AnotherCat/message-bot.git # Clone this github repo
-~$ python3 -m venv bot-env # Create the python virtual enviroment bot-env
-~$ source bot-env/bin/activate # Activate the python virtual enviroment (will need to do this every time you want to be able to run the bot)
+~$ python3 -m venv bot-env # Create the python virtual environment bot-env
+~$ source bot-env/bin/activate # Activate the python virtual environment (will need to do this every time you want to be able to run the bot)
 (bot-env) ~$ cd message-bot # Navigate to the main directory for the project.
-(bot-env) ~/message-bot$ pip install -r requirments.txt # Install the required python packages.
+(bot-env) ~/message-bot$ pip install -r requirements.txt # Install the required python packages.
 # Now you need to setup the config variables, see Config below
 (bot-env) ~/message-bot$ python3 main.py # Run the bot
 ```
@@ -46,7 +46,7 @@ This bot uses a `config.py` file to store config.
 
 1. Install PostgreSQL
 2. Create a role for the bot to use
-3. Create the bot's database
+3. Create the database
 
 ```bash
 $sudo -u postgres psql
@@ -68,7 +68,7 @@ Then enter the values into the postgres_uri config.
 | Field         | Type     | Value                                             | Description                                                  | Required | Default |
 | :-------------- | :------------------ | :----------------------------------------------------------- | --------------- | :-------------- | --------------- |
 | token | string         | Discord Bot Token  | This is the discord bot token.                               | Yes | `""` |
-| default_prefix    | string         | String    | This is the default prefix before commands. If a server prefix this will be overidden. | Yes | `"!"` |
+| default_prefix    | string         | String    | This is the default prefix before commands. If a server prefix this will be overridden. | Yes | `"!"` |
 | owner   | string | User ID | This will appear in the info box from the `!info` command. Leave as `None` if you don't want this to appear. | No | `None` |
 | bypassed_users | int[] | User ids in an array | By adding a user to this this will bypass all user checks. This is useful for if you have set allowed_server, but want some users to still be able to use it. **Dangerous** permission to grant. | No | `[]` |
 | uri | string | postgres uri | This gives the bot access to the database. You'll need to setup a postgres user and database. | Yes | see config file |

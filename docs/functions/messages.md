@@ -61,11 +61,13 @@ This is useful because it mean that you can view and change the exact content th
 `~fetch <channel> <message id>`
 
 {% code title="Content.txt" %}
+
 ```text
 Content:
 
 This message was edited!
 ```
+
 {% endcode %}
 
 ### Deleting messages
@@ -80,4 +82,3 @@ A `.txt` file will be returned if the content is too long.
 `~delete <channel> <message id>`
 
 ![Deleting a message](../.gitbook/assets/delete%20%281%29.png)
-

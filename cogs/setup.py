@@ -43,12 +43,7 @@ class SetupCog(commands.Cog):
             await ctx.send(error)
 
         else:
-            await ctx.send(
-                "There was an unknown error! "
-                "This has been reported to the devs."
-                "\nIf by any chance this broke something, "
-                "contact us through our support server"
-            )
+            await ctx.send("There was an unknown error!\n" f"Error: {error}")
             raise error
 
     @commands.has_guild_permissions(administrator=True)
@@ -95,7 +90,7 @@ class SetupCog(commands.Cog):
             await ctx.send(
                 embed=discord.Embed(
                     title="Config updated!",
-                    description=f"Server prefex updated from `{prefix}` to `{self.bot.default_prefix}`",
+                    description=f"Server prefix updated from `{prefix}` to `{self.bot.default_prefix}`",
                     timestamp=datetime.now(timezone.utc),
                     colour=discord.Colour(15653155),
                 )
@@ -110,7 +105,7 @@ class SetupCog(commands.Cog):
                 await ctx.send(
                     embed=discord.Embed(
                         title="Config updated!",
-                        description=f"Server prefex updated from `{prefix}` to `{new_prefix}`",
+                        description=f"Server prefix updated from `{prefix}` to `{new_prefix}`",
                         timestamp=datetime.now(timezone.utc),
                         colour=discord.Colour(15653155),
                     )
@@ -148,10 +143,10 @@ class SetupCog(commands.Cog):
                     allowed_mentions=discord.AllowedMentions(roles=False),
                 )
                 if original_role is None:
-                    embed.description = f"Mangement role updated to None"
+                    embed.description = f"Management role updated to None"
                 else:
                     embed.description = (
-                        f"Mangement role updated from {original_role.mention} to None"
+                        f"Management role updated from {original_role.mention} to None"
                     )
                 await ctx.send(embed=embed)
             else:
@@ -177,15 +172,16 @@ class SetupCog(commands.Cog):
                     allowed_mentions=discord.AllowedMentions(roles=False),
                 )
                 if original_role is None:
-                    embed.description = f"Mangement role updated to {role.mention}"
+                    embed.description = f"Management role updated to {role.mention}"
                 else:
-                    embed.description = f"Mangement role updated from {original_role.mention} to {role.mention}"
+                    embed.description = f"Management role updated from {original_role.mention} to {role.mention}"
                 await ctx.send(embed=embed)
 
     @commands.has_guild_permissions(administrator=True)
     @setup.command()
     async def botstats(self, ctx: commands.Context, channel_id=None):
         original_channel_id = await self.bot.db.get_bot_channel(ctx.guild)
+        original_channel = None
         if original_channel_id is not None:
             original_channel = ctx.guild.get_channel(original_channel_id)
             if original_channel is None:
@@ -261,6 +257,7 @@ class SetupCog(commands.Cog):
     @setup.command()
     async def userstats(self, ctx: commands.Context, channel_id=None):
         original_channel_id = await self.bot.db.get_member_channel(ctx.guild)
+        original_channel = None
         if original_channel_id is not None:
             original_channel = ctx.guild.get_channel(original_channel_id)
             if original_channel is None:

@@ -1,6 +1,6 @@
 ---
 description: >-
-  If set the bot will automaticlly update the name of a voice channel to match
+  If set the bot will automatically update the name of a voice channel to match
   the current bot / member accounts in the server.
 ---
 
