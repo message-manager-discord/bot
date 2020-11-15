@@ -51,6 +51,7 @@ class MainCog(commands.Cog):
         if self.bot.load_time is None:
             self.bot.load_time = datetime.utcnow()
 
+    @commands.Cog.listener()
     async def on_guild_join(self, guild: discord.Guild):
         channel = None
         if guild.system_channel is None:
