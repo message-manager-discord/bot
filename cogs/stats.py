@@ -49,7 +49,7 @@ class StatsCog(commands.Cog):
     @commands.guild_only()
     async def stats_force_update(self, ctx: commands.Context):
         await ctx.send(
-            "Unfortunately this function had to be removed.\nSee https://github.com/AnotherCat/message-bot/blob/master/CHANGELOG.md/#v1.1.0 for more info."
+            "Unfortunately this function had to be removed.\nSee https://github.com/AnotherCat/message-bot/blob/master/CHANGELOG.md/#v110 for more info."
         )
 
 

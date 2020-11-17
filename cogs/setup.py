@@ -69,12 +69,12 @@ class SetupCog(commands.Cog):
             )
             embed.add_field(
                 name=f"`{prefix}setup botstats " "{channel}`",
-                value="This feature has been disabled! See [changelog](https://github.com/AnotherCat/message-bot/blob/master/CHANGELOG.md/#v1.1.0)",
+                value="This feature has been disabled! See [changelog](https://github.com/AnotherCat/message-bot/blob/master/CHANGELOG.md/#v110)",
                 inline=False,
             )
             embed.add_field(
                 name=f"`{prefix}setup userstats " "{channel}`",
-                value="This feature has been disabled! See [changelog](https://github.com/AnotherCat/message-bot/blob/master/CHANGELOG.md/#v1.1.0)",
+                value="This feature has been disabled! See [changelog](https://github.com/AnotherCat/message-bot/blob/master/CHANGELOG.md/#v110)",
                 inline=False,
             )
             await ctx.send(embed=embed)
