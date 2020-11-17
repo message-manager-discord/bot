@@ -31,12 +31,6 @@ Do **not** include the `<>` or `{}` while doing commands. This is just a indicat
 | [`~fetch <channel> <message id>`](messages.md#fetching-messages) | Returns the raw content of that message | Management Role |
 | [`~delete <channel> <message id>`](messages.md#deleting-messages) | Deletes a message that the bot sent | Management Role |
 
-## Stats commands
-
-| Command | Description | Permission Level |
-| :--- | :--- | :--- |
-| [`~stats update`](stats.md#force-updating) | Force updates the stats. Has a 10 minute cooldown | Management Role |
-
 ## Setup commands
 
 {% hint style="info" %}
@@ -48,6 +42,4 @@ All commands below will return the current setting if the optional parameter is 
 | [`~setup`](../startup/setup/config.md) | Gives information about the setup commands | `ADMINISTRATOR` |
 | [`~setup prefix {new prefix}`](../startup/setup/config.md#prefix) | Changes the guild's prefix to the new prefix. | `ADMINISTRATOR` |
 | [`~setup admin {admin role}`](../startup/setup/config.md#management-role) | Sets the administrative role, or as is more commonly called, the management role | `ADMINISTRATOR` |
-| [`~setup botstats {voice channel id}`](../startup/setup/config.md#bot-stats-voice-channel) | Sets the the channel to update the bot numbers to | `ADMINISTRATOR` |
-| [`~setup userstats {voice channel id}`](../startup/setup/config.md#member-stats-voice-channel) | Sets the the channel to update the user numbers to | `ADMINISTRATOR` |
 | `~prefix` | Returns the current prefix for the guild. This is useful if you forget the prefix because it can be invoked with the bot mention prefix | `@everyone` |

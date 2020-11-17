@@ -2,7 +2,7 @@
 
 ## Invite the bot to your server
 
-1. Click [here](https://discord.com/api/oauth2/authorize?client_id=735395698278924359&permissions=388176&scope=bot) to invite the bot to your server with full permissions
+1. Click [here](https://discord.com/api/oauth2/authorize?client_id=735395698278924359&permissions=379968&scope=bot) to invite the bot to your server with full permissions
 2. Select your server
 3. Complete the re-captcha
 

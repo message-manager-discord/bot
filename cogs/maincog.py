@@ -45,7 +45,7 @@ class MainCog(commands.Cog):
     async def on_ready(self):
         # Print the bot invite link
         print(
-            f"https://discord.com/api/oauth2/authorize?client_id={self.bot.user.id}&permissions=519232&scope=bot"
+            f"https://discord.com/api/oauth2/authorize?client_id={self.bot.user.id}&permissions=379968&scope=bot"
         )
         print(f"Logged on as {self.bot.user}!")
         if self.bot.load_time is None:
@@ -160,11 +160,6 @@ class MainCog(commands.Cog):
                 inline=True,
             )
             embed.add_field(
-                name=f"`{prefix}stats update`",
-                value="Update the stats channels",
-                inline=True,
-            )
-            embed.add_field(
                 name=f"`{prefix}setup`",
                 value="Starts setup, Requires the user to have admin permissions",
                 inline=True,
@@ -249,8 +244,8 @@ class MainCog(commands.Cog):
         await ctx.send(
             embed=discord.Embed(
                 title="Invite me to your server!",
-                description="[Click here](https://discord.com/api/oauth2/authorize?client_id=735395698278924359&permissions=388176&scope=bot) to invite me!",
-                url="https://discord.com/api/oauth2/authorize?client_id=735395698278924359&permissions=388176&scope=bot",
+                description="[Click here](https://discord.com/api/oauth2/authorize?client_id=735395698278924359&permissions=379968&scope=bot) to invite me!",
+                url="https://discord.com/api/oauth2/authorize?client_id=735395698278924359&permissions=379968&scope=bot",
                 colour=discord.Colour(0xC387C1),
                 timestamp=datetime.now(timezone.utc),
             )

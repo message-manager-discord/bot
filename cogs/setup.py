@@ -69,12 +69,12 @@ class SetupCog(commands.Cog):
             )
             embed.add_field(
                 name=f"`{prefix}setup botstats " "{channel}`",
-                value="Sets the voice channel for the bot count",
+                value="This feature has been disabled! See [changelog](https://github.com/AnotherCat/message-bot/blob/master/CHANGELOG.md/#v1.1.0)",
                 inline=False,
             )
             embed.add_field(
                 name=f"`{prefix}setup userstats " "{channel}`",
-                value="Sets the voice channel for the user count",
+                value="This feature has been disabled! See [changelog](https://github.com/AnotherCat/message-bot/blob/master/CHANGELOG.md/#v1.1.0)",
                 inline=False,
             )
             await ctx.send(embed=embed)
@@ -180,155 +180,12 @@ class SetupCog(commands.Cog):
     @commands.has_guild_permissions(administrator=True)
     @setup.command()
     async def botstats(self, ctx: commands.Context, channel_id=None):
-        original_channel_id = await self.bot.db.get_bot_channel(ctx.guild)
-        original_channel = None
-        if original_channel_id is not None:
-            original_channel = ctx.guild.get_channel(original_channel_id)
-            if original_channel is None:
-                raise self.bot.errors.ConfigError(
-                    "Looks like the stored channel is incorrect, please reset bot channel in the config."
-                )
-        if channel_id is None:
-            if original_channel_id is None:
-                raise self.bot.errors.ConfigNotSet(
-                    "The bot stats channel has not been set yet!"
-                )
-            else:
-                await ctx.send(
-                    embed=discord.Embed(
-                        title="Bot stats channel",
-                        description=f"The current bot stats channel is {original_channel.name}",
-                        timestamp=datetime.now(timezone.utc),
-                        colour=discord.Colour(15653155),
-                    )
-                )
-
-        else:
-            if channel_id.lower() == "none":
-                channel_id = None
-                await self.bot.db.update_bot_channel(ctx.guild, channel_id)
-
-                embed = discord.Embed(
-                    title="Config updated!",
-                    timestamp=datetime.now(timezone.utc),
-                    colour=discord.Colour(15653155),
-                )
-                if original_channel_id is None:
-                    embed.description = description = f"Bot stats channel set to none!"
-                else:
-                    embed.description = f"Bot stats channel updated from {original_channel.name} to none!"
-                await ctx.send(embed=embed)
-
-            else:
-                if channel_id[:2] == "<#":
-                    channel_id = channel_id[2:-1]
-                try:
-                    channel_id = int(channel_id)
-                    if channel_id == await self.bot.db.get_member_channel(ctx.guild):
-                        raise self.bot.errors.InputContentIncorrect(
-                            "Bot stats channel can't be the same as user stats channel!"
-                        )
-                    channel = ctx.guild.get_channel(channel_id)
-                    if channel is None or not isinstance(channel, discord.VoiceChannel):
-                        raise self.bot.errors.InputContentIncorrect(
-                            "I could not find that channel! \nPlease try again and make sure it's a voice channel."
-                        )
-                except ValueError:
-                    raise self.bot.errors.InputContentIncorrect(
-                        "I could not find that channel! Please try again"
-                    )
-                await self.bot.db.update_bot_channel(ctx.guild, channel_id)
-                await ctx.invoke(self.bot.get_command("stats _update"))
-
-                embed = discord.Embed(
-                    title="Config updated!",
-                    timestamp=datetime.now(timezone.utc),
-                    colour=discord.Colour(15653155),
-                )
-                if original_channel_id is None:
-                    embed.description = (
-                        description
-                    ) = f"Bot stats channel set to {channel.name}!"
-                else:
-                    embed.description = f"Bot stats channel updated from {original_channel.name} to {channel.name}!"
-                await ctx.send(embed=embed)
+        await ctx.invoke(self.bot.get_command("stats update"))
 
     @commands.has_guild_permissions(administrator=True)
     @setup.command()
     async def userstats(self, ctx: commands.Context, channel_id=None):
-        original_channel_id = await self.bot.db.get_member_channel(ctx.guild)
-        original_channel = None
-        if original_channel_id is not None:
-            original_channel = ctx.guild.get_channel(original_channel_id)
-            if original_channel is None:
-                raise self.bot.errors.ConfigError(
-                    "Looks like the stored channel is incorrect, please reset bot channel in the config."
-                )
-        if channel_id is None:
-            if original_channel_id is None:
-                raise self.bot.errors.ConfigNotSet(
-                    "The user stats channel has not been set yet!"
-                )
-            else:
-                await ctx.send(
-                    embed=discord.Embed(
-                        title="User stats channel",
-                        description=f"The current user stats channel is {original_channel.name}",
-                        timestamp=datetime.now(timezone.utc),
-                        colour=discord.Colour(15653155),
-                    )
-                )
-
-        else:
-            if channel_id.lower() == "none":
-                channel_id = None
-                await self.bot.db.update_user_channel(ctx.guild, channel_id)
-
-                embed = discord.Embed(
-                    title="Config updated!",
-                    timestamp=datetime.now(timezone.utc),
-                    colour=discord.Colour(15653155),
-                )
-                if original_channel_id is None:
-                    embed.description = description = f"User stats channel set to none!"
-                else:
-                    embed.description = f"User stats channel updated from {original_channel.name} to none!"
-                await ctx.send(embed=embed)
-
-            else:
-                if channel_id[:2] == "<#":
-                    channel_id = channel_id[2:-1]
-                try:
-                    channel_id = int(channel_id)
-                    if channel_id == await self.bot.db.get_bot_channel(ctx.guild):
-                        raise self.bot.errors.InputContentIncorrect(
-                            "User stats channel can't be the same as bot stats channel!"
-                        )
-                    channel = ctx.guild.get_channel(channel_id)
-                    if channel is None or not isinstance(channel, discord.VoiceChannel):
-                        raise self.bot.errors.InputContentIncorrect(
-                            "I could not find that channel! \nPlease try again and make sure it's a voice channel."
-                        )
-                except ValueError:
-                    raise self.bot.errors.InputContentIncorrect(
-                        "I could not find that channel! Please try again"
-                    )
-                await self.bot.db.update_user_channel(ctx.guild, channel_id)
-                await ctx.invoke(self.bot.get_command("stats _update"))
-
-                embed = discord.Embed(
-                    title="Config updated!",
-                    timestamp=datetime.now(timezone.utc),
-                    colour=discord.Colour(15653155),
-                )
-                if original_channel_id is None:
-                    embed.description = (
-                        description
-                    ) = f"User stats channel set to {channel.name}!"
-                else:
-                    embed.description = f"User stats channel updated from {original_channel.name} to {channel.name}!"
-
-                await ctx.send(embed=embed)
+        await ctx.invoke(self.bot.get_command("stats update"))
 
     @commands.command(name="prefix")
     async def prefix(self, ctx: commands.Context):

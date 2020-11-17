@@ -24,7 +24,7 @@ import discord
 async def check_if_manage_role(bot, ctx):
     if guild_only(bot, ctx):
         management_role = await bot.db.get_management_role(ctx.guild)
-        if ctx.author == ctx.guild.owner:
+        if ctx.author.id == ctx.guild.owner_id:
             return True
         elif management_role is None:
             prefix = await bot.db.get_prefix(ctx.guild)

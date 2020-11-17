@@ -6,15 +6,7 @@ Source code is available at [AnotherCat/message-bot](https://github.com/AnotherC
 ## Functions
 
 - Message management (editing and sending)
-- Automatic user stats
 - Customizable prefix and server settings
-
-### Stats Voice Channels
-
-You can set a voice channel for bot and user stats to be displayed on.  
-This is automatically updated at around every 30 mins.  
-
-{% page-ref page="functions/stats.md" %}
 
 ### Info Message Management
 

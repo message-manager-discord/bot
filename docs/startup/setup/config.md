@@ -27,26 +27,3 @@ Set role with `~setup admin <role>`
 `<role>` Can be either the role id or mentioning the role.
 
 ![Example of setting the admin role](../../.gitbook/assets/admin.png)
-
-## Bot Stats Voice Channel
-
-This will set the voice channel to update bot numbers to.  
-See the stats page for more info
-
-Set this with `~setup botstats <channel>`
-
-`<channel>` Must be the id of a voice channel.  
-This requires the bot to have manage channel on this channel.
-
-![Example of setting the bot stats voice channel](../../.gitbook/assets/botstats.png)
-
-## Member Stats Voice Channel
-
-This will set the voice channel to update member numbers to.
-
-Set this with `~setup userstats <channel>`
-
-Must be the id of a voice channel.  
-This requires the bot to have manage channel on this channel.
-
-![Example of setting the user stats voice channel](../../.gitbook/assets/userstats.png)

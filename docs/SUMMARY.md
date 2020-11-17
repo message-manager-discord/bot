@@ -11,7 +11,6 @@
 ## Functions
 
 * [Messages](functions/messages.md)
-* [Stats](functions/stats.md)
 * [Commands](functions/commands.md)
 
 ## Self Hosting

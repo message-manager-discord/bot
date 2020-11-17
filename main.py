@@ -97,7 +97,7 @@ logging.basicConfig(filename="discord.log", filemode="w", level=logging.INFO)
 
 logging.info("Started logging!")
 
-intents = discord.Intents(guilds=True, members=True, messages=True)
+intents = discord.Intents(guilds=True, members=False, messages=True)
 
 bot = Bot(
     owner_ids=config.owners,

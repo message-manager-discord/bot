@@ -34,11 +34,11 @@ queries = {
         id INT,
         version VARCHAR(18)
         );
-        INSERT INTO version VALUES(0, 'v1.0.0');
         """,
         "new_version": "v1.0.0",
     },
-    "v1.0.0": None,
+    "v1.0.0": {"query": None, "new_version": "v1.1.0"},
+    "v1.1.0": None,
 }
 
 create_db = """
@@ -73,7 +73,15 @@ async def init_db(pool):
                 print(
                     f"Updating database from {version} to {version_action['new_version']}"
                 )
-                await conn.execute(version_action["query"])
+                if version_action["query"] is not None:
+                    await conn.execute(version_action["query"])
+                await conn.execute("truncate table version;")
+                await conn.execute(
+                    """
+                    INSERT INTO version Values(0, $1)
+                    """,
+                    version_action["new_version"],
+                )
                 print(f"Database updated to {version_action['new_version']}")
             else:
                 loop_value = False
