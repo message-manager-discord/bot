@@ -1,5 +1,18 @@
 # Changelog - Bot
 
+## v1.1.1
+
+### Fix version not consistent across bot
+
+The version of the bot was not from the value of `__version__` in the info command.
+
+#### Changes
+
+- Edit the value of version on the info command
+- Add a check to see if the version of the database and the bot are the same at startup
+- Bump version to v1.1.1
+- Remove un used database functions
+
 ## v1.1.0
 
 ### Stats Function Removed

@@ -32,7 +32,7 @@ from src.db import db
 
 starttime = datetime.datetime.utcnow()
 
-version = "v1.0.0"
+__version__ = "v1.1.1"
 
 
 class Bot(commands.Bot):
@@ -58,7 +58,7 @@ class Bot(commands.Bot):
 
 
 async def run():
-    database = db.DatabasePool(config.uri)
+    database = db.DatabasePool(config.uri, bot)
     await database._init()
     bot.db = database
 
@@ -108,7 +108,8 @@ bot = Bot(
     errors=errors,
     default_prefix=config.default_prefix,
     self_hosted=config.self_host,
-    version=version,
+    version=__version__,
 )
-loop = asyncio.get_event_loop()
-loop.run_until_complete(run())
+if __name__ == "__main__":
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(run())

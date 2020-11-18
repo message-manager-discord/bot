@@ -189,7 +189,7 @@ class MainCog(commands.Cog):
         )
         embed.add_field(name="Username", value=self.bot.user, inline=True),
         embed.add_field(name="Prefix", value=f"`{prefix}`", inline=True),
-        embed.add_field(name="Version", value="v0.3.0", inline=True),
+        embed.add_field(name="Version", value=self.bot.version, inline=True),
         embed.add_field(
             name="Docs",
             value="[The Docs](https://docs.messagemanager.xyz)",

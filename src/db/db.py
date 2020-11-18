@@ -25,20 +25,35 @@ from config import uri as default_uri
 from src.db.startup import init_db
 
 
-async def create_pool(uri):
-    pool = DatabasePool(uri)
-    await pool._init()
-    return pool
+class IncorrectVersion(Exception):
+    pass
 
 
 class DatabasePool:
-    def __init__(self, uri):
+    def __init__(self, uri, bot):
         self.pool = None
         self.uri = uri
+        self.bot = bot
 
     async def _init(self):
         await self._create_pool(self.uri)
         await init_db(self.pool)
+        await self._check_version()
+
+    async def _check_version(self):
+        async with self.pool.acquire() as conn:
+            version = await conn.fetch(
+                """
+                        SELECT version
+                        FROM version;
+                        """
+            )
+            version = version[0].get("version")
+            if self.bot.version != version:
+                raise IncorrectVersion(
+                    f"Bot version {self.bot.version}, but database version {version}!"
+                )
+                await self.bot.logout()
 
     async def _create_pool(self, uri):
         self.pool = await asyncpg.create_pool(dsn=uri)
@@ -66,34 +81,6 @@ class DatabasePool:
                 return default_prefix
             else:
                 return prefix
-
-    async def get_member_channel(self, guild):
-        async with self.pool.acquire() as conn:
-            member_channel = await conn.fetch(
-                """
-                SELECT member_channel 
-                FROM servers 
-                WHERE server_id=$1
-                """,
-                guild.id,
-            )
-            if member_channel == []:
-                return None
-            return member_channel[0].get("member_channel")
-
-    async def get_bot_channel(self, guild):
-        async with self.pool.acquire() as conn:
-            bot_channel = await conn.fetch(
-                """
-                SELECT bot_channel 
-                FROM servers 
-                WHERE server_id=$1
-                """,
-                guild.id,
-            )
-            if bot_channel == []:
-                return None
-            return bot_channel[0].get("bot_channel")
 
     async def get_management_role(self, guild):
         async with self.pool.acquire() as conn:
@@ -136,35 +123,3 @@ class DatabasePool:
                 guild.id,
                 role_id,
             )
-
-    async def update_bot_channel(self, guild, channel_id):
-        async with self.pool.acquire() as conn:
-            await conn.execute(
-                """
-                INSERT INTO servers 
-                    (server_id, bot_channel)
-                    VALUES($1, $2)
-                    ON CONFLICT (server_id)
-                    DO UPDATE SET bot_channel = $2;
-                """,
-                guild.id,
-                channel_id,
-            )
-
-    async def update_user_channel(self, guild, channel_id):
-        async with self.pool.acquire() as conn:
-            await conn.execute(
-                """
-                INSERT INTO servers 
-                    (server_id, member_channel)
-                    VALUES($1, $2)
-                    ON CONFLICT (server_id)
-                    DO UPDATE SET member_channel = $2;
-                """,
-                guild.id,
-                channel_id,
-            )
-
-
-def setup(bot):
-    print("    Database module!")
