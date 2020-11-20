@@ -1,6 +1,6 @@
-# Custom Helper Bot
+# Message Manager
 
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black) [![time tracker](https://wakatime.com/badge/github/AnotherCat/message-bot.svg)](https://wakatime.com/badge/github/AnotherCat/message-bot)
 <!--
 [![Support Server Invite](https://discord.com/api/guilds/742373263593963614/embed.png)](https://discord.gg/xFZu29t)
 -->
@@ -35,6 +35,3 @@ Here is a [simplified version](https://tldrlegal.com/license/gnu-affero-general-
 Official docs are [here](https://docs.messagemanager.xyz). Read them before asking questions please :smile:
 
 Self Hosting instructions can also be found in the docs
-
-[![time tracker](https://wakatime.com/badge/github/AnotherCat/message-bot.svg)](https://wakatime.com/badge/github/AnotherCat/message-bot)
-(Not accurate as i've only just started using it)
