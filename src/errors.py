@@ -35,6 +35,14 @@ class DifferentServer(CheckFailure):
         super(kwargs)
 
 
+class DifferentAuthor(CheckFailure):
+    def __init__(self, **kwargs):
+        self.message = (
+            "That message was not sent by me! I cannot edit messages sent by others."
+        )
+        super(kwargs)
+
+
 class ContentError(CheckFailure):
     pass
 

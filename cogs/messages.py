@@ -45,6 +45,7 @@ class MessagesCog(commands.Cog):
                 self.bot.errors.DifferentServer,
                 self.bot.errors.ConfigNotSet,
                 self.bot.errors.InputContentIncorrect,
+                self.bot.errors.DifferentAuthor,
                 commands.NoPrivateMessage,
             ),
         ):
@@ -84,9 +85,22 @@ class MessagesCog(commands.Cog):
                 ctx, get_channel.content
             )
 
-            return channel
-        else:
-            return channel
+        perms = channel.permissions_for(ctx.guild.me)
+        sender_perms = channel.permissions_for(ctx.author)
+        if not perms.view_channel:
+            raise self.bot.errors.InputContentIncorrect(
+                "I do not have the the `View Messages` permission in that channel!"
+            )
+        elif not (perms.send_messages and perms.embed_links):
+            raise self.bot.errors.InputContentIncorrect(
+                "I do not have the the `Send Message` and `Embed Links` permission in that channel!"
+            )
+        elif not sender_perms.view_channel:
+            raise self.bot.errors.InputContentIncorrect(
+                "You don't have the `View Messages` permissions in that channel!"
+            )
+
+        return channel
 
     async def check_content(self, ctx: commands.Context, content):
         def is_correct(m):
@@ -112,12 +126,26 @@ class MessagesCog(commands.Cog):
             return content
 
     async def check_message_id(self, ctx: commands.Context, channel, message):
-        ctx_but_with_channel = ctx
         if not isinstance(channel, discord.TextChannel):
             channel = await commands.TextChannelConverter().convert(ctx, channel)
 
         def is_correct(m):
             return m.author == ctx.author
+
+        async def message_or_error(channel, message):
+            try:
+                return await channel.fetch_message(int(message))
+            except Exception as e:
+                if isinstance(e, discord.NotFound):
+                    raise self.bot.errors.InputContentIncorrect(
+                        "I can't find that message!"
+                    )
+                elif isinstance(e, ValueError):
+                    raise self.bot.errors.InputContentIncorrect(
+                        "That is not a message id!"
+                    )
+                else:
+                    raise e
 
         if message == None:
             message = await ctx.send(
@@ -130,12 +158,7 @@ class MessagesCog(commands.Cog):
 
             get_message = await self.bot.wait_for("message", check=is_correct)
 
-            try:
-                msg = await channel.fetch_message(get_message.content)
-            except discord.NotFound:
-                raise self.bot.errors.InputContentIncorrect(
-                    "I can't find that message!"
-                )
+            msg = await message_or_error(channel, get_message.content)
 
             try:
                 await get_message.delete()
@@ -144,12 +167,7 @@ class MessagesCog(commands.Cog):
                 pass
             return msg
         else:
-            try:
-                message = await channel.fetch_message(message)
-            except discord.NotFound:
-                raise self.bot.errors.InputContentIncorrect(
-                    "I can't find that message!"
-                )
+            message = await message_or_error(channel, message)
             return message
 
     async def send_message_info_embed(
@@ -222,12 +240,6 @@ class MessagesCog(commands.Cog):
         channel = await self.check_channel(ctx, channel)  # Get the channel.
         if channel.guild != ctx.guild:
             raise self.bot.errors.DifferentServer()
-        perms = channel.permissions_for(ctx.guild.me)
-        if not (perms.send_messages and perms.embed_links):
-            raise self.bot.errors.InputContentIncorrect(
-                "I do not the the `SEND MESSAGES` permission in that channel!"
-            )
-
         content = await self.check_content(ctx, content)
         if content[1:4] == "```" and content[-3:] == "```":
             content = content[4:-3]
@@ -260,6 +272,9 @@ class MessagesCog(commands.Cog):
             raise self.bot.errors.DifferentServer()
 
         msg = await self.check_message_id(ctx, channel, message_id)
+        if msg.author != ctx.guild.me:
+            raise self.bot.errors.DifferentAuthor()
+
         content = await self.check_content(ctx, content)
         if content[1:4] == "```" and content[-3:] == "```":
             content = content[4:-3]
