@@ -65,24 +65,6 @@ class AdminCog(commands.Cog):
             await ctx.send(f"The module {module} was loaded!")
 
     @commands.command(hidden=True)
-    async def listservers(self, ctx: commands.Context):
-        servers = []
-        x = 0
-        for guild in self.bot.guilds:
-            try:
-                servers[int(x / 50)] = (
-                    servers[int(x / 50)] + f'\n"{guild.name}", {len(guild.members)}'
-                )
-            except IndexError:
-                servers.append(f'\n"{guild.name}", {len(guild.members)}')
-            x += 1
-        await ctx.author.send(f"I am in {len(self.bot.guilds)} servers!")
-        for item in servers:
-            await ctx.author.trigger_typing()
-            await asyncio.sleep(1)
-            await ctx.author.send(item)
-
-    @commands.command(hidden=True)
     async def unload(self, ctx: commands.Context, *, module: str):
         """Unloads a module."""
         try:
