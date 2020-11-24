@@ -56,6 +56,12 @@ class Bot(commands.Bot):
             prefix = [prefix, ""]
         return commands.when_mentioned_or(*prefix)(self, message)
 
+    async def on_command_error(self, ctx, error):
+        if isinstance(error, commands.CommandNotFound):
+            pass
+        else:
+            raise error
+
 
 async def run():
     database = db.DatabasePool(config.uri, bot)
