@@ -67,7 +67,7 @@ class MessagesCog(commands.Cog):
             return m.author == ctx.author
 
         if channel == None:
-            message = await ctx.send(
+            await ctx.send(
                 embed=discord.Embed(
                     title="What is the channel?",
                     colour=discord.Colour.blue(),
@@ -75,11 +75,6 @@ class MessagesCog(commands.Cog):
                 )
             )
             get_channel = await self.bot.wait_for("message", check=is_correct)
-            try:
-                await get_channel.delete()
-                await message.delete()
-            except discord.errors.Forbidden:
-                pass
             get_channel.content
             channel = await commands.TextChannelConverter().convert(
                 ctx, get_channel.content
@@ -107,7 +102,7 @@ class MessagesCog(commands.Cog):
             return m.author == ctx.author
 
         if content == None or content == "":
-            message = await ctx.send(
+            await ctx.send(
                 embed=discord.Embed(
                     title="What is the content of the message to be?",
                     colour=discord.Colour.blue(),
@@ -116,11 +111,6 @@ class MessagesCog(commands.Cog):
             )
             get_content = await self.bot.wait_for("message", check=is_correct)
             content = get_content.content
-            try:
-                await get_content.delete()
-                await message.delete()
-            except discord.errors.Forbidden:
-                pass
             return content
         else:
             return content
@@ -148,7 +138,7 @@ class MessagesCog(commands.Cog):
                     raise e
 
         if message == None:
-            message = await ctx.send(
+            await ctx.send(
                 embed=discord.Embed(
                     title="What is the id of the message?",
                     colour=discord.Colour.blue(),
@@ -158,14 +148,8 @@ class MessagesCog(commands.Cog):
 
             get_message = await self.bot.wait_for("message", check=is_correct)
 
-            msg = await message_or_error(channel, get_message.content)
-
-            try:
-                await get_message.delete()
-                await message.delete()
-            except discord.errors.Forbidden:
-                pass
-            return msg
+            message = await message_or_error(channel, get_message.content)
+            return message
         else:
             message = await message_or_error(channel, message)
             return message
@@ -233,10 +217,6 @@ class MessagesCog(commands.Cog):
         *,
         content=None,
     ):
-        try:
-            await ctx.message.delete()
-        except discord.errors.Forbidden:
-            pass
         channel = await self.check_channel(ctx, channel)  # Get the channel.
         if channel.guild != ctx.guild:
             raise self.bot.errors.DifferentServer()
@@ -263,10 +243,6 @@ class MessagesCog(commands.Cog):
         *,
         content=None,
     ):
-        try:
-            await ctx.message.delete()
-        except discord.errors.Forbidden:
-            pass
         channel = await self.check_channel(ctx, channel)
         if channel.guild != ctx.guild:
             raise self.bot.errors.DifferentServer()
@@ -293,10 +269,6 @@ class MessagesCog(commands.Cog):
         def is_correct(m):
             return m.author == ctx.author
 
-        try:
-            await ctx.message.delete()
-        except discord.errors.Forbidden:
-            pass
         channel = await self.check_channel(ctx, channel)
 
         if channel.guild != ctx.guild:
@@ -314,7 +286,7 @@ class MessagesCog(commands.Cog):
         embed.add_field(
             name="Content", value=msg.content or msg.embeds[0].title, inline=False
         )
-        message = await ctx.send(embed=embed)
+        await ctx.send(embed=embed)
 
         try:
             choice = await self.bot.wait_for("message", check=is_correct, timeout=100.0)
@@ -326,11 +298,6 @@ class MessagesCog(commands.Cog):
                 await msg.delete()
             except discord.errors.Forbidden:
                 raise self.bot.errors.ContentError("There was an unknown error!")
-            try:
-                await choice.delete()
-                await message.delete()
-            except discord.errors.Forbidden:
-                pass
             await self.send_message_info_embed(
                 ctx, "delete", ctx.author, msg.content or msg.embeds[0].title, msg
             )
@@ -352,10 +319,6 @@ class MessagesCog(commands.Cog):
         channel: discord.TextChannel = None,
         message_id=None,
     ):
-        try:
-            await ctx.message.delete()
-        except discord.errors.Forbidden:
-            pass
         channel = await self.check_channel(ctx, channel)
         if channel.guild != ctx.guild:
             raise self.bot.errors.DifferentServer(
