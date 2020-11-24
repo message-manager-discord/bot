@@ -30,17 +30,21 @@ class ConfigError(CheckFailure):
 
 
 class DifferentServer(CheckFailure):
-    def __init__(self, **kwargs):
-        self.message = "That channel is not in this server, Please re-do the command"
-        super(kwargs)
+    def __init__(
+        self,
+        message="That channel is not in this server, Please re-do the command",
+        **kwargs
+    ):
+        super().__init__(message, **kwargs)
 
 
 class DifferentAuthor(CheckFailure):
-    def __init__(self, **kwargs):
-        self.message = (
-            "That message was not sent by me! I cannot edit messages sent by others."
-        )
-        super(kwargs)
+    def __init__(
+        self,
+        message="That message was not sent by me! I cannot edit messages sent by others.",
+        **kwargs
+    ):
+        super().__init__(message, **kwargs)
 
 
 class ContentError(CheckFailure):
