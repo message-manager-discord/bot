@@ -1,5 +1,19 @@
 # Changelog - Bot
 
+## v1.2.0
+
+### Add support command and fix various internal workings
+
+28th of November 2020
+
+- Add command `support` that responds with an invite to the discord support server
+- Remove dev command `listservers`
+- Send a plain non-embed message when asking for more input on messages commands
+- Check if the bot has view permissions before trying to send, edit, delete, or fetch anything
+- Check if the person sending has view permissions in that channel, this is to allow owners to have greater control over what can be edited by members with the admin role
+- Stop deleting the command invocation
+- Raise a clearer error when trying to edit a message that was sent by a different user than the bot
+
 ## v1.1.1
 
 ### Fix version not consistent across bot

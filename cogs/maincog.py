@@ -275,6 +275,18 @@ class MainCog(commands.Cog):
             )
         )
 
+    @commands.command()
+    async def support(self, ctx: commands.Context):
+        await ctx.send(
+            embed=discord.Embed(
+                title="Join my support server for support!",
+                description="Click [here](https://discord.gg/xFZu29t) to join!",
+                url="https://discord.gg/xFZu29t",
+                colour=discord.Colour(0xC387C1),
+                timestamp=datetime.now(timezone.utc),
+            )
+        )
+
 
 def setup(bot):
     bot.add_cog(MainCog(bot))
