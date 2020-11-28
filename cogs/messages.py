@@ -67,13 +67,7 @@ class MessagesCog(commands.Cog):
             return m.author == ctx.author
 
         if channel == None:
-            await ctx.send(
-                embed=discord.Embed(
-                    title="What is the channel?",
-                    colour=discord.Colour.blue(),
-                    timestamp=datetime.now(timezone.utc),
-                )
-            )
+            await ctx.send("What is the channel?")
             get_channel = await self.bot.wait_for("message", check=is_correct)
             get_channel.content
             channel = await commands.TextChannelConverter().convert(
@@ -102,13 +96,7 @@ class MessagesCog(commands.Cog):
             return m.author == ctx.author
 
         if content == None or content == "":
-            await ctx.send(
-                embed=discord.Embed(
-                    title="What is the content of the message to be?",
-                    colour=discord.Colour.blue(),
-                    timestamp=datetime.now(timezone.utc),
-                )
-            )
+            await ctx.send("What is the content of the message to be?")
             get_content = await self.bot.wait_for("message", check=is_correct)
             content = get_content.content
             return content
@@ -138,13 +126,7 @@ class MessagesCog(commands.Cog):
                     raise e
 
         if message == None:
-            await ctx.send(
-                embed=discord.Embed(
-                    title="What is the id of the message?",
-                    colour=discord.Colour.blue(),
-                    timestamp=datetime.now(timezone.utc),
-                )
-            )
+            await ctx.send("What is the id of the message?")
 
             get_message = await self.bot.wait_for("message", check=is_correct)
 
