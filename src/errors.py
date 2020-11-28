@@ -59,5 +59,9 @@ class InputContentIncorrect(CheckFailure):
     pass
 
 
+class JSONFailure(CheckFailure):
+    pass
+
+
 def setup(bot):
     print("    Errors!")
