@@ -403,7 +403,13 @@ class MessagesCog(commands.Cog):
             os.remove(file_name)
 
     @send_embed.command(name="json")
-    async def send_json_embed(self, ctx: commands.Context):
+    async def send_json_embed(
+        self,
+        ctx: commands.Context,
+        channel: discord.TextChannel = None,
+        *,
+        json_content=None,
+    ):
         log_embed = discord.Embed(
             title="Sent the embed!",
             colour=discord.Colour(0xC387C1),
@@ -411,15 +417,18 @@ class MessagesCog(commands.Cog):
             timestamp=datetime.now(timezone.utc),
         )
         log_embed.add_field(name="Author", value=ctx.author.mention)
-        channel = await self.check_channel(ctx, None)  # Get the channel.
+        channel = await self.check_channel(ctx, channel)  # Get the channel.
         if channel.guild != ctx.guild:
             raise self.bot.errors.DifferentServer()
         log_embed.add_field(name="Channel", value=channel.mention)
+        print(json_content)
         json_content = await self.check_content(
-            ctx, None, ask_message="What is the JSON content of the embed?"
+            ctx, json_content, ask_message="What is the JSON content of the embed?"
         )
+        print(json_content)
         if json_content[0:3] == "```" and json_content[-3:] == "```":
             json_content = json_content[3:-3]
+        print(json_content)
         try:
             dict_content = json.loads(json_content)
         except json.decoder.JSONDecodeError as e:
@@ -471,13 +480,18 @@ class MessagesCog(commands.Cog):
     @commands.group(
         name="edit-embed", rest_is_raw=True
     )  # rest_is_raw so that the white space will not be cut from the content.
-    async def edit_embed(self, ctx: commands.Context):
+    async def edit_embed(
+        self,
+        ctx: commands.Context,
+        channel: discord.TextChannel = None,
+        message_id=None,
+    ):
         if ctx.invoked_subcommand is None:
-            channel = await self.check_channel(ctx, None)
+            channel = await self.check_channel(ctx, channel)
             if channel.guild != ctx.guild:
                 raise self.bot.errors.DifferentServer()
 
-            msg = await self.check_message_id(ctx, channel, None)
+            msg = await self.check_message_id(ctx, channel, message_id)
             if msg.author != ctx.guild.me:
                 raise self.bot.errors.DifferentAuthor()
             if len(msg.embeds) == 0:
@@ -525,13 +539,20 @@ class MessagesCog(commands.Cog):
     @edit_embed.command(
         name="json", rest_is_raw=True
     )  # rest_is_raw so that the white space will not be cut from the content.
-    async def json_edit(self, ctx: commands.Context):
+    async def json_edit(
+        self,
+        ctx: commands.Context,
+        channel: discord.TextChannel = None,
+        message_id=None,
+        *,
+        json_content=None,
+    ):
 
-        channel = await self.check_channel(ctx, None)
+        channel = await self.check_channel(ctx, channel)
         if channel.guild != ctx.guild:
             raise self.bot.errors.DifferentServer()
 
-        msg = await self.check_message_id(ctx, channel, None)
+        msg = await self.check_message_id(ctx, channel, message_id)
         if msg.author != ctx.guild.me:
             raise self.bot.errors.DifferentAuthor()
         if len(msg.embeds) == 0:
@@ -544,7 +565,7 @@ class MessagesCog(commands.Cog):
             )
 
         new_json_content = await self.check_content(
-            ctx, None, ask_message="What is the new JSON content of the embed?"
+            ctx, json_content, ask_message="What is the new JSON content of the embed?"
         )
         if new_json_content[0:3] == "```" and new_json_content[-3:] == "```":
             new_json_content = new_json_content[3:-3]
