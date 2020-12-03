@@ -192,12 +192,12 @@ class MessagesCog(commands.Cog):
             for item in list_content:
                 embed.add_field(name=item[0], value=item[1], inline=item[2])
             with open("content.txt", "r") as fx:
-                await ctx.send(embed=embed, file=discord.File(fx, "Content.txt"))
+                await ctx.send(embed=embed, file=discord.File(fx, "content.txt"))
             os.remove("content.txt")
         else:
             await ctx.send(embed=embed)
 
-    @commands.command(name="send", rest_is_raw=True)
+    @commands.command(name="send")
     async def send(
         self,
         ctx: commands.Context,
@@ -220,9 +220,7 @@ class MessagesCog(commands.Cog):
         await self.send_message_info_embed(ctx, "Send", ctx.author, content, msg)
 
     # Create the edit command. This command will edit the specificed message. (Message must be from the bot)
-    @commands.command(
-        name="edit", rest_is_raw=True
-    )  # rest_is_raw so that the white space will not be cut from the content.
+    @commands.command(name="edit")
     async def edit(
         self,
         ctx: commands.Context,
@@ -286,35 +284,30 @@ class MessagesCog(commands.Cog):
             return await ctx.send("Timedout, Please re-do the command.")
 
         if choice.content.lower() == "yes":
+
             if len(msg.embeds) > 0:
                 log_embed = discord.Embed(
-                    title="Sent the embed!",
+                    title="Deleted the message!",
                     colour=discord.Colour(0xC387C1),
-                    description="The full embed(s) are in the attached text file in JSON format.",
+                    description="The full embed(s) are in the attached file in JSON format.",
                     timestamp=datetime.now(timezone.utc),
                 )
                 log_embed.add_field(name="Deleter", value=ctx.author.mention)
-                with open("content.txt", "w+") as f:
-                    file_contents = (
-                        f"Content:\n\n{msg.content if msg.content != '' else 'None'}"
-                    )
-                    n = 1
+                log_embed.add_field(name="Channel", value=msg.channel.mention)
+                file_name = f"{ctx.author.id}-{datetime.utcnow()}-content.json"
+                with open(file_name, "w+") as f:
+                    message_content_dict = {"embeds": []}
+                    if msg.content is not None:
+                        message_content_dict["content"] = msg.content
                     for embed in msg.embeds:
-                        file_contents = (
-                            file_contents
-                            + f"\n\nEmbed in JSON:\n\n{json.dumps(embed.to_dict())}"
-                        )
-                        log_embed.add_field(
-                            name=f"Embed {n}", value=embed.title or "None"
-                        )
-                        n = n + 1
-                    f.write(file_contents)
-                with open("content.txt", "r") as fx:
-                    fx = open("content.txt", "r")
+                        message_content_dict["embeds"].append(embed.to_dict())
+
+                    json.dump(message_content_dict, f)
+                with open(file_name, "r") as fx:
                     await ctx.send(
-                        embed=log_embed, file=discord.File(fx, "Content.txt")
+                        embed=log_embed, file=discord.File(fx, "content.json")
                     )
-                os.remove("content.txt")
+                os.remove(file_name)
 
             else:
                 await self.send_message_info_embed(
@@ -348,32 +341,38 @@ class MessagesCog(commands.Cog):
             )
 
         msg = await self.check_message_id(ctx, channel, message_id)
-
-        with open("content.txt", "w+") as f:
-            if len(msg.embeds) == 0:
+        file_name = f"{ctx.author.id}-{datetime.utcnow()}-content"
+        if len(msg.embeds) == 0:
+            file_name = file_name + ".txt"
+            with open(file_name, "w+") as f:
                 f.write(f"Content:\n\n{msg.content}")
-            else:
-                file_contents = (
-                    f"Content:\n\n{msg.content if msg.content != '' else 'None'}"
-                )
+        else:
+            file_name = file_name + ".json"
+            with open(file_name, "w+") as f:
+                message_content_dict = {"embeds": []}
+                if msg.content is not None:
+                    message_content_dict["content"] = msg.content
                 for embed in msg.embeds:
-                    file_contents = (
-                        file_contents
-                        + f"\n\nEmbed in JSON:\n\n{json.dumps(embed.to_dict())}"
-                    )
-                f.write(file_contents)
-        with open("content.txt", "r") as fx:
-            fx = open("content.txt", "r")
+                    message_content_dict["embeds"].append(embed.to_dict())
+
+                json.dump(message_content_dict, f)
+        with open(file_name, "r") as fx:
+            if file_name[-4:] == "json":
+                file_display_name = "content.json"
+            else:
+                file_display_name = "content.txt"
             await ctx.send(
                 content="Fetched the message! Contents in the attached text file.",
-                file=discord.File(fx, "Content.txt"),
+                file=discord.File(fx, file_display_name),
             )
-        os.remove("content.txt")
+        os.remove(file_name)
 
-    @commands.group(name="send-embed")
-    async def send_embed(self, ctx: commands.Context):
+    @commands.command(name="send-embed")
+    async def send_embed(
+        self, ctx: commands.Context, channel: discord.TextChannel = None
+    ):
         if ctx.invoked_subcommand is None:
-            channel = await self.check_channel(ctx, None)  # Get the channel.
+            channel = await self.check_channel(ctx, channel)  # Get the channel.
             if channel.guild != ctx.guild:
                 raise self.bot.errors.DifferentServer()
             title = await self.check_content(
@@ -391,18 +390,21 @@ class MessagesCog(commands.Cog):
             log_embed = discord.Embed(
                 title="Sent the embed!",
                 colour=discord.Colour(0xC387C1),
-                description="The full embed is in the attached text file in JSON format.",
+                description="The full embed is in the attached file in JSON format.",
                 timestamp=datetime.now(timezone.utc),
             )
             log_embed.add_field(name="Title", value=title)
-            file_name = f"{ctx.author.id}-{datetime.utcnow()}-content.txt"
+            file_name = f"{ctx.author.id}-{datetime.utcnow()}-content.json"
             with open(file_name, "w+") as f:
-                f.write(f"JSON content:\n\n{json.dumps(embed.to_dict())}")
+                message_content_dict = {"embeds": []}
+                message_content_dict["embeds"].append(embed.to_dict())
+
+                json.dump(message_content_dict, f)
             with open(file_name, "r") as fx:
-                await ctx.send(embed=log_embed, file=discord.File(fx, "Content.txt"))
+                await ctx.send(embed=log_embed, file=discord.File(fx, "content.json"))
             os.remove(file_name)
 
-    @send_embed.command(name="json")
+    @commands.command(name="send-embed-json")
     async def send_json_embed(
         self,
         ctx: commands.Context,
@@ -421,14 +423,11 @@ class MessagesCog(commands.Cog):
         if channel.guild != ctx.guild:
             raise self.bot.errors.DifferentServer()
         log_embed.add_field(name="Channel", value=channel.mention)
-        print(json_content)
         json_content = await self.check_content(
             ctx, json_content, ask_message="What is the JSON content of the embed?"
         )
-        print(json_content)
         if json_content[0:3] == "```" and json_content[-3:] == "```":
             json_content = json_content[3:-3]
-        print(json_content)
         try:
             dict_content = json.loads(json_content)
         except json.decoder.JSONDecodeError as e:
@@ -454,12 +453,6 @@ class MessagesCog(commands.Cog):
                     log_embed.add_field(name=f"Embed {n}", value=embed["title"])
                 await channel.send(embed=discord.Embed.from_dict(embed))
                 n = n + 1
-            file_name = f"{ctx.author.id}-{datetime.utcnow()}-content.txt"
-            with open(file_name, "w+") as f:
-                f.write(f"JSON content:\n\n{json.dumps(dict_content)}")
-            with open(file_name, "r") as fx:
-                await ctx.send(embed=log_embed, file=discord.File(fx, "Content.txt"))
-            os.remove(file_name)
 
         else:
             try:
@@ -470,84 +463,20 @@ class MessagesCog(commands.Cog):
             await channel.send(embed=discord.Embed.from_dict(dict_content))
             if "title" in dict_content:
                 log_embed.add_field(name="Embed title", value=dict_content["title"])
-            file_name = f"{ctx.author.id}-{datetime.utcnow()}-content.txt"
-            with open(file_name, "w+") as f:
-                f.write(f"JSON content:\n\n{json.dumps(dict_content)}")
-            with open(file_name, "r") as fx:
-                await ctx.send(embed=log_embed, file=discord.File(fx, "Content.txt"))
-            os.remove(file_name)
+        file_name = f"{ctx.author.id}-{datetime.utcnow()}-content.json"
+        with open(file_name, "w+") as f:
+            json.dump(dict_content, f)
+        with open(file_name, "r") as fx:
+            await ctx.send(embed=log_embed, file=discord.File(fx, "content.json"))
+        os.remove(file_name)
 
-    @commands.group(
-        name="edit-embed", rest_is_raw=True
-    )  # rest_is_raw so that the white space will not be cut from the content.
+    @commands.command(name="edit-embed")
     async def edit_embed(
         self,
         ctx: commands.Context,
         channel: discord.TextChannel = None,
         message_id=None,
     ):
-        if ctx.invoked_subcommand is None:
-            channel = await self.check_channel(ctx, channel)
-            if channel.guild != ctx.guild:
-                raise self.bot.errors.DifferentServer()
-
-            msg = await self.check_message_id(ctx, channel, message_id)
-            if msg.author != ctx.guild.me:
-                raise self.bot.errors.DifferentAuthor()
-            if len(msg.embeds) == 0:
-                raise self.bot.errors.InputContentIncorrect(
-                    f"That message does not have an embed! Try `{ctx.prefix}edit` instead"
-                )
-            elif len(msg.embeds) > 1:
-                raise self.bot.errors.InputContentINcorrect(
-                    f"That message has more than one embed! I don't support that right now 😔"
-                )
-
-            title = await self.check_content(
-                ctx, None, ask_message="Enter the new title of the embed:"
-            )
-            if title[0:3] == "```" and title[-3:] == "```":
-                title = title[3:-3]
-            description = await self.check_content(
-                ctx,
-                None,
-                ask_message="Enter the new description (main body) of the embed:",
-            )
-            if description[0:3] == "```" and description[-3:] == "```":
-                description = description[3:-3]
-            old_embed = msg.embeds[0].to_dict()
-            new_embed = msg.embeds[0]
-            new_embed.description = description
-            new_embed.title = title
-            log_embed = discord.Embed(
-                title="Edited the embed!",
-                colour=discord.Colour(0xC387C1),
-                description="The full embed is in the attached text file in JSON format.",
-                timestamp=datetime.now(timezone.utc),
-            )
-            log_embed.add_field(name="Editor", value=ctx.author.mention)
-            file_name = f"{ctx.author.id}-{datetime.utcnow()}-content.txt"
-            with open(file_name, "w+") as f:
-                f.write(
-                    f"Old JSON content:\n\n{json.dumps(old_embed)}\n\nNew JSON content:\n\n{json.dumps(new_embed.to_dict())}"
-                )
-            with open(file_name, "r") as fx:
-                await ctx.send(embed=log_embed, file=discord.File(fx, "Content.txt"))
-            os.remove(file_name)
-            await msg.edit(embed=new_embed)
-
-    @edit_embed.command(
-        name="json", rest_is_raw=True
-    )  # rest_is_raw so that the white space will not be cut from the content.
-    async def json_edit(
-        self,
-        ctx: commands.Context,
-        channel: discord.TextChannel = None,
-        message_id=None,
-        *,
-        json_content=None,
-    ):
-
         channel = await self.check_channel(ctx, channel)
         if channel.guild != ctx.guild:
             raise self.bot.errors.DifferentServer()
@@ -563,6 +492,77 @@ class MessagesCog(commands.Cog):
             raise self.bot.errors.InputContentINcorrect(
                 f"That message has more than one embed! I don't support that right now 😔"
             )
+
+        title = await self.check_content(
+            ctx, None, ask_message="Enter the new title of the embed:"
+        )
+        if title[0:3] == "```" and title[-3:] == "```":
+            title = title[3:-3]
+        description = await self.check_content(
+            ctx,
+            None,
+            ask_message="Enter the new description (main body) of the embed:",
+        )
+        if description[0:3] == "```" and description[-3:] == "```":
+            description = description[3:-3]
+        old_embed = msg.embeds[0].to_dict()
+        new_embed = msg.embeds[0]
+        new_embed.description = description
+        new_embed.title = title
+        log_embed = discord.Embed(
+            title="Edited the embed!",
+            colour=discord.Colour(0xC387C1),
+            description="The original message and the new message are attached above.",
+            timestamp=datetime.now(timezone.utc),
+        )
+        log_embed.add_field(name="Editor", value=ctx.author.mention)
+        log_embed.add_field(name="Channel", value=channel.mention)
+        file_name = f"{ctx.author.id}-{datetime.utcnow()}-old-content.json"
+        with open(file_name, "w+") as f:
+            json.dump(old_embed, f)
+        with open(file_name, "r") as fx:
+            await ctx.send(
+                content="Old message in attached file:",
+                file=discord.File(fx, "old-content.json"),
+            )
+        os.remove(file_name)
+        file_name = f"{ctx.author.id}-{datetime.utcnow()}-new-content.json"
+        with open(file_name, "w+") as f:
+            json.dump(new_embed.to_dict(), f)
+        with open(file_name, "r") as fx:
+            await ctx.send(
+                content="New message in attached file:",
+                file=discord.File(fx, "new-content.json"),
+                embed=log_embed,
+            )
+        os.remove(file_name)
+        await msg.edit(embed=new_embed)
+
+    @commands.command(name="edit-embed-json")
+    async def json_edit(
+        self,
+        ctx: commands.Context,
+        channel: discord.TextChannel = None,
+        message_id=None,
+        *,
+        json_content=None,
+    ):
+        channel = await self.check_channel(ctx, channel)
+        if channel.guild != ctx.guild:
+            raise self.bot.errors.DifferentServer()
+
+        msg = await self.check_message_id(ctx, channel, message_id)
+        if msg.author != ctx.guild.me:
+            raise self.bot.errors.DifferentAuthor()
+        if len(msg.embeds) == 0:
+            raise self.bot.errors.InputContentIncorrect(
+                f"That message does not have an embed! Try `{ctx.prefix}edit` instead"
+            )
+        elif len(msg.embeds) > 1:
+            raise self.bot.errors.InputContentINcorrect(
+                f"That message has more than one embed! I don't support that right now 😔"
+            )
+        old_embed = msg.embeds[0].to_dict()
 
         new_json_content = await self.check_content(
             ctx, json_content, ask_message="What is the new JSON content of the embed?"
@@ -581,10 +581,11 @@ class MessagesCog(commands.Cog):
         log_embed = discord.Embed(
             title="Edited the embed!",
             colour=discord.Colour(0xC387C1),
-            description="The full embed is in the attached text file in JSON format.",
+            description="The original message and the new message are attached above.",
             timestamp=datetime.now(timezone.utc),
         )
         log_embed.add_field(name="Editor", value=ctx.author.mention)
+        log_embed.add_field(name="channel", value=channel.mention)
 
         if "embeds" in new_dict_content:
             embeds = new_dict_content["embeds"]
@@ -605,14 +606,6 @@ class MessagesCog(commands.Cog):
                     embed.pop("timestamp")
             except KeyError:
                 pass
-            file_name = f"{ctx.author.id}-{datetime.utcnow()}-content.txt"
-            with open(file_name, "w+") as f:
-                f.write(
-                    f"Old JSON content:\n\n{json.dumps(msg.embeds[0].to_dict())}\n\nNew JSON content:\n\n{json.dumps(embed)}"
-                )
-            with open(file_name, "r") as fx:
-                await ctx.send(embed=log_embed, file=discord.File(fx, "Content.txt"))
-            os.remove(file_name)
             await msg.edit(embed=discord.Embed.from_dict(embed))
 
         else:
@@ -622,14 +615,26 @@ class MessagesCog(commands.Cog):
             except KeyError:
                 pass
             file_name = f"{ctx.author.id}-{datetime.utcnow()}-content.txt"
-            with open(file_name, "w+") as f:
-                f.write(
-                    f"Old JSON content:\n\n{json.dumps(msg.embeds[0].to_dict())}\n\nNew JSON content:\n\n{json.dumps(new_dict_content)}"
-                )
-            with open(file_name, "r") as fx:
-                await ctx.send(embed=log_embed, file=discord.File(fx, "Content.txt"))
-            os.remove(file_name)
             await msg.edit(embed=discord.Embed.from_dict(new_dict_content))
+        file_name = f"{ctx.author.id}-{datetime.utcnow()}-old-content.json"
+        with open(file_name, "w+") as f:
+            json.dump(old_embed, f)
+        with open(file_name, "r") as fx:
+            await ctx.send(
+                content="Old message in attached file:",
+                file=discord.File(fx, "old-content.json"),
+            )
+        os.remove(file_name)
+        file_name = f"{ctx.author.id}-{datetime.utcnow()}-new-content.json"
+        with open(file_name, "w+") as f:
+            json.dump(new_dict_content, f)
+        with open(file_name, "r") as fx:
+            await ctx.send(
+                content="New message in attached file:",
+                file=discord.File(fx, "new-content.json"),
+                embed=log_embed,
+            )
+        os.remove(file_name)
 
 
 def setup(bot):
