@@ -426,7 +426,9 @@ class MessagesCog(commands.Cog):
         json_content = await self.check_content(
             ctx, json_content, ask_message="What is the JSON content of the embed?"
         )
-        if json_content[0:3] == "```" and json_content[-3:] == "```":
+        if json_content[0:7] == "```json" and json_content[-3:]:
+            json_content = json_content[7:-3]
+        elif json_content[0:3] == "```" and json_content[-3:] == "```":
             json_content = json_content[3:-3]
         try:
             dict_content = json.loads(json_content)
@@ -567,8 +569,11 @@ class MessagesCog(commands.Cog):
         new_json_content = await self.check_content(
             ctx, json_content, ask_message="What is the new JSON content of the embed?"
         )
-        if new_json_content[0:3] == "```" and new_json_content[-3:] == "```":
-            new_json_content = new_json_content[3:-3]
+        if json_content[0:7] == "```json" and json_content[-3:]:
+            json_content = json_content[7:-3]
+        elif json_content[0:3] == "```" and json_content[-3:] == "```":
+            json_content = json_content[3:-3]
+
         try:
             new_dict_content = json.loads(new_json_content)
         except json.decoder.JSONDecodeError as e:
