@@ -164,6 +164,10 @@ class MainCog(commands.Cog):
                 value="Starts setup, Requires the user to have admin permissions",
                 inline=True,
             )
+            embed.add_field(
+                name="Embeds",
+                value="Find the documentation for sending embeds [here](https://docs.messagemanager.xyz/functions/messages/#rich-embed-messages) (it's too big to fit here now)",
+            )
             await ctx.send(embed=embed)
         else:
             try:

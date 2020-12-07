@@ -27,9 +27,13 @@ Do **not** include the `<>` or `{}` while doing commands. This is just a indicat
 | Command | Description | Permission Level |
 | :--- | :--- | :--- |
 | `~`[`send <channel> <content>`](messages.md#sending-messages) | Sends a message to a specified channel | Management Role |
-| [`~edit <channel> <message id> <new content>`](messages.md#editing-messages) | Edits a message that was previously send by the bot | Management Role |
+| [`~edit <channel> <message id> <new content>`](messages.md#editing-messages) | Edits a message that was previously sent by the bot | Management Role |
 | [`~fetch <channel> <message id>`](messages.md#fetching-messages) | Returns the raw content of that message | Management Role |
 | [`~delete <channel> <message id>`](messages.md#deleting-messages) | Deletes a message that the bot sent | Management Role |
+| `~`[`send-embed <channel>`](messages.md#sending-basic-embeds) | Sends an embed to a specified channel | Management Role |
+| `~`[`send-embed-json <channel>`](messages.md#sending-basic-embeds) | Sends a fully customized embed to a specified channel | Management Role |
+| [`~edit-embed <channel> <message id> <new content>`](messages.md#editing-messages) | Edits an embed that was previously sent by the bot | Management Role |
+| [`~edit-embed-json <channel> <message id> <new content>`](messages.md#editing-messages) | Edits a fully customized embed that was previously sent by the bot | Management Role |
 
 ## Setup commands
 
