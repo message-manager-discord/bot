@@ -32,7 +32,7 @@ from src.db import db
 
 starttime = datetime.datetime.utcnow()
 
-__version__ = "v1.2.0"
+__version__ = "v1.3.0"
 
 
 class Bot(commands.Bot):

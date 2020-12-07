@@ -1,5 +1,20 @@
 # Changelog - Bot
 
+## v1.3.0
+
+### Add embeds to message function
+
+1st of December 2020
+
+- Add commands `send-embed`, `send-embed-json`, `edit-embed` and `edit-embed-json`.
+- Change `delete` to add the JSON version of any embeds in the message that's being deleted to the log file when
+- Change `fetch` to add the JSON version of any embeds in the message that's being fetched to the log file
+- Add aliases to existing commands:
+  - To `fetch` add `fetch-embed`
+  - To `delete` add `delete-embed`
+- Add new commands and aliases to the docs
+- Add link to embed section of docs in help command
+
 ## v1.2.0
 
 ### Add support command and fix various internal workings
