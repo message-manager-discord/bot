@@ -4,7 +4,7 @@
 
 ### Add embeds to message function
 
-1st of December 2020
+8th of December 2020
 
 - Add commands `send-embed`, `send-embed-json`, `edit-embed` and `edit-embed-json`.
 - Change `delete` to add the JSON version of any embeds in the message that's being deleted to the log file when
