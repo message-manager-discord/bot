@@ -61,25 +61,22 @@ class SetupCog(commands.Cog):
                 colour=discord.Colour(15653155),
             )
             embed.add_field(
-                name=f"{self.bot.command_with_prefix(ctx, 'setup')} admin " "{role}`",
+                name=self.bot.command_with_prefix(ctx, "setup admin {role}"),
                 value="This is the role that allows admin access to admin commands.",
                 inline=False,
             )
             embed.add_field(
-                name=f"{self.bot.command_with_prefix(ctx, 'setup')} prefix "
-                "{prefix}`",
+                name=self.bot.command_with_prefix(ctx, "setup prefix {prefix}"),
                 value="Sets the prefix for this server.",
                 inline=False,
             )
             embed.add_field(
-                name=f"{self.bot.command_with_prefix(ctx, 'setup')} botstats "
-                "{channel}`",
+                name=self.bot.command_with_prefix(ctx, "setup botstats {channel}"),
                 value="This feature has been disabled! See [changelog](https://github.com/AnotherCat/message-bot/blob/master/CHANGELOG.md/#v110)",
                 inline=False,
             )
             embed.add_field(
-                name=f"{self.bot.command_with_prefix(ctx, 'setup')} userstats "
-                "{channel}`",
+                name=self.bot.command_with_prefix(ctx, "setup userstats {channel}"),
                 value="This feature has been disabled! See [changelog](https://github.com/AnotherCat/message-bot/blob/master/CHANGELOG.md/#v110)",
                 inline=False,
             )

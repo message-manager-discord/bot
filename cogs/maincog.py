@@ -147,22 +147,28 @@ class MainCog(commands.Cog):
                 inline=True,
             ),
             embed.add_field(
-                name=f"{self.bot.command_with_prefix(ctx, 'send')} [channel_id] [content]`",
+                name=self.bot.command_with_prefix(ctx, "send [channel_id] [content]"),
                 value="Sends a message from the bot in the specificed channel",
                 inline=True,
             )
             embed.add_field(
-                name=f"{self.bot.command_with_prefix(ctx, 'edit')} [channel_id] [message_id] [new_content]`",
+                name=self.bot.command_with_prefix(
+                    ctx, "edit [channel_id] [message_id] [new_content]"
+                ),
                 value="Edits a message, message **must** be from the bot",
                 inline=True,
             )
             embed.add_field(
-                name=f"{self.bot.command_with_prefix(ctx, 'fetch')} [channel_id] [message_id]`",
+                name=self.bot.command_with_prefix(
+                    ctx, "fetch [channel_id] [message_id]"
+                ),
                 value="Returns raw content of the message in a .txt file",
                 inline=True,
             )
             embed.add_field(
-                name=f"{self.bot.command_with_prefix(ctx, 'delete')} [channel_id] [message_id]`",
+                name=self.bot.command_with_prefix(
+                    ctx, "delete [channel_id] [message_id]"
+                ),
                 value="Deletes the message from the bot. **Must** be from the bot",
                 inline=True,
             )
