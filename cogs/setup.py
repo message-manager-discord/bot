@@ -43,14 +43,17 @@ class SetupCog(commands.Cog):
             await ctx.send(error)
 
         else:
-            await ctx.send("There was an unknown error!\n" f"Error: {error}")
+            await ctx.send(
+                "There was an unknown error!\n"
+                f"Report a bug or get support from the support server at {self.bot.command_with_prefix(ctx, 'support')}\n"
+                f"Error: {error}"
+            )
             raise error
 
     @commands.has_guild_permissions(administrator=True)
     @commands.group()
     async def setup(self, ctx: commands.Context):
         if ctx.invoked_subcommand is None:
-            prefix = await self.bot.db.get_prefix(ctx.guild)
             embed = discord.Embed(
                 title="Setup!",
                 description="Setup values for your server!",
@@ -58,22 +61,25 @@ class SetupCog(commands.Cog):
                 colour=discord.Colour(15653155),
             )
             embed.add_field(
-                name=f"`{prefix}setup admin " "{role}`",
+                name=f"{self.bot.command_with_prefix(ctx, 'setup')} admin " "{role}`",
                 value="This is the role that allows admin access to admin commands.",
                 inline=False,
             )
             embed.add_field(
-                name=f"`{prefix}setup prefix " "{prefix}`",
+                name=f"{self.bot.command_with_prefix(ctx, 'setup')} prefix "
+                "{prefix}`",
                 value="Sets the prefix for this server.",
                 inline=False,
             )
             embed.add_field(
-                name=f"`{prefix}setup botstats " "{channel}`",
+                name=f"{self.bot.command_with_prefix(ctx, 'setup')} botstats "
+                "{channel}`",
                 value="This feature has been disabled! See [changelog](https://github.com/AnotherCat/message-bot/blob/master/CHANGELOG.md/#v110)",
                 inline=False,
             )
             embed.add_field(
-                name=f"`{prefix}setup userstats " "{channel}`",
+                name=f"{self.bot.command_with_prefix(ctx, 'setup')} userstats "
+                "{channel}`",
                 value="This feature has been disabled! See [changelog](https://github.com/AnotherCat/message-bot/blob/master/CHANGELOG.md/#v110)",
                 inline=False,
             )

@@ -60,7 +60,11 @@ class MessagesCog(commands.Cog):
                 "Run the command without pararameters to be guided through the input!"
             )
         else:
-            await ctx.send("There was an unknown error!\n" f"Error: {error}")
+            await ctx.send(
+                "There was an unknown error!\n"
+                f"Report a bug or get support from the support server at {self.bot.command_with_prefix(ctx, 'support')}\n"
+                f"Error: {error}"
+            )
             raise error
 
     async def check_channel(self, ctx: commands.Context, channel):
@@ -435,7 +439,7 @@ class MessagesCog(commands.Cog):
         except json.decoder.JSONDecodeError as e:
             raise self.bot.errors.JSONFailure(
                 "The json that you specified was not correct, please check and try again.\n"
-                f"Get support from the docs or the support server at `{ctx.prefix}support`\n"
+                f"Get support from the docs or the support server at {self.bot.command_with_prefix(ctx, 'support')}\n"
                 f"Error message: {e}"
             )
 
@@ -488,7 +492,7 @@ class MessagesCog(commands.Cog):
             raise self.bot.errors.DifferentAuthor()
         if len(msg.embeds) == 0:
             raise self.bot.errors.InputContentIncorrect(
-                f"That message does not have an embed! Try `{ctx.prefix}edit` instead"
+                f"That message does not have an embed! Try {self.bot.command_with_prefix(ctx, 'edit')} instead"
             )
         elif len(msg.embeds) > 1:
             raise self.bot.errors.InputContentINcorrect(
@@ -558,7 +562,7 @@ class MessagesCog(commands.Cog):
             raise self.bot.errors.DifferentAuthor()
         if len(msg.embeds) == 0:
             raise self.bot.errors.InputContentIncorrect(
-                f"That message does not have an embed! Try `{ctx.prefix}edit` instead"
+                f"That message does not have an embed! Try {self.bot.command_with_prefix(ctx, 'edit')} instead"
             )
         elif len(msg.embeds) > 1:
             raise self.bot.errors.InputContentINcorrect(
@@ -579,7 +583,7 @@ class MessagesCog(commands.Cog):
         except json.decoder.JSONDecodeError as e:
             raise self.bot.errors.JSONFailure(
                 "The json that you specified was not correct, please check and try again.\n"
-                f"Get support from the docs or the support server at `{ctx.prefix}support`\n"
+                f"Get support from the docs or the support server at {self.bot.command_with_prefix(ctx, 'support')}\n"
                 f"Error message: {e}"
             )
 

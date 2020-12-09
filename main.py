@@ -56,6 +56,12 @@ class Bot(commands.Bot):
             prefix = [prefix, ""]
         return commands.when_mentioned_or(*prefix)(self, message)
 
+    def command_with_prefix(self, ctx, command_name):
+        if str(self.user.id) in ctx.prefix:
+            return f"`@{ctx.me.nick or ctx.me.name} {command_name}`"
+        else:
+            return f"`{ctx.prefix}{command_name}`"
+
 
 async def run():
     database = db.DatabasePool(config.uri, bot)

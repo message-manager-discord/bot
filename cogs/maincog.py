@@ -38,7 +38,11 @@ class MainCog(commands.Cog):
         if cog:
             if cog._get_overridden_method(cog.cog_command_error) is not None:
                 return
-        await ctx.send("There was an unknown error!\n" f"Error: {error}")
+        await ctx.send(
+            "There was an unknown error!\n"
+            f"Report a bug or get support from the support server at {self.bot.command_with_prefix(ctx, 'support')}\n"
+            f"Error: {error}"
+        )
         raise error
 
     @commands.Cog.listener()
@@ -121,7 +125,6 @@ class MainCog(commands.Cog):
     )
     async def help(self, ctx: commands.Context, option: str = None):
         if option is None or option.lower() != "setup":
-            prefix = await self.bot.db.get_prefix(ctx.guild)
             embed = discord.Embed(
                 title="Help!",
                 colour=16761035,
@@ -129,38 +132,42 @@ class MainCog(commands.Cog):
                 url="https://docs.messagemanager.xyz",
             )
             embed.add_field(
-                name=f"`{prefix}ping`",
+                name=self.bot.command_with_prefix(ctx, "ping"),
                 value="Replies with the latency of the bot",
                 inline=True,
             )
             embed.add_field(
-                name=f"`{prefix}help`", value="Displays this view.", inline=True
+                name=self.bot.command_with_prefix(ctx, "help"),
+                value="Displays this view.",
+                inline=True,
             ),
             embed.add_field(
-                name=f"`{prefix}info`", value="Displays info about the bot", inline=True
+                name=self.bot.command_with_prefix(ctx, "info"),
+                value="Displays info about the bot",
+                inline=True,
             ),
             embed.add_field(
-                name=f"`{prefix}send [channel_id] [content]`",
+                name=f"{self.bot.command_with_prefix(ctx, 'send')} [channel_id] [content]`",
                 value="Sends a message from the bot in the specificed channel",
                 inline=True,
             )
             embed.add_field(
-                name=f"`{prefix}edit [channel_id] [message_id] [new_content]`",
+                name=f"{self.bot.command_with_prefix(ctx, 'edit')} [channel_id] [message_id] [new_content]`",
                 value="Edits a message, message **must** be from the bot",
                 inline=True,
             )
             embed.add_field(
-                name=f"`{prefix}fetch [channel_id] [message_id]`",
+                name=f"{self.bot.command_with_prefix(ctx, 'fetch')} [channel_id] [message_id]`",
                 value="Returns raw content of the message in a .txt file",
                 inline=True,
             )
             embed.add_field(
-                name=f"`{prefix}delete [channel_id] [message_id]`",
+                name=f"{self.bot.command_with_prefix(ctx, 'delete')} [channel_id] [message_id]`",
                 value="Deletes the message from the bot. **Must** be from the bot",
                 inline=True,
             )
             embed.add_field(
-                name=f"`{prefix}setup`",
+                name=self.bot.command_with_prefix(ctx, "setup"),
                 value="Starts setup, Requires the user to have admin permissions",
                 inline=True,
             )
