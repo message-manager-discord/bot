@@ -18,18 +18,23 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-import json
+from typing import TYPE_CHECKING
 
 import aiohttp
-import discord
 
 from discord.ext import commands, tasks
 
-from src import list_wrappers
+from cogs.src import list_wrappers
+from main import Bot
+
+if TYPE_CHECKING:
+    Cog = commands.Cog[commands.Context]
+else:
+    Cog = commands.Cog
 
 
-class ListingCog(commands.Cog):
-    def __init__(self, bot):
+class ListingCog(Cog):
+    def __init__(self, bot: Bot) -> None:
         self.bot = bot
         self.stats_post_loop.start()
         self.session = aiohttp.ClientSession(loop=bot.loop)
@@ -49,11 +54,11 @@ class ListingCog(commands.Cog):
             token=self.bot.topgg_token, bot=self.bot, session=self.session
         )
 
-    def cog_unload(self):
+    def cog_unload(self) -> None:
         self.stats_post_loop.cancel()
 
     @tasks.loop(minutes=30)
-    async def stats_post_loop(self):
+    async def stats_post_loop(self) -> None:
         await self.bot.wait_until_ready()
         await self.de_list.post_guild_stats()
         await self.dbl.post_guild_stats()
@@ -62,6 +67,6 @@ class ListingCog(commands.Cog):
         await self.topgg.post_guild_stats()
 
 
-def setup(bot):
+def setup(bot: Bot) -> None:
     bot.add_cog(ListingCog(bot))
     print("    Listing cog!")

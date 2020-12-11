@@ -1,4 +1,4 @@
-# src/db/db.py
+# cogs/src/db/db.py
 
 """
 Message Manager - A bot for discord
@@ -18,11 +18,13 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-import asyncpg
+from typing import Optional, Union
 
-from config import default_prefix
-from config import uri as default_uri
-from src.db.startup import init_db
+import asyncpg
+import discord
+
+from cogs.src.db.startup import init_db
+from main import Bot
 
 
 class IncorrectVersion(Exception):
@@ -30,17 +32,17 @@ class IncorrectVersion(Exception):
 
 
 class DatabasePool:
-    def __init__(self, uri, bot):
-        self.pool = None
+    def __init__(self, uri: str, bot: Bot):
+        self.pool: asyncpg.pool.Pool = None
         self.uri = uri
         self.bot = bot
 
-    async def _init(self):
+    async def _init(self) -> None:
         await self._create_pool(self.uri)
         await init_db(self.pool)
         await self._check_version()
 
-    async def _check_version(self):
+    async def _check_version(self) -> None:
         async with self.pool.acquire() as conn:
             version = await conn.fetch(
                 """
@@ -53,54 +55,56 @@ class DatabasePool:
                 raise IncorrectVersion(
                     f"Bot version {self.bot.version}, but database version {version}!"
                 )
-                await self.bot.logout()
 
-    async def _create_pool(self, uri):
+    async def _create_pool(self, uri: str) -> None:
         self.pool = await asyncpg.create_pool(dsn=uri)
 
-    async def close(self):
+    async def close(self) -> None:
         await self.pool.close()
 
-    async def get_prefix(self, guild):
+    async def get_prefix(self, guild: discord.Guild) -> str:
         if guild is None:
-            return default_prefix
+            return self.bot.default_prefix
         async with self.pool.acquire() as conn:
 
-            prefix = await conn.fetch(
+            prefix_query = await conn.fetch(
                 """
-                SELECT prefix 
-                FROM servers 
+                SELECT prefix
+                FROM servers
                 WHERE server_id=$1
                 """,
                 guild.id,
             )
-            if prefix == []:
-                return default_prefix
-            prefix = prefix[0].get("prefix")
+            if prefix_query == []:
+                return self.bot.default_prefix
+            prefix: str = prefix_query[0].get("prefix")
             if prefix is None:
-                return default_prefix
+                return self.bot.default_prefix
             else:
                 return prefix
 
-    async def get_management_role(self, guild):
+    async def get_management_role(
+        self, guild: discord.Guild
+    ) -> Optional[Union[int, None]]:
         async with self.pool.acquire() as conn:
-            management_role = await conn.fetch(
+            management_role_query = await conn.fetch(
                 """
                 SELECT management_role_id
-                FROM servers 
+                FROM servers
                 WHERE server_id=$1
                 """,
                 guild.id,
             )
-            if management_role == []:
+            if management_role_query == []:
                 return None
-            return management_role[0].get("management_role_id")
+            management_role: int = management_role_query[0].get("management_role_id")
+            return management_role
 
-    async def update_prefix(self, guild, prefix):
+    async def update_prefix(self, guild: discord.Guild, prefix: str) -> None:
         async with self.pool.acquire() as conn:
             await conn.execute(
                 """
-                INSERT INTO servers 
+                INSERT INTO servers
                     (server_id, prefix)
                     VALUES($1, $2)
                     ON CONFLICT (server_id)
@@ -110,11 +114,11 @@ class DatabasePool:
                 prefix,
             )
 
-    async def update_admin_role(self, guild, role_id):
+    async def update_admin_role(self, guild: discord.Guild, role_id: int) -> None:
         async with self.pool.acquire() as conn:
             await conn.execute(
                 """
-                INSERT INTO servers 
+                INSERT INTO servers
                     (server_id, management_role_id)
                     VALUES($1, $2)
                     ON CONFLICT (server_id)

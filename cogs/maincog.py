@@ -21,39 +21,43 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import platform
 
 from datetime import datetime, timezone
+from typing import TYPE_CHECKING, Optional
 
 import discord
 
 from discord.ext import commands
 
-from config import owner
+from main import Bot
+
+if TYPE_CHECKING:
+    Cog = commands.Cog[commands.Context]
+else:
+    Cog = commands.Cog
 
 
-class MainCog(commands.Cog):
-    def __init__(self, bot):
+class MainCog(Cog):
+    def __init__(self, bot: Bot) -> None:
         self.bot = bot
 
-    async def on_command_error(self, ctx: commands.Context, error):
-        cog = ctx.cog
-        if cog:
-            if cog._get_overridden_method(cog.cog_command_error) is not None:
-                return
+    async def on_command_error(
+        self, ctx: commands.Context, error: discord.DiscordException
+    ) -> None:
         await ctx.send("There was an unknown error!\n" f"Error: {error}")
         raise error
 
     @commands.Cog.listener()
-    async def on_ready(self):
+    async def on_ready(self) -> None:
         # Print the bot invite link
         print(
             f"https://discord.com/api/oauth2/authorize?client_id={self.bot.user.id}&permissions=379968&scope=bot"
         )
         print(f"Logged on as {self.bot.user}!")
-        if self.bot.load_time is None:
-            self.bot.load_time = datetime.utcnow()
+        self.bot.load_time = datetime.utcnow()
 
     @commands.Cog.listener()
-    async def on_guild_join(self, guild: discord.Guild):
+    async def on_guild_join(self, guild: discord.Guild) -> None:
         channel = None
+        assert guild.me is not None
         if guild.system_channel is None:
             for c in guild.text_channels:
                 perm = c.permissions_for(guild.me)
@@ -101,11 +105,15 @@ class MainCog(commands.Cog):
                 timestamp=datetime.now(timezone.utc),
             )
             embed.add_field(name="Name", value=guild.name, inline=False)
-            embed.add_field(name="ID", value=guild.id, inline=False)
-            await self.bot.get_channel(self.bot.join_log_channel).send(embed=embed)
+            embed.add_field(name="ID", value=str(guild.id), inline=False)
+            log_channel = self.bot.get_channel(self.bot.join_log_channel)
+            if isinstance(
+                log_channel, discord.TextChannel
+            ):  # ensure that log_channel is a text channel
+                await log_channel.send(embed=embed)
 
     @commands.Cog.listener()
-    async def on_guild_remove(self, guild: discord.Guild):
+    async def on_guild_remove(self, guild: discord.Guild) -> None:
         if not self.bot.self_hosted:
             embed = discord.Embed(
                 title="Left a server!",
@@ -113,13 +121,17 @@ class MainCog(commands.Cog):
                 timestamp=datetime.now(timezone.utc),
             )
             embed.add_field(name="Name", value=guild.name, inline=False)
-            embed.add_field(name="ID", value=guild.id, inline=False)
-            await self.bot.get_channel(self.bot.join_log_channel).send(embed=embed)
+            embed.add_field(name="ID", value=str(guild.id), inline=False)
+            log_channel = self.bot.get_channel(self.bot.join_log_channel)
+            if isinstance(
+                log_channel, discord.TextChannel
+            ):  # ensure that the log channel is a text channel
+                await log_channel.send(embed=embed)
 
     @commands.command(
         name="help", help="Responds with an embed with all the commands and options"
     )
-    async def help(self, ctx: commands.Context, option: str = None):
+    async def help(self, ctx: commands.Context, option: Optional[str] = None) -> None:
         if option is None or option.lower() != "setup":
             prefix = await self.bot.db.get_prefix(ctx.guild)
             embed = discord.Embed(
@@ -171,14 +183,18 @@ class MainCog(commands.Cog):
             await ctx.send(embed=embed)
         else:
             try:
-                await ctx.invoke(self.bot.get_command("setup"))
+                setup_command = self.bot.get_command("setup")
+                if setup_command is not None:
+                    await ctx.invoke(setup_command)
                 return
-            except Exception as e:
-                await ctx.invoke(self.bot.get_command("help"))
+            except Exception:
+                help_command = self.bot.get_command("help")
+                if help_command is not None:
+                    await ctx.invoke(help_command)
 
     # Create the info command.
     @commands.command(name="info")
-    async def info(self, ctx: commands.Context):
+    async def info(self, ctx: commands.Context) -> None:
         prefix = await self.bot.db.get_prefix(ctx.guild)
         total_seconds = (datetime.utcnow() - self.bot.start_time).total_seconds()
         days = total_seconds // 86400
@@ -191,7 +207,7 @@ class MainCog(commands.Cog):
             timestamp=datetime.now(timezone.utc),
             url="https://messagemanager.xyz",
         )
-        embed.add_field(name="Username", value=self.bot.user, inline=True),
+        embed.add_field(name="Username", value=str(self.bot.user), inline=True),
         embed.add_field(name="Prefix", value=f"`{prefix}`", inline=True),
         embed.add_field(name="Version", value=self.bot.version, inline=True),
         embed.add_field(
@@ -217,19 +233,19 @@ class MainCog(commands.Cog):
             inline=True,
         ),
         embed.add_field(
-            name="Number of Servers", value=len(self.bot.guilds), inline=True
+            name="Number of Servers", value=str(len(self.bot.guilds)), inline=True
         )
         embed.set_thumbnail(url=f"{self.bot.user.avatar_url}")
         await ctx.send(embed=embed)
 
     @commands.command(name="ping")
-    async def ping(self, ctx: commands.Context):
+    async def ping(self, ctx: commands.Context) -> None:
         message = await ctx.send("Pong!")
         ping_time = (message.created_at - ctx.message.created_at).total_seconds() * 1000
         await message.edit(content=f"Ping! Took: {int(ping_time)}ms")
 
     @commands.command()
-    async def privacy(self, ctx: commands.Context):
+    async def privacy(self, ctx: commands.Context) -> None:
         embed = discord.Embed(
             title="Privacy Policy",
             description="We do store data. Please read our privacy policy.",
@@ -244,7 +260,7 @@ class MainCog(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command()
-    async def invite(self, ctx: commands.Context):
+    async def invite(self, ctx: commands.Context) -> None:
         await ctx.send(
             embed=discord.Embed(
                 title="Invite me to your server!",
@@ -256,7 +272,7 @@ class MainCog(commands.Cog):
         )
 
     @commands.command()
-    async def docs(self, ctx: commands.Context):
+    async def docs(self, ctx: commands.Context) -> None:
         await ctx.send(
             embed=discord.Embed(
                 title="Docs!",
@@ -268,7 +284,7 @@ class MainCog(commands.Cog):
         )
 
     @commands.command()
-    async def source(self, ctx: commands.Context):
+    async def source(self, ctx: commands.Context) -> None:
         await ctx.send(
             embed=discord.Embed(
                 title="Source Code!",
@@ -280,7 +296,7 @@ class MainCog(commands.Cog):
         )
 
     @commands.command()
-    async def support(self, ctx: commands.Context):
+    async def support(self, ctx: commands.Context) -> None:
         await ctx.send(
             embed=discord.Embed(
                 title="Join my support server for support!",
@@ -292,6 +308,6 @@ class MainCog(commands.Cog):
         )
 
 
-def setup(bot):
+def setup(bot: Bot) -> None:
     bot.add_cog(MainCog(bot))
     print("    Main cog!")

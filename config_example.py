@@ -1,7 +1,7 @@
 token = ""
 default_prefix = "!"
 owner = None
-bypassed_users = []
+owners = {0}
 uri = "postgresql://user:password@host/database"
 
 # Ingore the values below

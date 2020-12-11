@@ -1,5 +1,5 @@
 # cogs/stats.py
-
+# type: ignore
 """
 Message Manager - A bot for discord
 Copyright (C) 2020  AnotherCat
@@ -20,6 +20,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from discord.ext import commands
 
+from cogs.src import errors
+
 
 class StatsCog(commands.Cog):
     def __init__(self, bot):
@@ -29,9 +31,9 @@ class StatsCog(commands.Cog):
         if isinstance(
             error,
             (
-                self.bot.errors.MissingPermission,
-                self.bot.errors.ContentError,
-                self.bot.errors.ConfigNotSet,
+                errors.MissingPermission,
+                errors.ContentError,
+                errors.ConfigNotSet,
                 commands.NoPrivateMessage,
             ),
         ):

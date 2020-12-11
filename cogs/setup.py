@@ -19,25 +19,37 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 from datetime import datetime, timezone
+from typing import TYPE_CHECKING, Optional
 
 import discord
 
 from discord.ext import commands
 
+from cogs.src import errors
+from main import Bot
 
-class SetupCog(commands.Cog):
-    def __init__(self, bot):
+if TYPE_CHECKING:
+    Cog = commands.Cog[commands.Context]
+else:
+    Cog = commands.Cog
+
+
+class SetupCog(Cog):
+    def __init__(self, bot: Bot) -> None:
         self.bot = bot
 
-    async def cog_command_error(self, ctx: commands.Context, error):
+    async def cog_command_error(
+        self, ctx: commands.Context, error: discord.DiscordException
+    ) -> None:
         if isinstance(
             error,
             (
-                self.bot.errors.MissingPermission,
-                self.bot.errors.InputContentIncorrect,
-                self.bot.errors.ConfigNotSet,
-                self.bot.errors.ConfigError,
+                errors.MissingPermission,
+                errors.InputContentIncorrect,
+                errors.ConfigNotSet,
+                errors.ConfigError,
                 commands.errors.MissingPermissions,
+                commands.errors.NoPrivateMessage,
             ),
         ):
             await ctx.send(error)
@@ -48,7 +60,7 @@ class SetupCog(commands.Cog):
 
     @commands.has_guild_permissions(administrator=True)
     @commands.group()
-    async def setup(self, ctx: commands.Context):
+    async def setup(self, ctx: commands.Context) -> None:
         if ctx.invoked_subcommand is None:
             prefix = await self.bot.db.get_prefix(ctx.guild)
             embed = discord.Embed(
@@ -81,9 +93,11 @@ class SetupCog(commands.Cog):
 
     @commands.has_guild_permissions(administrator=True)
     @setup.command(name="prefix")
-    async def return_prefix(self, ctx: commands.Context, new_prefix=None):
+    async def return_prefix(
+        self, ctx: commands.Context, new_prefix: Optional[str] = None
+    ) -> None:
         prefix = await self.bot.db.get_prefix(ctx.guild)
-        if new_prefix == None:
+        if new_prefix is None:
             await ctx.send(f"My prefix for this server is: `{prefix}`")
         elif new_prefix.lower() == "none":
             await self.bot.db.update_prefix(ctx.guild, self.bot.default_prefix)
@@ -97,7 +111,7 @@ class SetupCog(commands.Cog):
             )
         else:
             if len(new_prefix) > 1:
-                raise self.bot.errors.InputContentIncorrect(
+                raise errors.InputContentIncorrect(
                     "Prefix's can only be 1 character long!"
                 )
             else:
@@ -113,15 +127,18 @@ class SetupCog(commands.Cog):
 
     @commands.has_guild_permissions(administrator=True)
     @setup.command()
-    async def admin(self, ctx: commands.Context, role_id=None):
+    async def admin(
+        self, ctx: commands.Context, role_id_input: Optional[str] = None
+    ) -> None:
+        assert ctx.guild is not None
         original_role_id = await self.bot.db.get_management_role(ctx.guild)
-        if original_role_id is None and role_id is None:
-            raise self.bot.errors.ConfigNotSet("The admin role has not been set yet!")
+        if original_role_id is None and role_id_input is None:
+            raise errors.ConfigNotSet("The admin role has not been set yet!")
         original_role = ctx.guild.get_role(original_role_id)
-        if role_id is None:
+        if role_id_input is None:
 
             if original_role is None:
-                raise self.bot.errors.ConfigNotSet("The role could not be found!")
+                raise errors.ConfigNotSet("The role could not be found!")
             else:
                 await ctx.send(
                     embed=discord.Embed(
@@ -133,34 +150,35 @@ class SetupCog(commands.Cog):
                 )
 
         else:
-            if role_id.lower() == "none":
+            if role_id_input.lower() == "none":
                 await self.bot.db.update_admin_role(ctx.guild, None)
 
                 embed = discord.Embed(
                     title="Config updated!",
                     timestamp=datetime.now(timezone.utc),
                     colour=discord.Colour(15653155),
-                    allowed_mentions=discord.AllowedMentions(roles=False),
                 )
                 if original_role is None:
-                    embed.description = f"Management role updated to None"
+                    embed.description = "Management role updated to None"
                 else:
                     embed.description = (
                         f"Management role updated from {original_role.mention} to None"
                     )
-                await ctx.send(embed=embed)
+                await ctx.send(
+                    embed=embed, allowed_mentions=discord.AllowedMentions(roles=False)
+                )
             else:
-                if role_id[:3] == "<@&":
-                    role_id = role_id[3:-1]
+                if role_id_input[:3] == "<@&":
+                    role_id_input = role_id_input[3:-1]
                 try:
-                    role_id = int(role_id)
+                    role_id = int(role_id_input)
                     role = ctx.guild.get_role(role_id)
                     if role is None:
-                        raise self.bot.errors.InputContentIncorrect(
+                        raise errors.InputContentIncorrect(
                             "I could not find that role! Please try again"
                         )
                 except ValueError:
-                    raise self.bot.errors.InputContentIncorrect(
+                    raise errors.InputContentIncorrect(
                         "I could not find that role! Please try again"
                     )
                 await self.bot.db.update_admin_role(ctx.guild, role_id)
@@ -169,30 +187,31 @@ class SetupCog(commands.Cog):
                     title="Config updated!",
                     timestamp=datetime.now(timezone.utc),
                     colour=discord.Colour(15653155),
-                    allowed_mentions=discord.AllowedMentions(roles=False),
                 )
                 if original_role is None:
                     embed.description = f"Management role updated to {role.mention}"
                 else:
                     embed.description = f"Management role updated from {original_role.mention} to {role.mention}"
-                await ctx.send(embed=embed)
+                await ctx.send(
+                    embed=embed, allowed_mentions=discord.AllowedMentions(roles=False)
+                )
 
     @commands.has_guild_permissions(administrator=True)
     @setup.command()
-    async def botstats(self, ctx: commands.Context, channel_id=None):
-        await ctx.invoke(self.bot.get_command("stats update"))
+    async def botstats(self, ctx: commands.Context, channel_id=None):  # type: ignore
+        await ctx.invoke(self.bot.get_command("stats update"))  # type: ignore
 
     @commands.has_guild_permissions(administrator=True)
     @setup.command()
-    async def userstats(self, ctx: commands.Context, channel_id=None):
-        await ctx.invoke(self.bot.get_command("stats update"))
+    async def userstats(self, ctx: commands.Context, channel_id=None):  # type: ignore
+        await ctx.invoke(self.bot.get_command("stats update"))  # type: ignore
 
     @commands.command(name="prefix")
-    async def prefix(self, ctx: commands.Context):
+    async def prefix(self, ctx: commands.Context) -> None:
         prefix = await self.bot.db.get_prefix(ctx.guild)
         await ctx.send(f"My prefix for this server is: `{prefix}`")
 
 
-def setup(bot):
+def setup(bot: Bot) -> None:
     bot.add_cog(SetupCog(bot))
     print("    Setup cog!")

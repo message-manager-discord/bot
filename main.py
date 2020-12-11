@@ -21,43 +21,47 @@ import asyncio
 import datetime
 import logging
 
+from typing import TYPE_CHECKING, Any, List
+
+import asyncpg
 import discord
 
 from discord.ext import commands
 
 import config
 
-from src import checks, errors
-from src.db import db
+from cogs.src.db import db
 
 starttime = datetime.datetime.utcnow()
 
 __version__ = "v1.3.0"
 
-
-class Bot(commands.Bot):
-    def __init__(self, **kwargs):
-        super().__init__(
-            command_prefix=self.get_prefix, case_insensitive=True, **kwargs
-        )
-        self.logger = kwargs.pop("logger")
-        self.checks = kwargs.pop("checks")
-        self.errors = kwargs.pop("errors")
-        self.default_prefix = kwargs.pop("default_prefix")
-        self.self_hosted = kwargs.pop("self_hosted")
-        self.version = kwargs.pop("version")
-        self.load_time = None
-
-    async def get_prefix(self, message):
-        prefix = await self.db.get_prefix(
-            message.guild
-        )  # Fetch current server prefix from database
-        if message.guild is None:
-            prefix = [prefix, ""]
-        return commands.when_mentioned_or(*prefix)(self, message)
+if TYPE_CHECKING:
+    BotBase = commands.Bot[commands.Context]
+else:
+    BotBase = commands.Bot
 
 
-async def run():
+class Bot(BotBase):
+    def __init__(
+        self, default_prefix: str, self_hosted: bool = False, **kwargs: Any
+    ) -> None:
+        super().__init__(case_insensitive=True, **kwargs)
+        self.default_prefix = default_prefix
+        self.self_hosted = self_hosted
+        self.version = __version__
+        self.db: asyncpg.pool.Pool
+        self.start_time: datetime.datetime
+        self.load_time: datetime.datetime
+        self.join_log_channel: int
+        self.dbl_token: str
+        self.dboats_token: str
+        self.del_token: str
+        self.dbgg_token: str
+        self.topgg_token: str
+
+
+async def run() -> None:
     database = db.DatabasePool(config.uri, bot)
     await database._init()
     bot.db = database
@@ -69,8 +73,8 @@ async def run():
     extensions = [
         "cogs.maincog",
         "cogs.messages",
-        "cogs.admin",
         "cogs.stats",
+        "cogs.admin",
         "cogs.setup",
     ]
     if not config.self_host:
@@ -99,16 +103,24 @@ logging.info("Started logging!")
 
 intents = discord.Intents(guilds=True, members=False, messages=True)
 
+
+async def get_prefix(bot: Bot, message: discord.Message) -> List[str]:
+    prefix = await bot.db.get_prefix(
+        message.guild
+    )  # Fetch current server prefix from database
+    if message.guild is None:
+        prefix = [prefix, ""]
+
+    return commands.when_mentioned_or(*prefix)(bot, message)
+
+
 bot = Bot(
     owner_ids=config.owners,
     activity=discord.Game(name="Watching our important messages!"),
     intents=intents,
-    logger=logging,
-    checks=checks,
-    errors=errors,
     default_prefix=config.default_prefix,
     self_hosted=config.self_host,
-    version=__version__,
+    command_prefix=get_prefix,
 )
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()

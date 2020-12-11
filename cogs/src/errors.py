@@ -1,4 +1,4 @@
-# src/errors.py
+# cogs/src/errors.py
 
 """
 Message Manager - A bot for discord
@@ -18,7 +18,11 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
+from typing import Any
+
 from discord.ext.commands import CheckFailure
+
+from main import Bot
 
 
 class ConfigNotSet(CheckFailure):
@@ -32,19 +36,19 @@ class ConfigError(CheckFailure):
 class DifferentServer(CheckFailure):
     def __init__(
         self,
-        message="That channel is not in this server, Please re-do the command",
-        **kwargs
-    ):
-        super().__init__(message, **kwargs)
+        message: str = "That channel is not in this server, Please re-do the command",
+        *args: Any
+    ) -> None:
+        super().__init__(message, *args)
 
 
 class DifferentAuthor(CheckFailure):
     def __init__(
         self,
-        message="That message was not sent by me! I cannot edit messages sent by others.",
-        **kwargs
-    ):
-        super().__init__(message, **kwargs)
+        message: str = "That message was not sent by me! I cannot edit messages sent by others.",
+        *args: Any
+    ) -> None:
+        super().__init__(message, *args)
 
 
 class ContentError(CheckFailure):
@@ -63,5 +67,5 @@ class JSONFailure(CheckFailure):
     pass
 
 
-def setup(bot):
+def setup(bot: Bot) -> None:
     print("    Errors!")

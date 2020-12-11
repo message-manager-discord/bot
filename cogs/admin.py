@@ -24,29 +24,38 @@ import random
 import string
 
 from math import floor
+from typing import TYPE_CHECKING
 
 import discord
 
 from discord.ext import commands
 
+from cogs.src import errors
+from main import Bot
 
-class AdminCog(commands.Cog):
-    def __init__(self, bot):
+if TYPE_CHECKING:
+    Cog = commands.Cog[commands.Context]
+else:
+    Cog = commands.Cog
+
+
+class AdminCog(Cog):
+    def __init__(self, bot: Bot) -> None:
         self.bot = bot
 
-    async def cog_check(self, ctx: commands.Context):
+    async def cog_check(self, ctx: commands.Context) -> bool:
         if await self.bot.is_owner(ctx.author):
             return True
         else:
-            raise self.bot.errors.MissingPermission(
-                "You need to be a bot dev to do that!"
-            )
+            raise errors.MissingPermission("You need to be a bot dev to do that!")
 
-    async def cog_command_error(self, ctx: commands.Context, error):
+    async def cog_command_error(
+        self, ctx: commands.Context, error: discord.DiscordException
+    ) -> None:
         if isinstance(
             error,
             (
-                self.bot.errors.MissingPermission,
+                errors.MissingPermission,
                 commands.errors.MissingRequiredArgument,
             ),
         ):
@@ -56,7 +65,7 @@ class AdminCog(commands.Cog):
             raise error
 
     @commands.command(hidden=True)
-    async def load(self, ctx: commands.Context, *, module: str):
+    async def load(self, ctx: commands.Context, *, module: str) -> None:
         try:
             self.bot.load_extension(module)
         except Exception as error:
@@ -65,7 +74,7 @@ class AdminCog(commands.Cog):
             await ctx.send(f"The module {module} was loaded!")
 
     @commands.command(hidden=True)
-    async def unload(self, ctx: commands.Context, *, module: str):
+    async def unload(self, ctx: commands.Context, *, module: str) -> None:
         """Unloads a module."""
         try:
             self.bot.unload_extension(module)
@@ -75,7 +84,7 @@ class AdminCog(commands.Cog):
             await ctx.send(f"The module {module} was unloaded!")
 
     @commands.command(name="reload", hidden=True)
-    async def _reload(self, ctx: commands.Context, *, module: str):
+    async def _reload(self, ctx: commands.Context, *, module: str) -> None:
         """Reloads a module."""
         try:
             self.bot.unload_extension(module)
@@ -86,16 +95,17 @@ class AdminCog(commands.Cog):
             await ctx.send(f"The module {module} was reloaded!")
 
     @commands.command(aliases=["restart"])
-    async def stop(self, ctx: commands.Context):
+    async def stop(self, ctx: commands.Context) -> None:
         message = await ctx.send("Are you sure you want to stop the current process?")
 
-        def is_correct(m):
+        def is_correct(m: discord.Message) -> bool:
             return m.author == ctx.author
 
         try:
             choice = await self.bot.wait_for("message", check=is_correct)
         except asyncio.TimeoutError:
-            return await ctx.send("Timedout, Please re-do the command.")
+            await ctx.send("Timedout, Please re-do the command.")
+            return
 
         if choice.content.lower() == "yes":
             try:
@@ -118,7 +128,8 @@ class AdminCog(commands.Cog):
                     "message", check=is_correct, timeout=280.0
                 )
             except asyncio.TimeoutError:
-                return await ctx.send("Timedout, Please re-do the command.")
+                await ctx.send("Timedout, Please re-do the command.")
+                return
 
             if choice.content == verify_message:
                 await ctx.send("Logging out")
@@ -128,7 +139,7 @@ class AdminCog(commands.Cog):
                     await ctx.send(f"{type(error).__name__}: {error}")
 
     @commands.command()
-    async def loadtime(self, ctx):
+    async def loadtime(self, ctx: commands.Context) -> None:
         diff = self.bot.load_time - self.bot.start_time
         hours = floor(diff.seconds / 3600)
         minutes = floor((diff.seconds - (hours * 3600)) / 60)
@@ -145,6 +156,6 @@ class AdminCog(commands.Cog):
         )
 
 
-def setup(bot):
+def setup(bot: Bot) -> None:
     bot.add_cog(AdminCog(bot))
     print("    Admin cog!")
