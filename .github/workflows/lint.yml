@@ -1,0 +1,26 @@
+# .github/workflows/lint.yml
+
+name: Lint
+
+on: [push, pull_request]
+
+jobs:
+  link:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+
+      - name: Install dependencies with pipenv
+        run: |
+          pip install -U pip
+          pip install pipenv
+          pipenv install --deploy --dev
+      - run: pipenv run isort --recursive --diff .
+      - run: pipenv run black --check .
+      - run: pipenv run flake8
+      - run: pipenv run mypy
