@@ -39,7 +39,11 @@ class StatsCog(commands.Cog):
         ):
             await ctx.send(error)
         else:
-            await ctx.send("There was an unknown error!\n" f"Error: {error}")
+            await ctx.send(
+                "There was an unknown error!\n"
+                f"Report a bug or get support from the support server at {self.bot.command_with_prefix(ctx, 'support')}\n"
+                f"Error: {error}"
+            )
             raise error
 
     @commands.group()

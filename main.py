@@ -60,6 +60,15 @@ class Bot(BotBase):
         self.dbgg_token: str
         self.topgg_token: str
 
+    def command_with_prefix(self, ctx: commands.Context, command_name: str) -> str:
+        if str(self.user.id) in ctx.prefix:
+            if isinstance(ctx.me, discord.Member):
+                return f"`@{ctx.me.nick or ctx.me.name} {command_name}`"
+            else:
+                return f"`@{ctx.me.name} {command_name}`"
+        else:
+            return f"`{ctx.prefix}{command_name}`"
+
 
 async def run() -> None:
     database = db.DatabasePool(config.uri, bot)
