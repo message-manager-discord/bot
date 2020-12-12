@@ -1,4 +1,4 @@
-# src/checks.py
+# cogs/src/checks.py
 
 """
 Message Manager - A bot for discord
@@ -20,16 +20,22 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import discord
 
+from discord.ext import commands
 
-async def check_if_manage_role(bot, ctx):
+from cogs.src import errors
+from main import Bot
+
+
+async def check_if_manage_role(bot: Bot, ctx: commands.Context) -> bool:
     if guild_only(bot, ctx):
+        assert isinstance(ctx.author, discord.Member)
+        assert ctx.guild is not None
         management_role = await bot.db.get_management_role(ctx.guild)
         if ctx.author.id == ctx.guild.owner_id:
             return True
         elif management_role is None:
-            prefix = await bot.db.get_prefix(ctx.guild)
-            raise bot.errors.ConfigNotSet(
-                f"You have not set the management role!\nDo this with the `{prefix}setup` command"
+            raise errors.ConfigNotSet(
+                f"You have not set the management role!\nDo this with the `{ctx.prefix}setup` command"
             )
         elif await bot.is_owner(ctx.author):
             return True
@@ -37,13 +43,14 @@ async def check_if_manage_role(bot, ctx):
             for role in ctx.author.roles:
                 if int(management_role) == role.id:
                     return True
-            raise bot.errors.MissingPermission(
+            raise errors.MissingPermission(
                 "You need the management role to do that!\n"
                 "Contact your server admin if you think you should be able to do this"
             )
+    return False
 
 
-def guild_only(bot, ctx):
+def guild_only(bot: Bot, ctx: discord.ext.commands.Context) -> bool:
     if ctx.guild is None:
         raise discord.ext.commands.NoPrivateMessage(
             "That command can only be used in guilds!"
@@ -52,5 +59,5 @@ def guild_only(bot, ctx):
         return True
 
 
-def setup(bot):
+def setup(bot: Bot) -> None:
     print("    Checks!")

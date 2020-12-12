@@ -7,7 +7,7 @@ I do not provide support for running your own instance of this bot other than th
 ## Installation
 
 1. Clone [the repo](https://github.com/AnotherCat/message-bot)
-2. Make sure you have the latest version of python and postgresql
+2. Make sure you have python3.8 and postgresql
 3. Setting up the database and roles
 4. Creating a discord application and a bot user at the [discord dev website](https://discord.com/developers/applications), setup guide [here](https://discordpy.readthedocs.io/en/latest/discord.html#creating-a-bot-account)
 5. You **MUST** enable member intents on the bot page for the bot to load.
@@ -18,25 +18,24 @@ I do not provide support for running your own instance of this bot other than th
 ### Setup Example (linux)
 
 ```bash
-~$ python3 #check if python is installed.
+~$ python3.8 #check if python is installed.
 ~$ git clone https://github.com/AnotherCat/message-bot.git # Clone this github repo
-~$ python3 -m venv bot-env # Create the python virtual environment bot-env
-~$ source bot-env/bin/activate # Activate the python virtual environment (will need to do this every time you want to be able to run the bot)
-(bot-env) ~$ cd message-bot # Navigate to the main directory for the project.
-(bot-env) ~/message-bot$ pip install -r requirements.txt # Install the required python packages.
+~$ cd message-bot # Navigate to the main directory for the project.
+~/message-bot$ pipenv install # Install the required python packages with pipenv
 # Now you need to setup the config variables, see Config below
-(bot-env) ~/message-bot$ python3 main.py # Run the bot
+(bot-env) ~/message-bot$ pipenv run python3.8 main.py # Run the bot
 ```
 
 Note: This assumes that you have the following packages installed:
 
-- The latest version of python with pip and venv installed.
-- The latest version of git.
-- The latest version of postgresql
+- [Python 3.8](https://www.python.org/downloads/release/python-386/) (discord.py does nto currently support the latest version of python, 3.9)
+- The latest version of [git](https://git-scm.com/downloads)
+- The latest version of [postgresql](https://www.postgresql.org/download/)
+- [Pipenv](https://pipenv.pypa.io/en/latest/install/)
 
 Some commands may require sudo privileges depending on your system.
 
-For windows do the same, but replace `python3` with python and replace `source bot-env/bin/activate` with `/bot-env/scripts/activate.bat`
+For windows do the same, but replace `python3` with `python`
 
 ## Config
 
@@ -96,3 +95,5 @@ It is still suggested that you read the update notes and update your config as s
 
 If the first number in the tuple changes, this means that it is no longer backwards compatible.
 This means that you **must** update your configuration after pulling the version.
+
+After any update, do `pipenv install` again

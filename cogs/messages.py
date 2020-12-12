@@ -23,30 +23,47 @@ import json
 import os
 
 from datetime import datetime, timezone
+from typing import TYPE_CHECKING, Dict, Optional, TypedDict, Union
 
 import discord
 
 from discord.ext import commands
 
+from cogs.src import checks, errors
+from main import Bot
 
-class MessagesCog(commands.Cog):
-    def __init__(self, bot):
+if TYPE_CHECKING:
+    Cog = commands.Cog[commands.Context]
+else:
+    Cog = commands.Cog
+
+
+class FieldDict(TypedDict):
+    name: str
+    value: str
+    inline: bool
+
+
+class MessagesCog(Cog):
+    def __init__(self, bot: Bot) -> None:
         self.bot = bot
 
-    def cog_check(self, ctx: commands.Context):
-        return self.bot.checks.check_if_manage_role(self.bot, ctx)
+    async def cog_check(self, ctx: commands.Context) -> bool:
+        return await checks.check_if_manage_role(self.bot, ctx)
 
-    async def cog_command_error(self, ctx: commands.Context, error):
+    async def cog_command_error(
+        self, ctx: commands.Context, error: discord.DiscordException
+    ) -> None:
         if isinstance(
             error,
             (
-                self.bot.errors.MissingPermission,
-                self.bot.errors.ContentError,
-                self.bot.errors.DifferentServer,
-                self.bot.errors.ConfigNotSet,
-                self.bot.errors.InputContentIncorrect,
-                self.bot.errors.DifferentAuthor,
-                self.bot.errors.JSONFailure,
+                errors.MissingPermission,
+                errors.ContentError,
+                errors.DifferentServer,
+                errors.ConfigNotSet,
+                errors.InputContentIncorrect,
+                errors.DifferentAuthor,
+                errors.JSONFailure,
                 commands.NoPrivateMessage,
             ),
         ):
@@ -67,30 +84,34 @@ class MessagesCog(commands.Cog):
             )
             raise error
 
-    async def check_channel(self, ctx: commands.Context, channel):
-        def is_correct(m):
+    async def check_channel(
+        self, ctx: commands.Context, channel: Optional[discord.TextChannel]
+    ) -> discord.TextChannel:
+        def is_correct(m: discord.Message) -> bool:
             return m.author == ctx.author
 
-        if channel == None:
+        if channel is None:
             await ctx.send("What is the channel?")
             get_channel = await self.bot.wait_for("message", check=is_correct)
             get_channel.content
             channel = await commands.TextChannelConverter().convert(
                 ctx, get_channel.content
             )
-
+        assert ctx.guild is not None
+        assert ctx.guild.me is not None
+        assert isinstance(ctx.author, discord.Member)
         perms = channel.permissions_for(ctx.guild.me)
         sender_perms = channel.permissions_for(ctx.author)
         if not perms.view_channel:
-            raise self.bot.errors.InputContentIncorrect(
+            raise errors.InputContentIncorrect(
                 "I do not have the the `View Messages` permission in that channel!"
             )
         elif not (perms.send_messages and perms.embed_links):
-            raise self.bot.errors.InputContentIncorrect(
+            raise errors.InputContentIncorrect(
                 "I do not have the the `Send Message` and `Embed Links` permission in that channel!"
             )
         elif not sender_perms.view_channel:
-            raise self.bot.errors.InputContentIncorrect(
+            raise errors.InputContentIncorrect(
                 "You don't have the `View Messages` permissions in that channel!"
             )
 
@@ -99,13 +120,13 @@ class MessagesCog(commands.Cog):
     async def check_content(
         self,
         ctx: commands.Context,
-        content,
-        ask_message="What is the content of the message to be?",
-    ):
-        def is_correct(m):
+        content: Optional[str],
+        ask_message: str = "What is the content of the message to be?",
+    ) -> str:
+        def is_correct(m: discord.Message) -> bool:
             return m.author == ctx.author
 
-        if content == None or content == "":
+        if content is None or content == "":
             await ctx.send(ask_message)
             get_content = await self.bot.wait_for("message", check=is_correct)
             content = get_content.content
@@ -113,29 +134,32 @@ class MessagesCog(commands.Cog):
         else:
             return content
 
-    async def check_message_id(self, ctx: commands.Context, channel, message):
+    async def check_message_id(
+        self,
+        ctx: commands.Context,
+        channel: Union[discord.TextChannel, str, int],
+        message_id: Optional[int],
+    ) -> discord.Message:
         if not isinstance(channel, discord.TextChannel):
-            channel = await commands.TextChannelConverter().convert(ctx, channel)
+            channel = await commands.TextChannelConverter().convert(ctx, str(channel))
 
-        def is_correct(m):
+        def is_correct(m: discord.Message) -> bool:
             return m.author == ctx.author
 
-        async def message_or_error(channel, message):
+        async def message_or_error(
+            channel: discord.TextChannel, message_id: Union[int, str]
+        ) -> discord.Message:
             try:
-                return await channel.fetch_message(int(message))
+                return await channel.fetch_message(int(message_id))
             except Exception as e:
                 if isinstance(e, discord.NotFound):
-                    raise self.bot.errors.InputContentIncorrect(
-                        "I can't find that message!"
-                    )
+                    raise errors.InputContentIncorrect("I can't find that message!")
                 elif isinstance(e, ValueError):
-                    raise self.bot.errors.InputContentIncorrect(
-                        "That is not a message id!"
-                    )
+                    raise errors.InputContentIncorrect("That is not a message id!")
                 else:
                     raise e
 
-        if message == None:
+        if message_id is None:
             await ctx.send("What is the id of the message?")
 
             get_message = await self.bot.wait_for("message", check=is_correct)
@@ -143,60 +167,79 @@ class MessagesCog(commands.Cog):
             message = await message_or_error(channel, get_message.content)
             return message
         else:
-            message = await message_or_error(channel, message)
+            message = await message_or_error(channel, message_id)
             return message
 
     async def send_message_info_embed(
-        self, ctx: commands.Context, command_type, author, content, message
-    ):
+        self,
+        ctx: commands.Context,
+        command_type: str,
+        author: Union[discord.Member, discord.User],
+        content: str,
+        message: discord.Message,
+        channel: discord.TextChannel,
+    ) -> None:
         title = "Sent"
-        list_content = [
-            ["Author", author.mention, True],
-            ["Channel", message.channel.mention, True],
-            ["Content", content, False],
-        ]
+        list_content: Dict[str, FieldDict] = {
+            "author": {"name": "Author", "value": author.mention, "inline": True},
+            "channel": {"name": "Channel", "value": channel.mention, "inline": True},
+            "content": {"name": "Content", "value": content, "inline": True},
+        }
         if command_type == "edit":
             title = "Edited"
-            list_content.insert(2, ["Original Content", message.content, False])
-            list_content[3][0] = "New Content"
-            list_content[0][0] = "Editor"
+            list_content["original_content"] = {
+                "name": "Original Content",
+                "value": message.content,
+                "inline": False,
+            }
+            list_content["content"]["name"] = "New Content"
+            list_content["author"]["name"] = "Editor"
         elif command_type == "delete":
             title = "Deleted"
-            list_content[0][0] = "Deleter"
+            list_content["author"]["name"] = "Deleter"
         elif command_type == "fetch":
             title = "Fetched"
-            del list_content[1:2]
-            del list_content[2:3]
+            del list_content["author"]
 
         embed = discord.Embed(
             title=f"{title} the message!",
             colour=discord.Colour(0xC387C1),
             timestamp=datetime.now(timezone.utc),
         )
-        for item in list_content:
-            embed.add_field(name=item[0], value=item[1], inline=item[2])
+        for key in list_content:
+            embed.add_field(
+                name=list_content[key]["name"],
+                value=list_content[key]["value"],
+                inline=list_content[key]["inline"],
+            )
         if len(content) >= 500 or len(message.content) >= 500:
             with open("content.txt", "w+") as f:
                 if command_type == "edit":
                     f.write(
                         f"Original Content:\n\n{message.content}\n\nNew Content:\n\n{content}"
                     )
-                    del list_content[2:4]
+                    del list_content["content"]
+                    del list_content["original_content"]
                 elif command_type == "fetch":
                     f.write(f"Content:\n\n{content}")
-                    del list_content[2:3]
+                    del list_content["content"]
                 else:
                     f.write(f"Content:\n\n{content}")
-                    del list_content[2:3]
+                    del list_content["content"]
             embed = discord.Embed(
                 title=f"{title} the message!",
                 colour=discord.Colour(0xC387C1),
                 timestamp=datetime.now(timezone.utc),
             )
-            for item in list_content:
-                embed.add_field(name=item[0], value=item[1], inline=item[2])
-            with open("content.txt", "r") as fx:
-                await ctx.send(embed=embed, file=discord.File(fx, "content.txt"))
+            for key in list_content:
+                embed.add_field(
+                    name=list_content[key]["name"],
+                    value=list_content[key]["value"],
+                    inline=list_content[key]["inline"],
+                )
+            await ctx.send(
+                embed=embed, file=discord.File("content.txt", filename="content.txt")
+            )
             os.remove("content.txt")
         else:
             await ctx.send(embed=embed)
@@ -205,47 +248,46 @@ class MessagesCog(commands.Cog):
     async def send(
         self,
         ctx: commands.Context,
-        channel: discord.TextChannel = None,
+        channel: Optional[discord.TextChannel] = None,
         *,
-        content=None,
-    ):
+        content: Optional[str] = None,
+    ) -> None:
         channel = await self.check_channel(ctx, channel)  # Get the channel.
         if channel.guild != ctx.guild:
-            raise self.bot.errors.DifferentServer()
+            raise errors.DifferentServer()
         content = await self.check_content(ctx, content)
         if content[1:4] == "```" and content[-3:] == "```":
             content = content[4:-3]
         msg = await channel.send(content)
-        embed = discord.Embed(
-            title="Sent the message!",
-            colour=discord.Colour(0xC387C1),
-            timestamp=datetime.now(timezone.utc),
+        await self.send_message_info_embed(
+            ctx, "Send", ctx.author, content, msg, channel
         )
-        await self.send_message_info_embed(ctx, "Send", ctx.author, content, msg)
 
     # Create the edit command. This command will edit the specificed message. (Message must be from the bot)
     @commands.command(name="edit")
     async def edit(
         self,
         ctx: commands.Context,
-        channel: discord.TextChannel = None,
-        message_id=None,
+        channel: Optional[discord.TextChannel] = None,
+        message_id: Optional[int] = None,
         *,
-        content=None,
-    ):
+        content: Optional[str] = None,
+    ) -> None:
         channel = await self.check_channel(ctx, channel)
         if channel.guild != ctx.guild:
-            raise self.bot.errors.DifferentServer()
+            raise errors.DifferentServer()
 
         msg = await self.check_message_id(ctx, channel, message_id)
         if msg.author != ctx.guild.me:
-            raise self.bot.errors.DifferentAuthor()
+            raise errors.DifferentAuthor()
 
         content = await self.check_content(ctx, content)
         if content[1:4] == "```" and content[-3:] == "```":
             content = content[4:-3]
 
-        await self.send_message_info_embed(ctx, "edit", ctx.author, content, msg)
+        await self.send_message_info_embed(
+            ctx, "edit", ctx.author, content, msg, channel
+        )
         await msg.edit(content=content)
 
     # Create the command delete. This will delete a message from the bot.
@@ -253,22 +295,22 @@ class MessagesCog(commands.Cog):
     async def delete(
         self,
         ctx: commands.Context,
-        channel: discord.TextChannel = None,
-        message_id=None,
-    ):
-        def is_correct(m):
+        channel: Optional[discord.TextChannel] = None,
+        message_id: Optional[int] = None,
+    ) -> None:
+        def is_correct(m: discord.Message) -> bool:
             return m.author == ctx.author
 
         channel = await self.check_channel(ctx, channel)
 
         if channel.guild != ctx.guild:
-            raise self.bot.errors.DifferentServer(
+            raise errors.DifferentServer(
                 "That channel is not in this server, Please re-do the command"
             )
 
         msg = await self.check_message_id(ctx, channel, message_id)
         if msg.author.id != ctx.me.id:
-            raise self.bot.errors.DifferentAuthor(
+            raise errors.DifferentAuthor(
                 "That message was not from me! I cannot delete messages that are not from me"
             )
         embed = discord.Embed(
@@ -276,17 +318,21 @@ class MessagesCog(commands.Cog):
             colour=discord.Colour.red(),
             timestamp=datetime.now(timezone.utc),
         )
-        embed.add_field(name="Channel", value=msg.channel.mention, inline=False)
-        embed.add_field(
-            name="Content", value=msg.content or msg.embeds[0].title, inline=False
-        )
+        embed.add_field(name="Channel", value=channel.mention, inline=False)
+        if msg.content:
+            message_content = msg.content
+        elif isinstance(msg.embeds[0].title, str):
+            message_content = msg.embeds[0].title
+        else:
+            message_content = "No title"
+        embed.add_field(name="Content", value=message_content, inline=False)
         await ctx.send(embed=embed)
 
         try:
             choice = await self.bot.wait_for("message", check=is_correct, timeout=100.0)
         except asyncio.TimeoutError:
-            return await ctx.send("Timedout, Please re-do the command.")
-
+            await ctx.send("Timedout, Please re-do the command.")
+            return
         if choice.content.lower() == "yes":
 
             if len(msg.embeds) > 0:
@@ -297,30 +343,37 @@ class MessagesCog(commands.Cog):
                     timestamp=datetime.now(timezone.utc),
                 )
                 log_embed.add_field(name="Deleter", value=ctx.author.mention)
-                log_embed.add_field(name="Channel", value=msg.channel.mention)
+                log_embed.add_field(name="Channel", value=channel.mention)
                 file_name = f"{ctx.author.id}-{datetime.utcnow()}-content.json"
                 with open(file_name, "w+") as f:
-                    message_content_dict = {"embeds": []}
+                    embeds_list = []
+                    for embed in msg.embeds:
+                        embeds_list.append(embed.to_dict())
+                    message_content_dict = {"embeds": embeds_list, "content": ""}
                     if msg.content is not None:
                         message_content_dict["content"] = msg.content
-                    for embed in msg.embeds:
-                        message_content_dict["embeds"].append(embed.to_dict())
 
                     json.dump(message_content_dict, f)
-                with open(file_name, "r") as fx:
-                    await ctx.send(
-                        embed=log_embed, file=discord.File(fx, "content.json")
-                    )
+                await ctx.send(
+                    embed=log_embed,
+                    file=discord.File(file_name, filename="content.json"),
+                )
                 os.remove(file_name)
 
             else:
+                if msg.content:
+                    message_content = msg.content
+                elif isinstance(msg.embeds[0].title, str):
+                    message_content = msg.embeds[0].title
+                else:
+                    message_content = "No title"
                 await self.send_message_info_embed(
-                    ctx, "delete", ctx.author, msg.content or msg.embeds[0].title, msg
+                    ctx, "delete", ctx.author, message_content, msg, channel
                 )
             try:
                 await msg.delete()
             except discord.errors.Forbidden:
-                raise self.bot.errors.ContentError("There was an unknown error!")
+                raise errors.ContentError("There was an unknown error!")
 
         else:
             embed = discord.Embed(
@@ -335,12 +388,12 @@ class MessagesCog(commands.Cog):
     async def fetch(
         self,
         ctx: commands.Context,
-        channel: discord.TextChannel = None,
-        message_id=None,
-    ):
+        channel: Optional[discord.TextChannel] = None,
+        message_id: Optional[int] = None,
+    ) -> None:
         channel = await self.check_channel(ctx, channel)
         if channel.guild != ctx.guild:
-            raise self.bot.errors.DifferentServer(
+            raise errors.DifferentServer(
                 "That channel is not in this server, Please re-do the command"
             )
 
@@ -353,32 +406,32 @@ class MessagesCog(commands.Cog):
         else:
             file_name = file_name + ".json"
             with open(file_name, "w+") as f:
-                message_content_dict = {"embeds": []}
+                embeds_list = []
+                for embed in msg.embeds:
+                    embeds_list.append(embed.to_dict())
+                message_content_dict = {"embeds": embeds_list, "content": ""}
                 if msg.content is not None:
                     message_content_dict["content"] = msg.content
-                for embed in msg.embeds:
-                    message_content_dict["embeds"].append(embed.to_dict())
 
                 json.dump(message_content_dict, f)
-        with open(file_name, "r") as fx:
-            if file_name[-4:] == "json":
-                file_display_name = "content.json"
-            else:
-                file_display_name = "content.txt"
-            await ctx.send(
-                content="Fetched the message! Contents in the attached text file.",
-                file=discord.File(fx, file_display_name),
-            )
+        if file_name[-4:] == "json":
+            file_display_name = "content.json"
+        else:
+            file_display_name = "content.txt"
+        await ctx.send(
+            content="Fetched the message! Contents in the attached text file.",
+            file=discord.File(file_name, filename=file_display_name),
+        )
         os.remove(file_name)
 
     @commands.command(name="send-embed")
     async def send_embed(
-        self, ctx: commands.Context, channel: discord.TextChannel = None
-    ):
+        self, ctx: commands.Context, channel: Optional[discord.TextChannel] = None
+    ) -> None:
         if ctx.invoked_subcommand is None:
             channel = await self.check_channel(ctx, channel)  # Get the channel.
             if channel.guild != ctx.guild:
-                raise self.bot.errors.DifferentServer()
+                raise errors.DifferentServer()
             title = await self.check_content(
                 ctx, None, ask_message="Enter the title of the embed:"
             )
@@ -400,22 +453,22 @@ class MessagesCog(commands.Cog):
             log_embed.add_field(name="Title", value=title)
             file_name = f"{ctx.author.id}-{datetime.utcnow()}-content.json"
             with open(file_name, "w+") as f:
-                message_content_dict = {"embeds": []}
-                message_content_dict["embeds"].append(embed.to_dict())
+                message_content_dict = embed.to_dict()
 
                 json.dump(message_content_dict, f)
-            with open(file_name, "r") as fx:
-                await ctx.send(embed=log_embed, file=discord.File(fx, "content.json"))
+            await ctx.send(
+                embed=log_embed, file=discord.File(file_name, filename="content.json")
+            )
             os.remove(file_name)
 
     @commands.command(name="send-embed-json")
     async def send_json_embed(
         self,
         ctx: commands.Context,
-        channel: discord.TextChannel = None,
+        channel: Optional[discord.TextChannel] = None,
         *,
-        json_content=None,
-    ):
+        json_content: Optional[str] = None,
+    ) -> None:
         log_embed = discord.Embed(
             title="Sent the embed!",
             colour=discord.Colour(0xC387C1),
@@ -425,7 +478,7 @@ class MessagesCog(commands.Cog):
         log_embed.add_field(name="Author", value=ctx.author.mention)
         channel = await self.check_channel(ctx, channel)  # Get the channel.
         if channel.guild != ctx.guild:
-            raise self.bot.errors.DifferentServer()
+            raise errors.DifferentServer()
         log_embed.add_field(name="Channel", value=channel.mention)
         json_content = await self.check_content(
             ctx, json_content, ask_message="What is the JSON content of the embed?"
@@ -437,7 +490,7 @@ class MessagesCog(commands.Cog):
         try:
             dict_content = json.loads(json_content)
         except json.decoder.JSONDecodeError as e:
-            raise self.bot.errors.JSONFailure(
+            raise errors.JSONFailure(
                 "The json that you specified was not correct, please check and try again.\n"
                 f"Get support from the docs or the support server at {self.bot.command_with_prefix(ctx, 'support')}\n"
                 f"Error message: {e}"
@@ -472,31 +525,32 @@ class MessagesCog(commands.Cog):
         file_name = f"{ctx.author.id}-{datetime.utcnow()}-content.json"
         with open(file_name, "w+") as f:
             json.dump(dict_content, f)
-        with open(file_name, "r") as fx:
-            await ctx.send(embed=log_embed, file=discord.File(fx, "content.json"))
+        await ctx.send(
+            embed=log_embed, file=discord.File(file_name, filename="content.json")
+        )
         os.remove(file_name)
 
     @commands.command(name="edit-embed")
     async def edit_embed(
         self,
         ctx: commands.Context,
-        channel: discord.TextChannel = None,
-        message_id=None,
-    ):
+        channel: Optional[discord.TextChannel] = None,
+        message_id: Optional[int] = None,
+    ) -> None:
         channel = await self.check_channel(ctx, channel)
         if channel.guild != ctx.guild:
-            raise self.bot.errors.DifferentServer()
+            raise errors.DifferentServer()
 
         msg = await self.check_message_id(ctx, channel, message_id)
         if msg.author != ctx.guild.me:
-            raise self.bot.errors.DifferentAuthor()
+            raise errors.DifferentAuthor()
         if len(msg.embeds) == 0:
-            raise self.bot.errors.InputContentIncorrect(
+            raise errors.InputContentIncorrect(
                 f"That message does not have an embed! Try {self.bot.command_with_prefix(ctx, 'edit')} instead"
             )
         elif len(msg.embeds) > 1:
-            raise self.bot.errors.InputContentINcorrect(
-                f"That message has more than one embed! I don't support that right now 😔"
+            raise errors.InputContentIncorrect(
+                "That message has more than one embed! I don't support that right now 😔"
             )
 
         title = await self.check_content(
@@ -526,21 +580,19 @@ class MessagesCog(commands.Cog):
         file_name = f"{ctx.author.id}-{datetime.utcnow()}-old-content.json"
         with open(file_name, "w+") as f:
             json.dump(old_embed, f)
-        with open(file_name, "r") as fx:
-            await ctx.send(
-                content="Old message in attached file:",
-                file=discord.File(fx, "old-content.json"),
-            )
+        await ctx.send(
+            content="Old message in attached file:",
+            file=discord.File(file_name, "old-content.json"),
+        )
         os.remove(file_name)
         file_name = f"{ctx.author.id}-{datetime.utcnow()}-new-content.json"
         with open(file_name, "w+") as f:
             json.dump(new_embed.to_dict(), f)
-        with open(file_name, "r") as fx:
-            await ctx.send(
-                content="New message in attached file:",
-                file=discord.File(fx, "new-content.json"),
-                embed=log_embed,
-            )
+        await ctx.send(
+            content="New message in attached file:",
+            file=discord.File(file_name, filename="new-content.json"),
+            embed=log_embed,
+        )
         os.remove(file_name)
         await msg.edit(embed=new_embed)
 
@@ -548,40 +600,41 @@ class MessagesCog(commands.Cog):
     async def json_edit(
         self,
         ctx: commands.Context,
-        channel: discord.TextChannel = None,
-        message_id=None,
+        channel: Optional[discord.TextChannel] = None,
+        message_id: Optional[int] = None,
         *,
-        json_content=None,
-    ):
+        json_content: Optional[str] = None,
+    ) -> None:
+        print(type(channel))
         channel = await self.check_channel(ctx, channel)
         if channel.guild != ctx.guild:
-            raise self.bot.errors.DifferentServer()
+            raise errors.DifferentServer()
 
         msg = await self.check_message_id(ctx, channel, message_id)
         if msg.author != ctx.guild.me:
-            raise self.bot.errors.DifferentAuthor()
+            raise errors.DifferentAuthor()
         if len(msg.embeds) == 0:
-            raise self.bot.errors.InputContentIncorrect(
+            raise errors.InputContentIncorrect(
                 f"That message does not have an embed! Try {self.bot.command_with_prefix(ctx, 'edit')} instead"
             )
         elif len(msg.embeds) > 1:
-            raise self.bot.errors.InputContentINcorrect(
-                f"That message has more than one embed! I don't support that right now 😔"
+            raise errors.InputContentIncorrect(
+                "That message has more than one embed! I don't support that right now 😔"
             )
         old_embed = msg.embeds[0].to_dict()
 
         new_json_content = await self.check_content(
             ctx, json_content, ask_message="What is the new JSON content of the embed?"
         )
-        if json_content[0:7] == "```json" and json_content[-3:]:
-            json_content = json_content[7:-3]
-        elif json_content[0:3] == "```" and json_content[-3:] == "```":
-            json_content = json_content[3:-3]
+        if new_json_content[0:7] == "```json" and new_json_content[-3:] == "```":
+            new_json_content = new_json_content[7:-3]
+        elif new_json_content[0:3] == "```" and new_json_content[-3:] == "```":
+            new_json_content = new_json_content[3:-3]
 
         try:
             new_dict_content = json.loads(new_json_content)
         except json.decoder.JSONDecodeError as e:
-            raise self.bot.errors.JSONFailure(
+            raise errors.JSONFailure(
                 "The json that you specified was not correct, please check and try again.\n"
                 f"Get support from the docs or the support server at {self.bot.command_with_prefix(ctx, 'support')}\n"
                 f"Error message: {e}"
@@ -602,7 +655,7 @@ class MessagesCog(commands.Cog):
             content = new_dict_content.pop("content", None)
 
             if len(embeds) > 1:
-                raise self.bot.errors.InputContentIncorrect(
+                raise errors.InputContentIncorrect(
                     "You can't edit more than one embed at once!\nTry again with only one embed in the JSON data"
                 )
             if content is not None and content != "":
@@ -628,24 +681,22 @@ class MessagesCog(commands.Cog):
         file_name = f"{ctx.author.id}-{datetime.utcnow()}-old-content.json"
         with open(file_name, "w+") as f:
             json.dump(old_embed, f)
-        with open(file_name, "r") as fx:
-            await ctx.send(
-                content="Old message in attached file:",
-                file=discord.File(fx, "old-content.json"),
-            )
+        await ctx.send(
+            content="Old message in attached file:",
+            file=discord.File(file_name, "old-content.json"),
+        )
         os.remove(file_name)
         file_name = f"{ctx.author.id}-{datetime.utcnow()}-new-content.json"
         with open(file_name, "w+") as f:
             json.dump(new_dict_content, f)
-        with open(file_name, "r") as fx:
-            await ctx.send(
-                content="New message in attached file:",
-                file=discord.File(fx, "new-content.json"),
-                embed=log_embed,
-            )
+        await ctx.send(
+            content="New message in attached file:",
+            file=discord.File(file_name, filename="new-content.json"),
+            embed=log_embed,
+        )
         os.remove(file_name)
 
 
-def setup(bot):
+def setup(bot: Bot) -> None:
     bot.add_cog(MessagesCog(bot))
     print("    Messages cog!")

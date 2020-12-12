@@ -20,6 +20,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import asyncio
 
+from typing import Dict, Union
+
 import asyncpg
 
 # This file is to create, and maintain databases
@@ -28,7 +30,7 @@ import asyncpg
 # If the bot gets updated then this is bumped along with any queries to update the tables
 # SQL queries will not be changed, only added to with each version
 
-queries = {
+queries: Dict[str, Dict[str, Union[str, None]]] = {
     "v0.0.0": {
         "query": """CREATE TABLE IF NOT EXISTS version (
         id INT,
@@ -41,7 +43,7 @@ queries = {
     "v1.1.0": {"query": None, "new_version": "v1.1.1"},
     "v1.1.1": {"query": None, "new_version": "v1.2.0"},
     "v1.2.0": {"query": None, "new_version": "v1.3.0"},
-    "v1.3.0": None,
+    "v1.3.0": {"query": None, "new_version": None},
 }
 
 create_db = """
@@ -55,7 +57,7 @@ create_db = """
 """
 
 
-async def init_db(pool):
+async def init_db(pool: asyncpg.pool.Pool) -> None:
     async with pool.acquire() as conn:
         await conn.execute(create_db)
         loop_value = True
@@ -72,7 +74,7 @@ async def init_db(pool):
                 version = "v0.0.0"
             print(f"Current database version: {version}")
             version_action = queries[version]
-            if version_action is not None:
+            if version_action["new_version"] is not None:
                 print(
                     f"Updating database from {version} to {version_action['new_version']}"
                 )
