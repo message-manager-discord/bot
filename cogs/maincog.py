@@ -229,6 +229,11 @@ class MainCog(Cog):
             inline=True,
         ),
         embed.add_field(
+            name="Support Invite",
+            value="[Support Server](https://discord.gg/xFZu29t)",
+            inline=True,
+        )
+        embed.add_field(
             name="Developer",
             value="[Another Cat](https://github.com/AnotherCat)",
             inline=True,
@@ -239,12 +244,13 @@ class MainCog(Cog):
         embed.add_field(
             name="Python Version", value=platform.python_version(), inline=True
         ),
-        embed.add_field(name="System", value=platform.system(), inline=True),
+
         embed.add_field(
             name="Uptime",
             value=f"{int(days)} days {int(hours)} hours {int(minutes)} minutes {int(seconds)} seconds",
             inline=True,
         ),
+        embed.add_field(name="System", value=platform.system(), inline=True),
         embed.add_field(
             name="Number of Servers", value=str(len(self.bot.guilds)), inline=True
         )
