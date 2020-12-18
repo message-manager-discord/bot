@@ -259,9 +259,7 @@ class MainCog(Cog):
 
     @commands.command(name="ping")
     async def ping(self, ctx: commands.Context) -> None:
-        message = await ctx.send("Pong!")
-        ping_time = (message.created_at - ctx.message.created_at).total_seconds() * 1000
-        await message.edit(content=f"Ping! Took: {int(ping_time)}ms")
+        await ctx.send(f"Gateway latency: {round(self.bot.latency*1000, 2)}ms")
 
     @commands.command()
     async def privacy(self, ctx: commands.Context) -> None:
