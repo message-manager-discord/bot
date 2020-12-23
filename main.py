@@ -27,6 +27,7 @@ import asyncpg
 import discord
 
 from discord.ext import commands
+from discord_slash.client import SlashCommand
 
 import config
 
@@ -59,6 +60,7 @@ class Bot(BotBase):
         self.del_token: str
         self.dbgg_token: str
         self.topgg_token: str
+        self.slash: SlashCommand
 
     def command_with_prefix(self, ctx: commands.Context, command_name: str) -> str:
         if str(self.user.id) in ctx.prefix:
