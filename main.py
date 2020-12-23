@@ -85,6 +85,7 @@ async def run() -> None:
         "cogs.stats",
         "cogs.admin",
         "cogs.setup",
+        "cogs.slash_cmds",
     ]
     if not config.self_host:
         bot.join_log_channel = config.join_logs
