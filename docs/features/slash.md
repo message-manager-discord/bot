@@ -7,5 +7,5 @@ Slash commands are currently in a **Beta** phase. They may be unstable
 {% endhint %}
 
 Message Manager supports some of it's commands as slash commands.  
-The commands are avaliable though an opt in beta test.  
+The commands are available though an opt in beta test.  
 To join the beta test join the [support server](https://discord.gg/xFZu29t) and follow the instructions there.
