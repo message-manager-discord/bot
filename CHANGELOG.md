@@ -1,5 +1,15 @@
 # Changelog - Bot
 
+## v1.4.0
+
+### Add slash commands
+
+- Add column to database
+- Add database functions
+- Add management / syncing feature
+- Add info slash commands
+- Add opt int request system
+
 ## v1.3.1
 
 ### Clean up after removal of stats function

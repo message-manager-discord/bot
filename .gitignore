@@ -8,8 +8,7 @@ testingconfig.json
 config.py
 
 # Logging
-discord.log
-discord_errors.log
+*.log
 
 # VS-Code 
 .vscode

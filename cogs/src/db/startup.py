@@ -49,7 +49,12 @@ queries: Dict[str, Dict[str, Union[str, None]]] = {
     DROP COLUMN member_channel;""",
         "new_version": "v1.3.1",
     },
-    "v1.3.1": {"query": None, "new_version": None},
+    "v1.3.1": {
+        "query": """ALTER TABLE servers
+    ADD COLUMN slash_enabled BOOLEAN DEFAULT FALSE NOT NULL;""",
+        "new_version": "v1.4.0",
+    },
+    "v1.4.0": {"query": None, "new_version": None},
 }
 
 create_db = """

@@ -27,6 +27,7 @@ import asyncpg
 import discord
 
 from discord.ext import commands
+from discord_slash.client import SlashCommand
 
 import config
 
@@ -34,7 +35,7 @@ from cogs.src.db import db
 
 starttime = datetime.datetime.utcnow()
 
-__version__ = "v1.3.1"
+__version__ = "v1.4.0"
 
 if TYPE_CHECKING:
     BotBase = commands.Bot[commands.Context]
@@ -59,6 +60,8 @@ class Bot(BotBase):
         self.del_token: str
         self.dbgg_token: str
         self.topgg_token: str
+        self.slash: SlashCommand
+        self.slash_guilds: List[int]
 
     def command_with_prefix(self, ctx: commands.Context, command_name: str) -> str:
         if str(self.user.id) in ctx.prefix:
@@ -75,6 +78,8 @@ async def run() -> None:
     await database._init()
     bot.db = database
 
+    bot.slash_guilds = await bot.db.get_all_slash_servers()
+
     bot.start_time = starttime
 
     bot.remove_command("help")
@@ -85,6 +90,7 @@ async def run() -> None:
         "cogs.stats",
         "cogs.admin",
         "cogs.setup",
+        "cogs.slash_cmds",
     ]
     if not config.self_host:
         bot.join_log_channel = config.join_logs

@@ -8,7 +8,7 @@
 If you find a bug or if you want to make a feature request<!--, either join the [discord server](https://discord.gg/xFZu29t) or --> open an issue.  
 If you want to contribute to the docs or the code of the bot feel free to open a pull request.
 
-Current version: `v1.3.1`
+Current version: `v1.4.0`
 
 ## License
 
@@ -17,7 +17,7 @@ Here is a [simplified version](https://tldrlegal.com/license/gnu-affero-general-
 
 ## Invite link
 
-[Click here to invite the bot](https://discord.com/api/oauth2/authorize?client_id=735395698278924359&permissions=379968&scope=bot)
+[Click here to invite the bot](https://discord.com/api/oauth2/authorize?client_id=735395698278924359&permissions=379968&scope=applications.commands%20bot)
 
 ## To Do
 
