@@ -8,10 +8,11 @@
   * [Permissions](startup/setup/permissions.md)
   * [Config](startup/setup/config.md)
 
-## Functions
+## Features
 
-* [Messages](functions/messages.md)
-* [Commands](functions/commands.md)
+* [Messages](features/messages.md)
+* [Commands](features/commands.md)
+* [Slash Commands](features/slash.md)
 
 ## Self Hosting
 
