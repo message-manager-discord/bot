@@ -1,5 +1,11 @@
 # Changelog - Bot
 
+## v1.3.1
+
+### Clean up after removal of stats function
+
+Remove `bot_channel` and `member_channel` columns from the database.
+
 ## v1.3.0
 
 ### Add embeds to message function

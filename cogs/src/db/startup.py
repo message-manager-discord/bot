@@ -43,7 +43,13 @@ queries: Dict[str, Dict[str, Union[str, None]]] = {
     "v1.1.0": {"query": None, "new_version": "v1.1.1"},
     "v1.1.1": {"query": None, "new_version": "v1.2.0"},
     "v1.2.0": {"query": None, "new_version": "v1.3.0"},
-    "v1.3.0": {"query": None, "new_version": None},
+    "v1.3.0": {
+        "query": """ALTER TABLE servers
+    DROP COLUMN bot_channel,
+    DROP COLUMN member_channel;""",
+        "new_version": "v1.3.1",
+    },
+    "v1.3.1": {"query": None, "new_version": None},
 }
 
 create_db = """
