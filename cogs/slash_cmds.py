@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from discord.ext import commands
 from discord_slash import SlashCommand, SlashContext, cog_ext
@@ -11,7 +11,8 @@ if TYPE_CHECKING:
 else:
     Cog = commands.Cog
 
-guilds = [742373263593963614]
+
+guilds: List[int] = []
 
 
 class Slash(Cog):
@@ -20,10 +21,21 @@ class Slash(Cog):
             # Creates new SlashCommand instance to bot if bot doesn't have.
             bot.slash = SlashCommand(bot, override_type=True)
         self.bot = bot
+        guilds = self.bot.slash_guilds  # noqa F841
         self.bot.slash.get_cog_commands(self)
 
     def cog_unload(self) -> None:
         self.bot.slash.remove_cog_commands(self)
+
+    @cog_ext.cog_slash(name="slash")
+    async def _slash(self, ctx: SlashContext) -> None:
+        message = (
+            "Slash commands are here!"
+            "\nCurrently the slash commands on this bot are in a beta testing phase"
+            "\nJoin the [support server](https://discord.gg/xFZu29t) "
+            "for instructions on how to join the beta (if you have not already)"
+        )
+        await ctx.send(content=message, complete_hidden=True)
 
     @cog_ext.cog_subcommand(base="info", name="info", guild_ids=guilds)
     async def _info(self, ctx: SlashContext) -> None:

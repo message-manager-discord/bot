@@ -35,7 +35,7 @@ from cogs.src.db import db
 
 starttime = datetime.datetime.utcnow()
 
-__version__ = "v1.3.1"
+__version__ = "v1.4.0"
 
 if TYPE_CHECKING:
     BotBase = commands.Bot[commands.Context]
@@ -61,6 +61,7 @@ class Bot(BotBase):
         self.dbgg_token: str
         self.topgg_token: str
         self.slash: SlashCommand
+        self.slash_guilds: List[int]
 
     def command_with_prefix(self, ctx: commands.Context, command_name: str) -> str:
         if str(self.user.id) in ctx.prefix:
@@ -76,6 +77,8 @@ async def run() -> None:
     database = db.DatabasePool(config.uri, bot)
     await database._init()
     bot.db = database
+
+    bot.slash_guilds = await bot.db.get_all_slash_servers()
 
     bot.start_time = starttime
 
