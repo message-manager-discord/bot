@@ -1,6 +1,6 @@
 # Message Manager
 
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black) [![time tracker](https://wakatime.com/badge/github/AnotherCat/message-bot.svg)](https://wakatime.com/badge/github/AnotherCat/message-bot)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black) [![time tracker](https://wakatime.com/badge/github/AnotherCat/message-bot.svg)](https://wakatime.com/@AnotherCat/projects/wgrrlpggkp)
 <!--
 [![Support Server Invite](https://discord.com/api/guilds/742373263593963614/embed.png)](https://discord.gg/xFZu29t)
 -->
