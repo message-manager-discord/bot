@@ -1,4 +1,4 @@
-# cogs/src/list_wrappers.py
+# cogs/utils/list_wrappers.py
 
 """
 Message Manager - A bot for discord

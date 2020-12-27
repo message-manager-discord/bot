@@ -1,4 +1,4 @@
-# src/db/startup.py
+# utils/db/startup.py
 
 """
 Message Manager - A bot for discord

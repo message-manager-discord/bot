@@ -24,7 +24,7 @@ import aiohttp
 
 from discord.ext import commands, tasks
 
-from cogs.src import list_wrappers
+from cogs.utils import list_wrappers
 from main import Bot
 
 if TYPE_CHECKING:

@@ -29,7 +29,7 @@ import discord
 
 from discord.ext import commands
 
-from cogs.src import checks, errors
+from cogs.utils import checks, errors
 from main import Bot
 
 if TYPE_CHECKING:

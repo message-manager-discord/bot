@@ -25,7 +25,7 @@ import discord
 
 from discord.ext import commands
 
-from cogs.src import errors
+from cogs.utils import errors
 from main import Bot
 
 if TYPE_CHECKING:

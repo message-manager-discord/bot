@@ -1,4 +1,4 @@
-# cogs/src/db/db.py
+# cogs/utils/db/db.py
 
 """
 Message Manager - A bot for discord
@@ -23,7 +23,7 @@ from typing import Any, List, Optional, Union
 import asyncpg
 import discord
 
-from cogs.src.db.startup import init_db
+from cogs.utils.db.startup import init_db
 from main import Bot
 
 

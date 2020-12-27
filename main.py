@@ -31,7 +31,7 @@ from discord_slash.client import SlashCommand
 
 import config
 
-from cogs.src.db import db
+from cogs.utils.db import db
 
 starttime = datetime.datetime.utcnow()
 

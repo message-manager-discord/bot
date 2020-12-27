@@ -1,4 +1,4 @@
-# cogs/src/checks.py
+# cogs/utils/checks.py
 
 """
 Message Manager - A bot for discord
@@ -22,7 +22,7 @@ import discord
 
 from discord.ext import commands
 
-from cogs.src import errors
+from cogs.utils import errors
 from main import Bot
 
 

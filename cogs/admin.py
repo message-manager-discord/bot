@@ -31,8 +31,8 @@ import discord
 
 from discord.ext import commands
 
-from cogs.src import errors
-from cogs.src.create_slash_commands import sync_all, sync_guild_commands
+from cogs.utils import errors
+from cogs.utils.create_slash_commands import sync_all, sync_guild_commands
 from main import Bot
 
 if TYPE_CHECKING:

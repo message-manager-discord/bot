@@ -1,4 +1,4 @@
-# cogs/src/errors.py
+# cogs/utils/errors.py
 
 """
 Message Manager - A bot for discord

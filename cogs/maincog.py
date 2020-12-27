@@ -25,7 +25,7 @@ import discord
 
 from discord.ext import commands
 
-from cogs.src import shared_commands
+from cogs.utils import shared_commands
 from main import Bot
 
 if TYPE_CHECKING:
