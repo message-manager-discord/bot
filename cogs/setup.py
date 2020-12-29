@@ -219,7 +219,7 @@ class SetupCog(Cog):
             )
             if channel_input.lower() == "none":
                 await self.bot.db.remove_logger(ctx.guild, "main")
-                embed.description = f"Management role updated from <#{original_logging_channel.channel_id}> to None"
+                embed.description = f"Logging channel updated from <#{original_logging_channel.channel_id}> to None"
                 await ctx.send(embed=embed)
             else:
                 if channel_input[:2] == "<#":
@@ -238,9 +238,9 @@ class SetupCog(Cog):
                 await self.bot.db.update_logger(ctx.guild, channel.id, "main")
 
                 if original_logging_channel is None:
-                    embed.description = f"Management role updated to {channel.mention}"
+                    embed.description = f"Logging channel updated to {channel.mention}"
                 else:
-                    embed.description = f"Management role updated from <#{original_logging_channel.channel_id}> to {channel.mention}"
+                    embed.description = f"Logging channel updated from <#{original_logging_channel.channel_id}> to {channel.mention}"
                 await ctx.send(
                     embed=embed, allowed_mentions=discord.AllowedMentions(roles=False)
                 )
