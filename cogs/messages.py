@@ -247,7 +247,7 @@ class MessagesCog(Cog):
             os.remove("content.txt")
             await ctx.send(
                 embed=discord.Embed(
-                    title="Sent the message!",
+                    title=f"{title} the message!",
                     description="Wondering where the more informative message went? [Click here](https://docs.messagemanager.xyz/logging) for more info.",
                 )
             )
@@ -257,7 +257,7 @@ class MessagesCog(Cog):
             )
             await ctx.send(
                 embed=discord.Embed(
-                    title="Sent the message!",
+                    title=f"{title} the message!",
                     description="Wondering where the more informative message went? [Click here](https://docs.messagemanager.xyz/logging) for more info.",
                 )
             )
