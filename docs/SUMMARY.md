@@ -13,6 +13,7 @@
 * [Messages](features/messages.md)
 * [Commands](features/commands.md)
 * [Slash Commands](features/slash.md)
+* [Logging](features/logging.md)
 
 ## Self Hosting
 
