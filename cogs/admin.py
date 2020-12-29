@@ -225,7 +225,7 @@ class AdminCog(Cog):
                 elif status[0] == 403:
                     message = await ctx.send(
                         f"<@{owner_id}> It seems like I don't have the correct authorization in {guild.name}!"
-                        f"\nPlease reauthorize me with this link: https://discord.com/api/oauth2/authorize?client_id={self.bot.user.id}&permissions=379968&scope=applications.commands%20bot"
+                        f"\nPlease reauthorize me with this link: https://discord.com/api/oauth2/authorize?client_id=735395698278924359&permissions=537250880&scope=bot%20applications.commands"
                     )
                     await message.edit(suppress=True)
                 else:

@@ -78,8 +78,8 @@ def create_privacy_embed() -> discord.Embed:
 def create_invite_embed() -> discord.Embed:
     return discord.Embed(
         title="Invite me to your server!",
-        description="[Click here](https://discord.com/api/oauth2/authorize?client_id=735395698278924359&permissions=379968&scope=applications.commands%20bot) to invite me!",
-        url="https://discord.com/api/oauth2/authorize?client_id=735395698278924359&permissions=379968&scope=applications.commands%20bot",
+        description="[Click here](https://discord.com/api/oauth2/authorize?client_id=735395698278924359&permissions=537250880&scope=bot%20applications.commands) to invite me!",
+        url="https://discord.com/api/oauth2/authorize?client_id=735395698278924359&permissions=537250880&scope=bot%20applications.commands",
         colour=discord.Colour(0xC387C1),
         timestamp=datetime.now(timezone.utc),
     )

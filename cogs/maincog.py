@@ -52,7 +52,7 @@ class MainCog(Cog):
     async def on_ready(self) -> None:
         # Print the bot invite link
         print(
-            f"https://discord.com/api/oauth2/authorize?client_id={self.bot.user.id}&permissions=379968&scope=applications.commands%20bot"
+            f"https://discord.com/api/oauth2/authorize?client_id={self.bot.user.id}&permissions=537250880&scope=applications.commands%20bot"
         )
         print(f"Logged on as {self.bot.user}!")
         self.bot.load_time = datetime.utcnow()

@@ -17,7 +17,7 @@ Here is a [simplified version](https://tldrlegal.com/license/gnu-affero-general-
 
 ## Invite link
 
-[Click here to invite the bot](https://discord.com/api/oauth2/authorize?client_id=735395698278924359&permissions=379968&scope=applications.commands%20bot)
+[Click here to invite the bot](https://discord.com/api/oauth2/authorize?client_id=735395698278924359&permissions=537250880&scope=bot%20applications.commands)
 
 ## To Do
 

@@ -27,3 +27,10 @@ Set role with `~setup admin <role>`
 `<role>` Can be either the role id or mentioning the role.
 
 ![Example of setting the admin role](../../.gitbook/assets/admin.png)
+
+## Logging Channel
+
+This channel is the channel where log messages will be sent to.  
+It's suggested that this is a private channel
+
+Set the channel with `~setup logging <channel>`
