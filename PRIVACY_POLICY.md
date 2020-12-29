@@ -11,6 +11,7 @@ The Service has settings that administrators of servers can set up on a per serv
 - Guild ids
 - Role ids
 - Channel ids
+- Webhook authorization details
 
 ### Data automatically collected
 
@@ -32,6 +33,7 @@ Data that is set by admins (guild-ids, role-ids, channel-ids) are required for c
 Role ids are needed to confirm that a user has a set management role and thus permissions.
 Guild ids are needed to link server specific settings to their relative servers.
 Channel ids are needed to enable the vc-channel stats function to find the right channel.
+Webhook ids and tokens are needed for logging to function
 
 ### To protect the Service
 
