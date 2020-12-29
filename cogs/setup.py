@@ -83,13 +83,8 @@ class SetupCog(Cog):
                 inline=False,
             )
             embed.add_field(
-                name=self.bot.command_with_prefix(ctx, "setup botstats {channel}"),
-                value="This feature has been disabled! See [changelog](https://github.com/AnotherCat/message-bot/blob/master/CHANGELOG.md/#v110)",
-                inline=False,
-            )
-            embed.add_field(
-                name=self.bot.command_with_prefix(ctx, "setup userstats {channel}"),
-                value="This feature has been disabled! See [changelog](https://github.com/AnotherCat/message-bot/blob/master/CHANGELOG.md/#v110)",
+                name=self.bot.command_with_prefix(ctx, "setup logging {channel}"),
+                value="Sets the logging channel. Requires the Manage Webhooks permission",
                 inline=False,
             )
             await ctx.send(embed=embed)
@@ -199,15 +194,56 @@ class SetupCog(Cog):
                     embed=embed, allowed_mentions=discord.AllowedMentions(roles=False)
                 )
 
-    @commands.has_guild_permissions(administrator=True)
-    @setup.command()
-    async def botstats(self, ctx: commands.Context, channel_id=None):  # type: ignore
-        await ctx.invoke(self.bot.get_command("stats update"))  # type: ignore
+    @setup.command(name="logging")
+    async def set_logging(
+        self, ctx: commands.Context, channel_input: Optional[str] = None
+    ) -> None:
+        original_logging_channel = await self.bot.db.get_loggers(ctx.guild.id, "main")
+        if channel_input is None:
+            if original_logging_channel is None:
+                await ctx.send("Nothing has been set yet for logging!")
+            else:
+                await ctx.send(
+                    embed=discord.Embed(
+                        title="Current logging channel",
+                        description=f"<#{original_logging_channel.channel_id}>",
+                        colour=discord.Colour(15653155),
+                        timestamp=datetime.now(timezone.utc),
+                    )
+                )
+        else:
+            embed = discord.Embed(
+                title="Config updated!",
+                timestamp=datetime.now(timezone.utc),
+                colour=discord.Colour(15653155),
+            )
+            if channel_input.lower() == "none":
+                await self.bot.db.remove_logger(ctx.guild, "main")
+                embed.description = f"Management role updated from <#{original_logging_channel.channel_id}> to None"
+                await ctx.send(embed=embed)
+            else:
+                if channel_input[:2] == "<#":
+                    channel_input = channel_input[2:-1]
+                try:
+                    channel_id = int(channel_input)
+                    channel = ctx.guild.get_channel(channel_id)
+                    if channel is None:
+                        raise errors.InputContentIncorrect(
+                            "I could not find that channel! Please try again"
+                        )
+                except ValueError:
+                    raise errors.InputContentIncorrect(
+                        "I could not find that channel! Please try again"
+                    )
+                await self.bot.db.update_logger(ctx.guild, channel.id, "main")
 
-    @commands.has_guild_permissions(administrator=True)
-    @setup.command()
-    async def userstats(self, ctx: commands.Context, channel_id=None):  # type: ignore
-        await ctx.invoke(self.bot.get_command("stats update"))  # type: ignore
+                if original_logging_channel is None:
+                    embed.description = f"Management role updated to {channel.mention}"
+                else:
+                    embed.description = f"Management role updated from <#{original_logging_channel.channel_id}> to {channel.mention}"
+                await ctx.send(
+                    embed=embed, allowed_mentions=discord.AllowedMentions(roles=False)
+                )
 
     @commands.command(name="prefix")
     async def prefix(self, ctx: commands.Context) -> None:

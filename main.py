@@ -23,6 +23,7 @@ import logging
 
 from typing import TYPE_CHECKING, Any, List
 
+import aiohttp
 import asyncpg
 import discord
 
@@ -35,7 +36,7 @@ from cogs.utils.db import db
 
 starttime = datetime.datetime.utcnow()
 
-__version__ = "v1.4.0"
+__version__ = "v1.5.0"
 
 if TYPE_CHECKING:
     BotBase = commands.Bot[commands.Context]
@@ -50,6 +51,7 @@ class Bot(BotBase):
         super().__init__(case_insensitive=True, **kwargs)
         self.default_prefix = default_prefix
         self.self_hosted = self_hosted
+        self.session: aiohttp.ClientSession
         self.version = __version__
         self.db: asyncpg.pool.Pool
         self.start_time: datetime.datetime
@@ -74,6 +76,7 @@ class Bot(BotBase):
 
 
 async def run() -> None:
+    bot.session = aiohttp.ClientSession()
     database = db.DatabasePool(config.uri, bot)
     await database._init()
     bot.db = database

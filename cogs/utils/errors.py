@@ -22,8 +22,6 @@ from typing import Any
 
 from discord.ext.commands import CheckFailure
 
-from main import Bot
-
 
 class ConfigNotSet(CheckFailure):
     pass
@@ -67,5 +65,17 @@ class JSONFailure(CheckFailure):
     pass
 
 
-def setup(bot: Bot) -> None:
-    print("    Errors!")
+class MissingManageWebhooks(CheckFailure):
+    pass
+
+
+class DatabaseError(CheckFailure):
+    pass
+
+
+class WebhookFailed(CheckFailure):
+    pass
+
+
+class WebhookChannelNotTextChannel(CheckFailure):
+    pass

@@ -29,7 +29,7 @@ import discord
 
 from discord.ext import commands
 
-from cogs.utils import checks, errors
+from cogs.utils import checks, errors, send_log_once
 from main import Bot
 
 if TYPE_CHECKING:
@@ -237,12 +237,30 @@ class MessagesCog(Cog):
                     value=list_content[key]["value"],
                     inline=list_content[key]["inline"],
                 )
-            await ctx.send(
-                embed=embed, file=discord.File("content.txt", filename="content.txt")
+            await send_log_once(
+                guild_id=ctx.guild.id,
+                bot=self.bot,
+                logger_type="main",
+                embeds=[embed],
+                file=discord.File("content.txt", filename="content.txt"),
             )
             os.remove("content.txt")
+            await ctx.send(
+                embed=discord.Embed(
+                    title="Sent the message!",
+                    description="Wondering where the more informative message went? [Click here](https://docs.messagemanager.xyz/logging) for more info.",
+                )
+            )
         else:
-            await ctx.send(embed=embed)
+            await send_log_once(
+                guild_id=ctx.guild.id, bot=self.bot, logger_type="main", embeds=[embed]
+            )
+            await ctx.send(
+                embed=discord.Embed(
+                    title="Sent the message!",
+                    description="Wondering where the more informative message went? [Click here](https://docs.messagemanager.xyz/logging) for more info.",
+                )
+            )
 
     @commands.command(name="send")
     async def send(
@@ -354,9 +372,18 @@ class MessagesCog(Cog):
                         message_content_dict["content"] = msg.content
 
                     json.dump(message_content_dict, f)
-                await ctx.send(
-                    embed=log_embed,
+                await send_log_once(
+                    guild_id=ctx.guild.id,
+                    bot=self.bot,
+                    logger_type="main",
+                    embeds=[log_embed],
                     file=discord.File(file_name, filename="content.json"),
+                )
+                await ctx.send(
+                    embed=discord.Embed(
+                        title="Deleted the message!",
+                        description="Wondering where the more informative message went? [Click here](https://docs.messagemanager.xyz/logging) for more info.",
+                    )
                 )
                 os.remove(file_name)
 
@@ -456,8 +483,18 @@ class MessagesCog(Cog):
                 message_content_dict = embed.to_dict()
 
                 json.dump(message_content_dict, f)
+            await send_log_once(
+                guild_id=ctx.guild.id,
+                bot=self.bot,
+                logger_type="main",
+                embeds=[log_embed],
+                file=discord.File(file_name, filename="content.json"),
+            )
             await ctx.send(
-                embed=log_embed, file=discord.File(file_name, filename="content.json")
+                embed=discord.Embed(
+                    title="Sent the message!",
+                    description="Wondering where the more informative message went? [Click here](https://docs.messagemanager.xyz/logging) for more info.",
+                )
             )
             os.remove(file_name)
 
@@ -525,8 +562,18 @@ class MessagesCog(Cog):
         file_name = f"{ctx.author.id}-{datetime.utcnow()}-content.json"
         with open(file_name, "w+") as f:
             json.dump(dict_content, f)
+        await send_log_once(
+            guild_id=ctx.guild.id,
+            bot=self.bot,
+            logger_type="main",
+            embeds=[log_embed],
+            file=discord.File(file_name, filename="content.json"),
+        )
         await ctx.send(
-            embed=log_embed, file=discord.File(file_name, filename="content.json")
+            embed=discord.Embed(
+                title="Sent the message!",
+                description="Wondering where the more informative message went? [Click here](https://docs.messagemanager.xyz/logging) for more info.",
+            )
         )
         os.remove(file_name)
 
@@ -577,23 +624,31 @@ class MessagesCog(Cog):
         )
         log_embed.add_field(name="Editor", value=ctx.author.mention)
         log_embed.add_field(name="Channel", value=channel.mention)
-        file_name = f"{ctx.author.id}-{datetime.utcnow()}-old-content.json"
-        with open(file_name, "w+") as f:
+        old_file_name = f"{ctx.author.id}-{datetime.utcnow()}-old-content.json"
+        with open(old_file_name, "w+") as f:
             json.dump(old_embed, f)
-        await ctx.send(
-            content="Old message in attached file:",
-            file=discord.File(file_name, "old-content.json"),
-        )
-        os.remove(file_name)
-        file_name = f"{ctx.author.id}-{datetime.utcnow()}-new-content.json"
-        with open(file_name, "w+") as f:
+
+        new_file_name = f"{ctx.author.id}-{datetime.utcnow()}-new-content.json"
+        with open(new_file_name, "w+") as f:
             json.dump(new_embed.to_dict(), f)
-        await ctx.send(
-            content="New message in attached file:",
-            file=discord.File(file_name, filename="new-content.json"),
-            embed=log_embed,
+        await send_log_once(
+            guild_id=ctx.guild.id,
+            bot=self.bot,
+            logger_type="main",
+            embeds=[log_embed],
+            files=[
+                discord.File(new_file_name, filename="new-content.json"),
+                discord.File(old_file_name, "old-content.json"),
+            ],
         )
-        os.remove(file_name)
+        await ctx.send(
+            embed=discord.Embed(
+                title="Edited the message!",
+                description="Wondering where the more informative message went? [Click here](https://docs.messagemanager.xyz/logging) for more info.",
+            )
+        )
+        os.remove(new_file_name)
+        os.remove(old_file_name)
         await msg.edit(embed=new_embed)
 
     @commands.command(name="edit-embed-json")
@@ -676,25 +731,33 @@ class MessagesCog(Cog):
                     new_dict_content.pop("timestamp")
             except KeyError:
                 pass
-            file_name = f"{ctx.author.id}-{datetime.utcnow()}-content.txt"
             await msg.edit(embed=discord.Embed.from_dict(new_dict_content))
-        file_name = f"{ctx.author.id}-{datetime.utcnow()}-old-content.json"
-        with open(file_name, "w+") as f:
+
+        old_file_name = f"{ctx.author.id}-{datetime.utcnow()}-old-content.json"
+        with open(old_file_name, "w+") as f:
             json.dump(old_embed, f)
-        await ctx.send(
-            content="Old message in attached file:",
-            file=discord.File(file_name, "old-content.json"),
-        )
-        os.remove(file_name)
-        file_name = f"{ctx.author.id}-{datetime.utcnow()}-new-content.json"
-        with open(file_name, "w+") as f:
+
+        new_file_name = f"{ctx.author.id}-{datetime.utcnow()}-new-content.json"
+        with open(new_file_name, "w+") as f:
             json.dump(new_dict_content, f)
-        await ctx.send(
-            content="New message in attached file:",
-            file=discord.File(file_name, filename="new-content.json"),
-            embed=log_embed,
+        await send_log_once(
+            guild_id=ctx.guild.id,
+            bot=self.bot,
+            logger_type="main",
+            embeds=[log_embed],
+            files=[
+                discord.File(new_file_name, filename="new-content.json"),
+                discord.File(old_file_name, "old-content.json"),
+            ],
         )
-        os.remove(file_name)
+        await ctx.send(
+            embed=discord.Embed(
+                title="Edited the message!",
+                description="Wondering where the more informative message went? [Click here](https://docs.messagemanager.xyz/logging) for more info.",
+            )
+        )
+        os.remove(new_file_name)
+        os.remove(old_file_name)
 
 
 def setup(bot: Bot) -> None:

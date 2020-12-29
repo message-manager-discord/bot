@@ -54,7 +54,25 @@ queries: Dict[str, Dict[str, Union[str, None]]] = {
     ADD COLUMN slash_enabled BOOLEAN DEFAULT FALSE NOT NULL;""",
         "new_version": "v1.4.0",
     },
-    "v1.4.0": {"query": None, "new_version": None},
+    "v1.4.0": {
+        "query": """
+    ALTER TABLE servers RENAME COLUMN server_id TO id;
+    ALTER TABLE servers ADD PRIMARY KEY (id);
+    CREATE TABLE channels (
+        id BIGINT PRIMARY KEY,
+        webhook_id BIGINT,
+        webhook_token VARCHAR(255)
+    );
+    CREATE TABLE logging_channels (
+        guild_id BIGINT NOT NULL REFERENCES servers ON DELETE CASCADE,
+        channel_id BIGINT NOT NULL REFERENCES channels ON DELETE CASCADE,
+        logger_type VARCHAR(20) NOT NULL,
+        CONSTRAINT unique_type UNIQUE(guild_id, logger_type)
+    );
+    """,
+        "new_version": "v1.5.0",
+    },
+    "v1.5.0": {"query": None, "new_version": None},
 }
 
 create_db = """

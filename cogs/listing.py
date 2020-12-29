@@ -20,8 +20,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from typing import TYPE_CHECKING
 
-import aiohttp
-
 from discord.ext import commands, tasks
 
 from cogs.utils import list_wrappers
@@ -37,7 +35,7 @@ class ListingCog(Cog):
     def __init__(self, bot: Bot) -> None:
         self.bot = bot
         self.stats_post_loop.start()
-        self.session = aiohttp.ClientSession(loop=bot.loop)
+        self.session = bot.session
         self.de_list = list_wrappers.Del(
             token=self.bot.del_token, bot=self.bot, session=self.session
         )

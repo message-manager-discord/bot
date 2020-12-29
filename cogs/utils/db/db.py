@@ -18,17 +18,37 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-from typing import Any, List, Optional, Union
+from typing import TYPE_CHECKING, Any, List, NamedTuple, Optional, Union
 
 import asyncpg
 import discord
 
+from cogs.utils import errors
 from cogs.utils.db.startup import init_db
-from main import Bot
+
+if TYPE_CHECKING:
+    from main import Bot
+else:
+
+    class Bot:
+        pass
 
 
 class IncorrectVersion(Exception):
     pass
+
+
+class LoggerTuple(NamedTuple):
+    channel_id: int
+    webhook_id: Optional[int]
+    webhook_token: Optional[str]
+    logger_type: str
+
+
+class ChannelTuple(NamedTuple):
+    id: int
+    webhook_id: Optional[int]
+    webhook_token: Optional[str]
 
 
 class DatabasePool:
@@ -71,7 +91,7 @@ class DatabasePool:
                 """
                 SELECT prefix
                 FROM servers
-                WHERE server_id=$1
+                WHERE id=$1
                 """,
                 guild.id,
             )
@@ -91,7 +111,7 @@ class DatabasePool:
                 """
                 SELECT management_role_id
                 FROM servers
-                WHERE server_id=$1
+                WHERE id=$1
                 """,
                 guild.id,
             )
@@ -105,9 +125,9 @@ class DatabasePool:
             await conn.execute(
                 """
                 INSERT INTO servers
-                    (server_id, prefix)
+                    (id, prefix)
                     VALUES($1, $2)
-                    ON CONFLICT (server_id)
+                    ON CONFLICT (id)
                     DO UPDATE SET prefix = $2;
                 """,
                 guild.id,
@@ -119,9 +139,9 @@ class DatabasePool:
             await conn.execute(
                 """
                 INSERT INTO servers
-                    (server_id, management_role_id)
+                    (id, management_role_id)
                     VALUES($1, $2)
-                    ON CONFLICT (server_id)
+                    ON CONFLICT (id)
                     DO UPDATE SET management_role_id = $2;
                 """,
                 guild.id,
@@ -133,9 +153,9 @@ class DatabasePool:
             await conn.execute(
                 """
                 INSERT INTO servers
-                    (server_id, slash_enabled)
+                    (id, slash_enabled)
                     VALUES($1, $2)
-                    ON CONFLICT (server_id)
+                    ON CONFLICT (id)
                     DO UPDATE SET slash_enabled = $2;
                 """,
                 guild.id,
@@ -146,9 +166,206 @@ class DatabasePool:
         async with self.pool.acquire() as conn:
             slash_servers_query = await conn.fetch(
                 """
-                SELECT server_id FROM servers
+                SELECT id FROM servers
                 WHERE slash_enabled=TRUE;
                 """
             )
-            slash_servers = [server.get("server_id") for server in slash_servers_query]
+            slash_servers = [server.get("id") for server in slash_servers_query]
             return slash_servers
+
+    async def get_loggers(
+        self, guild: Union[discord.Guild, int], logger_type: Optional[str] = None
+    ) -> Optional[Union[LoggerTuple, List[LoggerTuple]]]:
+        if isinstance(guild, discord.Guild):
+            guild_id = guild.id
+        else:
+            guild_id = guild
+        async with self.pool.acquire() as conn:
+            if logger_type is None:
+                loggers_query = await conn.fetch(
+                    """
+                    SELECT channels.id AS channel_id, channels.webhook_id, channels.webhook_token, logging_channels.logger_type
+                    FROM logging_channels
+                    INNER JOIN channels ON channels.id = logging_channels.channel_id
+                    WHERE logging_channels.guild_id = $1;
+                    """,
+                    guild_id,
+                )
+
+                if len(loggers_query) == 0:
+                    return None
+                elif len(loggers_query) > 1:
+                    raise errors.DatabaseError()
+                else:
+                    loggers: List[LoggerTuple] = []
+                    for logger in loggers_query:
+                        logger_tuple = LoggerTuple(
+                            channel_id=logger.get("channel_id"),
+                            webhook_id=logger.get("webhook_id"),
+                            webhook_token=logger.get("webhook_token"),
+                            logger_type=logger.get("logger_type"),
+                        )
+                        loggers.append(logger_tuple)
+                    return loggers
+            else:
+                logger_query = await conn.fetch(
+                    """
+                    SELECT channels.id AS channel_id, channels.webhook_id, channels.webhook_token, logging_channels.logger_type
+                    FROM logging_channels
+                    INNER JOIN channels ON channels.id = logging_channels.channel_id
+                    WHERE logging_channels.guild_id = $1 AND logging_channels.logger_type = $2;
+                    """,
+                    guild_id,
+                    logger_type,
+                )
+                if len(logger_query) == 0:
+                    return None
+                elif len(logger_query) > 1:
+                    raise errors.DatabaseError()
+                else:
+                    logger = logger_query[0]
+                    logger_tuple = LoggerTuple(
+                        channel_id=logger.get("channel_id"),
+                        webhook_id=logger.get("webhook_id"),
+                        webhook_token=logger.get("webhook_token"),
+                        logger_type=logger.get("logger_type"),
+                    )
+                    return logger_tuple
+
+    async def remove_logger(
+        self, guild: Union[discord.Guild, int], logger_type: str
+    ) -> None:
+        if isinstance(guild, discord.Guild):
+            guild_id = guild.id
+        else:
+            guild_id = guild
+        async with self.pool.acquire() as conn:
+            await conn.execute(
+                "DELETE FROM logging_channels WHERE guild_id = $1 AND logger_type = $2",
+                guild_id,
+                logger_type,
+            )
+
+    async def update_logger(
+        self, guild: Union[discord.Guild, int], channel_id: int, logger_type: str
+    ) -> None:
+        if isinstance(guild, discord.Guild):
+            guild_id = guild.id
+        else:
+            guild_id = guild
+        loggers = await self.get_loggers(guild)
+        if isinstance(loggers, LoggerTuple):
+            loggers = [loggers]
+        existing_channel = await self.get_channel(channel_id)
+        if existing_channel is None:
+            await self.update_channel(channel_id)
+        async with self.pool.acquire() as conn:
+            guild_stored = await conn.fetch(
+                "SELECT id FROM servers WHERE id = $1", guild_id
+            )
+            if len(guild_stored) == 0:
+                await conn.execute(
+                    """
+                INSERT INTO servers
+                (id)
+                VALUES ($1)""",
+                    guild_id,
+                )
+
+            if loggers is not None:
+                for logger in loggers:
+                    if logger.logger_type == logger_type:
+                        if logger.channel_id != channel_id:  # if channel changed
+                            await conn.execute(
+                                """
+                                UPDATE logging_channels
+                                SET channel_id = $1,
+                                WHERE guild_id = $2 AND logger_type = $3;
+                            """,
+                                channel_id,
+                                guild_id,
+                                logger_type,
+                            )
+                            return
+                        else:
+                            return
+            # If still executing the new type was not in the existing loggers
+            await conn.execute(
+                """
+            INSERT INTO logging_channels
+            (guild_id, channel_id, logger_type)
+            VALUES ($1, $2, $3);""",
+                guild_id,
+                channel_id,
+                logger_type,
+            )
+
+    async def get_channel(self, channel_id: int) -> Optional[ChannelTuple]:
+        async with self.pool.acquire() as conn:
+            channel_query = await conn.fetch(
+                "SELECT * FROM channels WHERE id = $1", channel_id
+            )
+            if len(channel_query) == 0:
+                return None
+            elif len(channel_query) > 1:
+                raise errors.DatabaseError()
+            else:
+                channel = channel_query[0]
+                channel_tuple = ChannelTuple(
+                    id=channel.get("id"),
+                    webhook_id=channel.get("webhook_id"),
+                    webhook_token=channel.get("webhook_token"),
+                )
+                return channel_tuple
+
+    async def update_channel(
+        self,
+        channel_id: int,
+        wipe: bool = False,
+        webhook_id: Optional[int] = None,
+        webhook_token: Optional[str] = None,
+    ) -> None:
+        if (webhook_token is None or webhook_id is None) and not (
+            webhook_token is None and webhook_id is None
+        ):
+            raise errors.DatabaseError(
+                "Both webhook_id and webhook_token need to be set!"
+            )
+        async with self.pool.acquire() as conn:
+            existing_channel = await self.get_channel(channel_id)
+            if existing_channel is None:
+                await conn.execute(
+                    """
+                INSERT INTO channels
+                (id, webhook_token, webhook_id)
+                VALUES ($1, $2, $3);""",
+                    channel_id,
+                    webhook_token,
+                    webhook_id,
+                )
+            else:
+                if wipe:
+                    await conn.execute(
+                        """
+                    UPDATE channels
+                    SET webhook_token = $1, webhook_id = $2
+                    WHERE id = $3;""",
+                        webhook_token,
+                        webhook_id,
+                        channel_id,
+                    )
+                else:
+                    if webhook_token is None and webhook_id is None:
+                        pass
+                    else:
+                        existing_webhook_token = existing_channel.webhook_token
+                        existing_webhook_id = existing_channel.webhook_id
+                        if (
+                            existing_webhook_token == webhook_token
+                            and existing_webhook_id == webhook_id
+                        ):
+                            pass
+                        else:
+                            raise errors.DatabaseError(
+                                "Webhook token and id were passed but wipe was false!"
+                            )
