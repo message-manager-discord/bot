@@ -1,3 +1,5 @@
+# File used to manage commands that are in beta, rest are managed by the library
+
 import logging
 
 from typing import Any, Dict, List, Optional, Tuple, Union
@@ -11,33 +13,8 @@ logger = logging.getLogger("slash_cmds_manager")
 
 
 base_url = "https://discord.com/api/v8/applications"
-commands: Dict[str, List[Dict[str, Any]]] = {
-    "global": [
-        {"name": "slash", "description": "How to enable slash commands for this bot!"}
-    ],
-    "fake_global": [
-        {
-            "name": "info",
-            "description": "Information commands",
-            "options": [
-                {
-                    "name": "ping",
-                    "description": "Returns the current gateway latency",
-                    "type": 1,
-                },
-                {"name": "privacy", "description": "Privacy information", "type": 1},
-                {"name": "info", "description": "Bot information", "type": 1},
-                {"name": "invite", "description": "Bot invite", "type": 1},
-                {"name": "docs", "description": "Bot documentation", "type": 1},
-                {"name": "source", "description": "Bot's source code", "type": 1},
-                {
-                    "name": "support",
-                    "description": "Join my support server!",
-                    "type": 1,
-                },
-            ],
-        }
-    ],
+commands: Dict[str, List[Dict[str, Any]]] = {  # No commands that are in the beta phase
+    "fake_global": [],
 }
 
 headers = {"Authorization": f"Bot {token}", "Content-Type": "application/json"}
