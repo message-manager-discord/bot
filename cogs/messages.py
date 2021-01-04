@@ -248,7 +248,7 @@ class MessagesCog(Cog):
             await ctx.send(
                 embed=discord.Embed(
                     title=f"{title} the message!",
-                    description="Wondering where the more informative message went? [Click here](https://docs.messagemanager.xyz/logging) for more info.",
+                    description="Wondering where the more informative message went? [Click here](https://docs.messagemanager.xyz/features/logging) for more info.",
                 )
             )
         else:
@@ -258,7 +258,7 @@ class MessagesCog(Cog):
             await ctx.send(
                 embed=discord.Embed(
                     title=f"{title} the message!",
-                    description="Wondering where the more informative message went? [Click here](https://docs.messagemanager.xyz/logging) for more info.",
+                    description="Wondering where the more informative message went? [Click here](https://docs.messagemanager.xyz/features/logging) for more info.",
                 )
             )
 
@@ -382,7 +382,7 @@ class MessagesCog(Cog):
                 await ctx.send(
                     embed=discord.Embed(
                         title="Deleted the message!",
-                        description="Wondering where the more informative message went? [Click here](https://docs.messagemanager.xyz/logging) for more info.",
+                        description="Wondering where the more informative message went? [Click here](https://docs.messagemanager.xyz/features/logging) for more info.",
                     )
                 )
                 os.remove(file_name)
@@ -493,7 +493,7 @@ class MessagesCog(Cog):
             await ctx.send(
                 embed=discord.Embed(
                     title="Sent the message!",
-                    description="Wondering where the more informative message went? [Click here](https://docs.messagemanager.xyz/logging) for more info.",
+                    description="Wondering where the more informative message went? [Click here](https://docs.messagemanager.xyz/features/logging) for more info.",
                 )
             )
             os.remove(file_name)
@@ -572,7 +572,7 @@ class MessagesCog(Cog):
         await ctx.send(
             embed=discord.Embed(
                 title="Sent the message!",
-                description="Wondering where the more informative message went? [Click here](https://docs.messagemanager.xyz/logging) for more info.",
+                description="Wondering where the more informative message went? [Click here](https://docs.messagemanager.xyz/features/logging) for more info.",
             )
         )
         os.remove(file_name)
@@ -644,7 +644,7 @@ class MessagesCog(Cog):
         await ctx.send(
             embed=discord.Embed(
                 title="Edited the message!",
-                description="Wondering where the more informative message went? [Click here](https://docs.messagemanager.xyz/logging) for more info.",
+                description="Wondering where the more informative message went? [Click here](https://docs.messagemanager.xyz/features/logging) for more info.",
             )
         )
         os.remove(new_file_name)
@@ -753,7 +753,7 @@ class MessagesCog(Cog):
         await ctx.send(
             embed=discord.Embed(
                 title="Edited the message!",
-                description="Wondering where the more informative message went? [Click here](https://docs.messagemanager.xyz/logging) for more info.",
+                description="Wondering where the more informative message went? [Click here](https://docs.messagemanager.xyz/features/logging) for more info.",
             )
         )
         os.remove(new_file_name)
