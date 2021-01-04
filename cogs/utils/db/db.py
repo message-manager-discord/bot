@@ -34,6 +34,13 @@ else:
         pass
 
 
+def process_guild_id(guild: Union[discord.Guild, int]) -> int:
+    if isinstance(guild, discord.Guild):
+        return guild.id
+    else:
+        return guild
+
+
 class IncorrectVersion(Exception):
     pass
 
@@ -82,7 +89,8 @@ class DatabasePool:
     async def close(self) -> None:
         await self.pool.close()
 
-    async def get_prefix(self, guild: discord.Guild) -> str:
+    async def get_prefix(self, guild: Union[discord.Guild, int]) -> str:
+        guild_id = process_guild_id(guild)
         if guild is None:
             return self.bot.default_prefix
         async with self.pool.acquire() as conn:
@@ -93,7 +101,7 @@ class DatabasePool:
                 FROM servers
                 WHERE id=$1
                 """,
-                guild.id,
+                guild_id,
             )
             if prefix_query == []:
                 return self.bot.default_prefix
@@ -104,8 +112,9 @@ class DatabasePool:
                 return prefix
 
     async def get_management_role(
-        self, guild: discord.Guild
+        self, guild: Union[discord.Guild, int]
     ) -> Optional[Union[int, None]]:
+        guild_id = process_guild_id(guild)
         async with self.pool.acquire() as conn:
             management_role_query = await conn.fetch(
                 """
@@ -113,14 +122,17 @@ class DatabasePool:
                 FROM servers
                 WHERE id=$1
                 """,
-                guild.id,
+                guild_id,
             )
             if management_role_query == []:
                 return None
             management_role: int = management_role_query[0].get("management_role_id")
             return management_role
 
-    async def update_prefix(self, guild: discord.Guild, prefix: str) -> None:
+    async def update_prefix(
+        self, guild: Union[discord.Guild, int], prefix: str
+    ) -> None:
+        guild_id = process_guild_id(guild)
         async with self.pool.acquire() as conn:
             await conn.execute(
                 """
@@ -130,11 +142,14 @@ class DatabasePool:
                     ON CONFLICT (id)
                     DO UPDATE SET prefix = $2;
                 """,
-                guild.id,
+                guild_id,
                 prefix,
             )
 
-    async def update_admin_role(self, guild: discord.Guild, role_id: int) -> None:
+    async def update_admin_role(
+        self, guild: Union[discord.Guild, int], role_id: int
+    ) -> None:
+        guild_id = process_guild_id(guild)
         async with self.pool.acquire() as conn:
             await conn.execute(
                 """
@@ -144,11 +159,14 @@ class DatabasePool:
                     ON CONFLICT (id)
                     DO UPDATE SET management_role_id = $2;
                 """,
-                guild.id,
+                guild_id,
                 role_id,
             )
 
-    async def update_slash_enabled(self, guild: discord.Guild, enabled: bool) -> None:
+    async def update_slash_enabled(
+        self, guild: Union[discord.Guild, int], enabled: bool
+    ) -> None:
+        guild_id = process_guild_id(guild)
         async with self.pool.acquire() as conn:
             await conn.execute(
                 """
@@ -158,7 +176,7 @@ class DatabasePool:
                     ON CONFLICT (id)
                     DO UPDATE SET slash_enabled = $2;
                 """,
-                guild.id,
+                guild_id,
                 enabled,
             )
 
@@ -176,10 +194,7 @@ class DatabasePool:
     async def get_loggers(
         self, guild: Union[discord.Guild, int], logger_type: Optional[str] = None
     ) -> Optional[Union[LoggerTuple, List[LoggerTuple]]]:
-        if isinstance(guild, discord.Guild):
-            guild_id = guild.id
-        else:
-            guild_id = guild
+        guild_id = process_guild_id(guild)
         async with self.pool.acquire() as conn:
             if logger_type is None:
                 loggers_query = await conn.fetch(
@@ -235,10 +250,7 @@ class DatabasePool:
     async def remove_logger(
         self, guild: Union[discord.Guild, int], logger_type: str
     ) -> None:
-        if isinstance(guild, discord.Guild):
-            guild_id = guild.id
-        else:
-            guild_id = guild
+        guild_id = process_guild_id(guild)
         async with self.pool.acquire() as conn:
             await conn.execute(
                 "DELETE FROM logging_channels WHERE guild_id = $1 AND logger_type = $2",
@@ -249,10 +261,7 @@ class DatabasePool:
     async def update_logger(
         self, guild: Union[discord.Guild, int], channel_id: int, logger_type: str
     ) -> None:
-        if isinstance(guild, discord.Guild):
-            guild_id = guild.id
-        else:
-            guild_id = guild
+        guild_id = process_guild_id(guild)
         loggers = await self.get_loggers(guild)
         if isinstance(loggers, LoggerTuple):
             loggers = [loggers]

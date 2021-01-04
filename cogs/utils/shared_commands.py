@@ -14,7 +14,6 @@ from main import Bot
 async def create_info_embed(
     ctx: typing.Union[Context, SlashContext], bot: Bot
 ) -> discord.Embed:
-    prefix = await bot.db.get_prefix(ctx.guild)
     total_seconds = (datetime.utcnow() - bot.start_time).total_seconds()
     days = total_seconds // 86400
     hours = (total_seconds - (days * 86400)) // 3600
@@ -27,7 +26,19 @@ async def create_info_embed(
         url="https://messagemanager.xyz",
     )
     embed.add_field(name="Username", value=str(bot.user), inline=True),
-    embed.add_field(name="Prefix", value=f"`{prefix}`", inline=True),
+    if isinstance(ctx.guild, discord.Guild):
+        in_guild = True
+    else:
+        for guild in bot.guilds:
+            if ctx.guild == guild:
+                in_guild = True
+                break
+        else:
+            in_guild = False
+    if in_guild:
+        prefix = await bot.db.get_prefix(ctx.guild)
+        embed.add_field(name="Prefix", value=f"`{prefix}`", inline=True),
+
     embed.add_field(name="Version", value=bot.version, inline=True),
     embed.add_field(
         name="Docs",
