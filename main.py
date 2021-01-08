@@ -112,9 +112,13 @@ async def run() -> None:
         await bot.logout()
 
 
-logging.basicConfig(filename="discord.log", filemode="w", level=logging.INFO)
-
-logging.info("Started logging!")
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="w")
+handler.setFormatter(
+    logging.Formatter("%(asctime)s:%(levelname)s:%(name)s: %(message)s")
+)
+logger.addHandler(handler)
 
 intents = discord.Intents(guilds=True, members=False, messages=True)
 
