@@ -26,13 +26,11 @@ import string
 from math import floor
 from typing import TYPE_CHECKING, Optional
 
-import aiohttp
 import discord
 
 from discord.ext import commands
 
 from cogs.utils import errors
-from cogs.utils.create_slash_commands import sync_guild_commands
 from main import Bot
 
 if TYPE_CHECKING:
@@ -168,58 +166,6 @@ class AdminCog(Cog):
         await self.bot.slash.register_all_commands()
         await self.bot.slash.delete_unused_commands()
         await ctx.send("synced!")
-
-    @commands.command(name="slash-beta")
-    async def slash_beta(
-        self, ctx: commands.Context, guild_id: int, owner_id: int
-    ) -> None:
-        get_guild = self.bot.get_guild(guild_id)
-        guild_name = get_guild.name if get_guild is not None else guild_id
-        msg = await ctx.send(f"Attempting to add slash commands to {guild_name}")
-        await asyncio.sleep(1)
-        async with aiohttp.ClientSession() as session:
-            status = await sync_guild_commands(guild_id, session)
-            if status is None:
-                await msg.edit(
-                    content=f"Successfully added guild commands to {guild_name}\nAttempting to add to database"
-                )
-                await asyncio.sleep(1)
-                await self.bot.db.update_slash_enabled(guild_id, True)
-                await msg.edit(
-                    content=f"Successfully added guild commands to {guild_name}, and updated the database.\nAttempting to refresh commands..."
-                )
-                await asyncio.sleep(1)
-                try:
-                    self.bot.unload_extension("cogs.slash_cmds")
-                    self.bot.slash_guilds = await self.bot.db.get_all_slash_servers()
-                    self.bot.load_extension("cogs.slash_cmds")
-                except Exception as error:
-                    await ctx.send(
-                        f"Error with refreshing!!!!\n{type(error).__name__}: {error}"
-                    )
-                else:
-                    await msg.edit(
-                        content=f"Successfully added guilds commands to {guild_name}, updated the database and refreshed the commands."
-                    )
-                    await ctx.send(
-                        f"<@{owner_id}> The slash commands beta has been enabled in your server! "
-                        f"Slash commands will now show up in {guild_name}"
-                        "\nAll of the slash commands with have normal command equivalents (with the exception of `/slash`) "
-                        "So if a slash command stops working, you can use that instead."
-                        "\nPlease subscribe to <#759373390515011594>, all updates will be posted there."
-                        "\nAs it's in the beta phase bugs and issues may happen, please report them here."
-                        "\nThank you so much 🙂"
-                    )
-            elif status[0] == 403:
-                message = await ctx.send(
-                    f"<@{owner_id}> It seems like I don't have the correct authorization in {guild_name}!"
-                    f"\nPlease reauthorize me with this link: https://discord.com/api/oauth2/authorize?client_id=735395698278924359&permissions=537250880&scope=bot%20applications.commands"
-                )
-                await message.edit(suppress=True)
-            else:
-                await ctx.send(
-                    f"Error! Status Code: {status[0]}, Guild: {status[1]}, Error Message: {status[2]}"
-                )
 
 
 def setup(bot: Bot) -> None:

@@ -18,7 +18,7 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-from typing import TYPE_CHECKING, Any, List, NamedTuple, Optional, Union
+from typing import TYPE_CHECKING, List, NamedTuple, Optional, Union
 
 import asyncpg
 import discord
@@ -162,34 +162,6 @@ class DatabasePool:
                 guild_id,
                 role_id,
             )
-
-    async def update_slash_enabled(
-        self, guild: Union[discord.Guild, int], enabled: bool
-    ) -> None:
-        guild_id = process_guild_id(guild)
-        async with self.pool.acquire() as conn:
-            await conn.execute(
-                """
-                INSERT INTO servers
-                    (id, slash_enabled)
-                    VALUES($1, $2)
-                    ON CONFLICT (id)
-                    DO UPDATE SET slash_enabled = $2;
-                """,
-                guild_id,
-                enabled,
-            )
-
-    async def get_all_slash_servers(self) -> List[Any]:
-        async with self.pool.acquire() as conn:
-            slash_servers_query = await conn.fetch(
-                """
-                SELECT id FROM servers
-                WHERE slash_enabled=TRUE;
-                """
-            )
-            slash_servers = [server.get("id") for server in slash_servers_query]
-            return slash_servers
 
     async def get_loggers(
         self, guild: Union[discord.Guild, int], logger_type: Optional[str] = None
