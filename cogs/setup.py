@@ -214,12 +214,12 @@ class SetupCog(Cog):
 
     async def set_logging_logic(
         self,
-        guild: discord.guild,
+        guild: discord.Guild,
         author: discord.Member,
         channel_input: Optional[str] = None,
     ) -> Union[discord.Embed, str]:
         if not author.guild_permissions.administrator:
-            raise commands.MissingPermissions(["administrator"])
+            raise commands.MissingPermissions(["administrator"])  # type: ignore
         original_logging_channel = await self.bot.db.get_loggers(guild.id, "main")
         if channel_input is None:
             if original_logging_channel is None:
@@ -287,7 +287,7 @@ class SetupCog(Cog):
     async def _set_logging(
         self,
         ctx: SlashContext,
-        channel: Optional[Union[discord.TextChannel, int]] = None,
+        channel: Optional[Union[discord.TextChannel, int, str]] = None,
     ) -> None:
         if channel is None:
             channel = "none"
@@ -378,6 +378,7 @@ class SetupCog(Cog):
     ) -> None:
         if ctx.guild is None:
             raise commands.CheckFailure("Internal error: ctx.guild was None")
+        assert isinstance(ctx.author, discord.Member)
         msg = await self.set_logging_logic(ctx.guild, ctx.author, channel_input)
         if isinstance(msg, discord.Embed):
             await ctx.send(embed=msg)
