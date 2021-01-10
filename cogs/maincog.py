@@ -56,7 +56,7 @@ async def create_info_embed(
         in_guild = True
     else:
         for guild in bot.guilds:
-            if ctx.guild == guild:
+            if ctx.guild == guild.id:
                 in_guild = True
                 break
         else:

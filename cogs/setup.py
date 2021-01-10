@@ -19,11 +19,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Union
 
 import discord
 
 from discord.ext import commands
+from discord_slash import SlashCommand, SlashContext, cog_ext
+from discord_slash.utils import manage_commands
 
 from cogs.utils import errors
 from main import Bot
@@ -33,10 +35,25 @@ if TYPE_CHECKING:
 else:
     Cog = commands.Cog
 
+settings_set_group_desc = "Set the values of settings"
+
+settings_get_group_desc = "Gets the current value of the setting"
+
+settings_base_desc = "Set and get values of settings"
+
 
 class SetupCog(Cog):
     def __init__(self, bot: Bot) -> None:
+        if not hasattr(bot, "slash"):
+            # Creates new SlashCommand instance to bot if bot doesn't have.
+            bot.slash = SlashCommand(
+                bot, override_type=True, auto_register=True, auto_delete=True
+            )
         self.bot = bot
+        self.bot.slash.get_cog_commands(self)
+
+    def cog_unload(self) -> None:
+        self.bot.slash.remove_cog_commands(self)
 
     async def cog_command_error(
         self, ctx: commands.Context, error: discord.DiscordException
@@ -50,6 +67,7 @@ class SetupCog(Cog):
                 errors.ConfigError,
                 commands.errors.MissingPermissions,
                 commands.errors.NoPrivateMessage,
+                errors.WebhookChannelNotTextChannel,
             ),
         ):
             await ctx.send(error)
@@ -194,24 +212,24 @@ class SetupCog(Cog):
                     embed=embed, allowed_mentions=discord.AllowedMentions(roles=False)
                 )
 
-    @setup.command(name="logging")
-    async def set_logging(
-        self, ctx: commands.Context, channel_input: Optional[str] = None
-    ) -> None:
-        if ctx.guild is None:
-            raise commands.CheckFailure("Internal error: ctx.guild was None")
-        original_logging_channel = await self.bot.db.get_loggers(ctx.guild.id, "main")
+    async def set_logging_logic(
+        self,
+        guild: discord.guild,
+        author: discord.Member,
+        channel_input: Optional[str] = None,
+    ) -> Union[discord.Embed, str]:
+        if not author.guild_permissions.administrator:
+            raise commands.MissingPermissions(["administrator"])
+        original_logging_channel = await self.bot.db.get_loggers(guild.id, "main")
         if channel_input is None:
             if original_logging_channel is None:
-                await ctx.send("Nothing has been set yet for logging!")
+                return "Nothing has been set yet for logging!"
             else:
-                await ctx.send(
-                    embed=discord.Embed(
-                        title="Current logging channel",
-                        description=f"<#{original_logging_channel.channel_id}>",
-                        colour=discord.Colour(15653155),
-                        timestamp=datetime.now(timezone.utc),
-                    )
+                return discord.Embed(
+                    title="Current logging channel",
+                    description=f"<#{original_logging_channel.channel_id}>",
+                    colour=discord.Colour(15653155),
+                    timestamp=datetime.now(timezone.utc),
                 )
         else:
             embed = discord.Embed(
@@ -220,15 +238,15 @@ class SetupCog(Cog):
                 colour=discord.Colour(15653155),
             )
             if channel_input.lower() == "none":
-                await self.bot.db.remove_logger(ctx.guild, "main")
+                await self.bot.db.remove_logger(guild, "main")
                 embed.description = f"Logging channel updated from <#{original_logging_channel.channel_id}> to None"
-                await ctx.send(embed=embed)
+                return embed
             else:
                 if channel_input[:2] == "<#":
                     channel_input = channel_input[2:-1]
                 try:
                     channel_id = int(channel_input)
-                    channel = ctx.guild.get_channel(channel_id)
+                    channel = guild.get_channel(channel_id)
                     if channel is None:
                         raise errors.InputContentIncorrect(
                             "I could not find that channel! Please try again"
@@ -237,15 +255,134 @@ class SetupCog(Cog):
                     raise errors.InputContentIncorrect(
                         "I could not find that channel! Please try again"
                     )
-                await self.bot.db.update_logger(ctx.guild, channel.id, "main")
+                if not isinstance(channel, discord.TextChannel):
+                    raise errors.WebhookChannelNotTextChannel(
+                        "That channel is not a text channel! "
+                        "Try again with a text channel."
+                    )
+                await self.bot.db.update_logger(guild, channel.id, "main")
 
                 if original_logging_channel is None:
                     embed.description = f"Logging channel updated to {channel.mention}"
                 else:
                     embed.description = f"Logging channel updated from <#{original_logging_channel.channel_id}> to {channel.mention}"
+                return embed
+
+    @cog_ext.cog_subcommand(
+        base="settings",
+        subcommand_group="set",
+        sub_group_desc=settings_set_group_desc,
+        name="logging",
+        description="Set the logging channel, don't pass anything to reset it.",
+        base_description=settings_base_desc,
+        options=[
+            manage_commands.create_option(
+                name="channel",
+                description="New logging channel",
+                option_type=7,
+                required=False,
+            )
+        ],
+    )
+    async def _set_logging(
+        self,
+        ctx: SlashContext,
+        channel: Optional[Union[discord.TextChannel, int]] = None,
+    ) -> None:
+        if channel is None:
+            channel = "none"
+        if not isinstance(ctx.guild, discord.Guild):
+            for guild in self.bot.guilds:
+                if ctx.guild == guild.id:
+                    ctx.guild = self.bot.get_channel(ctx.guild)
+                    break
+            else:
                 await ctx.send(
-                    embed=embed, allowed_mentions=discord.AllowedMentions(roles=False)
+                    content=(
+                        "Error!! A bot user is required for this command to work!"
+                        "\nPlease invite me, invite link here: https://messagemanager.xyz/invite"
+                    ),
+                    complete_hidden=True,
                 )
+                return
+        if not isinstance(ctx.author, discord.Member):
+            ctx.author = await ctx.guild.fetch_member(ctx.author)
+
+        if not isinstance(channel, (int, str)):
+
+            channel = channel.id
+
+        try:
+
+            msg = await self.set_logging_logic(ctx.guild, ctx.author, str(channel))
+
+        except Exception as e:
+
+            if isinstance(
+                e,
+                (
+                    errors.InputContentIncorrect,
+                    commands.MissingPermissions,
+                    errors.WebhookChannelNotTextChannel,
+                ),
+            ):
+
+                await ctx.send(content=str(e), complete_hidden=True)
+                return
+
+            else:
+                raise
+        await ctx.send(embeds=[msg])
+
+    @cog_ext.cog_subcommand(
+        base="settings",
+        subcommand_group="get",
+        sub_group_desc=settings_get_group_desc,
+        name="logging",
+        description="Gets the logging channel",
+        base_description=settings_base_desc,
+    )
+    async def _get_logging(self, ctx: SlashContext) -> None:
+        if not isinstance(ctx.guild, discord.Guild):
+            for guild in self.bot.guilds:
+                if ctx.guild == guild.id:
+                    ctx.guild = self.bot.get_channel(ctx.guild)
+                    break
+            else:
+                await ctx.send(
+                    content=(
+                        "Error!! A bot user is required for this command to work!"
+                        "\nPlease invite me, invite link here: https://messagemanager.xyz/invite"
+                    ),
+                    complete_hidden=True,
+                )
+                return
+        if not isinstance(ctx.author, discord.Member):
+            ctx.author = await ctx.guild.fetch_member(ctx.author)
+
+        try:
+            msg = await self.set_logging_logic(ctx.guild, ctx.author, None)
+
+        except commands.MissingPermissions as e:
+
+            await ctx.send(content=str(e), complete_hidden=True)
+            return
+        if isinstance(msg, str):
+            await ctx.send(content=msg)
+        else:
+            await ctx.send(embeds=[msg])
+
+    @setup.command(name="logging")
+    async def set_logging(
+        self, ctx: commands.Context, channel_input: Optional[str] = None
+    ) -> None:
+        if ctx.guild is None:
+            raise commands.CheckFailure("Internal error: ctx.guild was None")
+        msg = await self.set_logging_logic(ctx.guild, ctx.author, channel_input)
+        if isinstance(msg, discord.Embed):
+            await ctx.send(embed=msg)
+        else:
+            await ctx.send(msg)
 
     @commands.command(name="prefix")
     async def prefix(self, ctx: commands.Context) -> None:
