@@ -130,9 +130,9 @@ class ServerLogger:
         ):  # did not use if because if the webhook fails in above then this will be true
             webhook = await create_webhook(self.channel_id, self.bot)
             if isinstance(webhook, errors.MissingManageWebhooks):
+                channel = self.bot.get_channel(self.channel_id)
+                assert isinstance(channel, discord.TextChannel)
                 if embeds is None or len(embeds) == 0:
-                    channel = self.bot.get_channel(self.channel_id)
-                    assert isinstance(channel, discord.TextChannel)
                     await channel.send(content=content, files=files, file=file)
                 else:
                     for embed in embeds:
@@ -144,12 +144,10 @@ class ServerLogger:
                         else:
                             embed.description = add_permissions_text
                     if len(embeds) == 1:
-                        channel = self.bot.get_channel(self.channel_id)
                         await channel.send(
                             content=content, embed=embeds[0], files=files, file=file
                         )
                     else:
-                        channel = self.bot.get_channel(self.channel_id)
                         await channel.send(content=content, files=files, file=file)
                         for embed in embeds:
                             await channel.send(embed=embed)
@@ -159,7 +157,7 @@ class ServerLogger:
 
         if self.has_webhook:
             try:
-                await self.webhook.send(
+                await self.webhook.send(  # type: ignore
                     wait=True,
                     content=content,
                     embeds=embeds,
@@ -177,7 +175,7 @@ class ServerLogger:
                 if not isinstance(new_webhook, errors.MissingManageWebhooks):
                     self.webhook = new_webhook
                     self.has_webhook = True
-                    await self.webhook.send(
+                    await self.webhook.send(  # type: ignore
                         wait=True,
                         content=content,
                         embeds=embeds,

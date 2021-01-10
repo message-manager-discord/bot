@@ -198,6 +198,8 @@ class SetupCog(Cog):
     async def set_logging(
         self, ctx: commands.Context, channel_input: Optional[str] = None
     ) -> None:
+        if ctx.guild is None:
+            raise commands.CheckFailure("Internal error: ctx.guild was None")
         original_logging_channel = await self.bot.db.get_loggers(ctx.guild.id, "main")
         if channel_input is None:
             if original_logging_channel is None:
