@@ -9,7 +9,7 @@
 If you find a bug or if you want to make a feature request<!--, either join the [discord server](https://discord.gg/xFZu29t) or --> open an issue.  
 If you want to contribute to the docs or the code of the bot feel free to open a pull request.
 
-Current version: `v1.4.0`
+Current version: `v1.5.1`
 
 ## License
 
@@ -36,3 +36,12 @@ Here is a [simplified version](https://tldrlegal.com/license/gnu-affero-general-
 Official docs are [here](https://docs.messagemanager.xyz). Read them before asking questions please :smile:
 
 Self Hosting instructions can also be found in the docs
+
+## Security
+
+If any security vulnerabilities are found use the security issue reporting feature on github or contact me.
+
+## Getting in contact
+
+- Emailing `privacy@messagemanager.xyz`
+- Joining the discord server (invite link on website)
