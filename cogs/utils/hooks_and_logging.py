@@ -132,25 +132,30 @@ class ServerLogger:
             if isinstance(webhook, errors.MissingManageWebhooks):
                 channel = self.bot.get_channel(self.channel_id)
                 assert isinstance(channel, discord.TextChannel)
-                if embeds is None or len(embeds) == 0:
-                    await channel.send(content=content, files=files, file=file)
-                else:
-                    for embed in embeds:
-                        add_permissions_text = "Logging requires your action to function correctly. [Click here](https://docs.messagemanager.xyz) for more info "
-                        if embed.description:
-                            embed.description = (
-                                str(embed.description) + "\n\n" + add_permissions_text
+                try:
+                    if embeds is None or len(embeds) == 0:
+                        await channel.send(content=content, files=files, file=file)
+                    else:
+                        for embed in embeds:
+                            add_permissions_text = "Logging requires your action to function correctly. [Click here](https://docs.messagemanager.xyz) for more info "
+                            if embed.description:
+                                embed.description = (
+                                    str(embed.description)
+                                    + "\n\n"
+                                    + add_permissions_text
+                                )
+                            else:
+                                embed.description = add_permissions_text
+                        if len(embeds) == 1:
+                            await channel.send(
+                                content=content, embed=embeds[0], files=files, file=file
                             )
                         else:
-                            embed.description = add_permissions_text
-                    if len(embeds) == 1:
-                        await channel.send(
-                            content=content, embed=embeds[0], files=files, file=file
-                        )
-                    else:
-                        await channel.send(content=content, files=files, file=file)
-                        for embed in embeds:
-                            await channel.send(embed=embed)
+                            await channel.send(content=content, files=files, file=file)
+                            for embed in embeds:
+                                await channel.send(embed=embed)
+                except discord.Forbidden:
+                    pass
             else:
                 self.webhook = webhook
                 self.has_webhook = True
