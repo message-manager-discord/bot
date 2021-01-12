@@ -260,7 +260,7 @@ class DatabasePool:
                             await conn.execute(
                                 """
                                 UPDATE logging_channels
-                                SET channel_id = $1,
+                                SET channel_id = $1
                                 WHERE guild_id = $2 AND logger_type = $3;
                             """,
                                 channel_id,
