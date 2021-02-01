@@ -1,5 +1,22 @@
 # Changelog - Bot
 
+## v1.5.1 - Changes
+
+- Slash commands:
+  - Made commands global
+  - Added descriptions
+  - Removed "slash beta"
+  - Restructure slash commands
+  - Add settings slash commands
+
+## v1.5.0 - Changes
+
+- Rename `cogs.src` to `cogs.utils`
+- Added logging
+  - Added docs for logging
+  - Update invite link with new permissions
+  - Update privacy policy
+
 ## v1.4.0
 
 ### Add slash commands
