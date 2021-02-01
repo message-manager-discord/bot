@@ -112,7 +112,10 @@ class LogicFunctions:
         )
         if channel_input is None:
             await self.bot.db.remove_logger(guild, "main")
-            embed.description = f"Logging channel updated from <#{original_logging_channel.channel_id}> to None"
+            if original_logging_channel is None:
+                embed.description = "Logging channel not updated! It remains None"
+            else:
+                embed.description = f"Logging channel updated from <#{original_logging_channel.channel_id}> to None"
             return embed
         else:
             if channel_input[:2] == "<#":
@@ -176,7 +179,7 @@ class LogicFunctions:
                 colour=discord.Colour(15653155),
             )
             if original_role is None:
-                embed.description = "Management role updated to None"
+                embed.description = "Management role has not changed! It remains None"
             else:
                 embed.description = (
                     f"Management role updated from {original_role.mention} to None"
