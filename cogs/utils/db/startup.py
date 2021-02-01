@@ -93,35 +93,37 @@ create_db = """
 async def init_db(pool: asyncpg.pool.Pool) -> None:
     async with pool.acquire() as conn:
         await conn.execute(create_db)
-        loop_value = True
-        while loop_value:
-            try:
-                version = await conn.fetch(
-                    """
-                    SELECT version
-                    FROM version;
-                    """
-                )
-                version = version[0].get("version")
-            except asyncpg.exceptions.UndefinedTableError:
-                version = "v0.0.0"
-            print(f"Current database version: {version}")
-            version_action = queries[version]
-            if version_action["new_version"] is not None:
-                print(
-                    f"Updating database from {version} to {version_action['new_version']}"
-                )
-                if version_action["query"] is not None:
-                    await conn.execute(version_action["query"])
-                await conn.execute("truncate table version;")
-                await conn.execute(
-                    """
-                    INSERT INTO version Values(0, $1)
-                    """,
-                    version_action["new_version"],
-                )
-                print(f"Database updated to {version_action['new_version']}")
-            else:
-                loop_value = False
+        try:
+            version = await conn.fetch(
+                """
+                SELECT version
+                FROM version;
+                """
+            )
+            version = version[0].get("version")
+        except asyncpg.exceptions.UndefinedTableError:
+            version = "v0.0.0"
+        print(f"Current database version: {version}")
+        version_action = queries[version]
+        if version_action["new_version"] is not None:
+
+            current_query = version_action
+            next_version = current_query["new_version"]
+            for i in range(0, len(queries) * 2):
+                if current_query["new_version"] is None:
+                    break
+                else:
+                    if current_query["query"] is not None:
+                        await conn.execute(current_query["query"])
+                    next_version = current_query["new_version"]
+                    current_query = queries[next_version]
+            await conn.execute("truncate table version;")
+            await conn.execute(
+                """
+                INSERT INTO version Values(0, $1)
+                """,
+                next_version,
+            )
+            print(f"Database updated to {next_version}")
 
             await asyncio.sleep(1)

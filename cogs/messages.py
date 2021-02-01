@@ -179,6 +179,8 @@ class MessagesCog(Cog):
         message: discord.Message,
         channel: discord.TextChannel,
     ) -> None:
+        if ctx.guild is None:
+            raise commands.CheckFailure("Internal error: ctx.guild was None")
         title = "Sent"
         list_content: Dict[str, FieldDict] = {
             "author": {"name": "Author", "value": author.mention, "inline": True},
