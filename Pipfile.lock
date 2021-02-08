@@ -236,11 +236,11 @@
         },
         "discord.py-stubs": {
             "hashes": [
-                "sha256:9b86a5358a060c3c115d3e572e34fa72aabf2dfda53617f8f4c79c56f17361be",
-                "sha256:ca0535dad5f3e3c6cc8d85207d617a07022828d81c1ebc8143707d5b6155d318"
+                "sha256:1a9960998cd17cfe1d447d7ac3133982010b7a20913c5c0e17b4fa1be94c5233",
+                "sha256:43956bf7d6a28769bf854318b395dfd39dcac53f41c293b3b32de0bd7bf02ac7"
             ],
             "index": "pypi",
-            "version": "==1.6.0.0"
+            "version": "==1.6.0.1"
         },
         "distlib": {
             "hashes": [
@@ -337,11 +337,11 @@
         },
         "pre-commit": {
             "hashes": [
-                "sha256:391ed331fdd0a21d0be48c1b9919921e9d372dfd60f6dc77b8f01dd6b13161c1",
-                "sha256:f413348d3a8464b77987e36ef6e02c3372dadb823edf0dfe6fb0c3dc2f378ef9"
+                "sha256:16212d1fde2bed88159287da88ff03796863854b04dc9f838a55979325a3d20e",
+                "sha256:399baf78f13f4de82a29b649afd74bef2c4e28eb4f021661fc7f29246e8c7a3a"
             ],
             "index": "pypi",
-            "version": "==2.10.0"
+            "version": "==2.10.1"
         },
         "pycodestyle": {
             "hashes": [
