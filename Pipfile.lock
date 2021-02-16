@@ -103,11 +103,11 @@
         },
         "discord-py-slash-command": {
             "hashes": [
-                "sha256:4e1b8817d3843355fd536eb6d970c1925e2befda47cf41e262989f7af0521e73",
-                "sha256:53bf915718f4ec0a121bd670b9b26b566c97ea03dc7afdf098ec49fd78defa7b"
+                "sha256:954e3d2fde44eae43e5d592cf2aaf2cd484ac0d3490a4d5f2e72d3d3b5138145",
+                "sha256:c4fc7eeb68e051344df88c309207bca2437ab556226937763bc57fc48352c70c"
             ],
             "index": "pypi",
-            "version": "==1.0.8.5"
+            "version": "==1.0.9.4"
         },
         "discord.py": {
             "hashes": [
@@ -236,11 +236,11 @@
         },
         "discord.py-stubs": {
             "hashes": [
-                "sha256:9b86a5358a060c3c115d3e572e34fa72aabf2dfda53617f8f4c79c56f17361be",
-                "sha256:ca0535dad5f3e3c6cc8d85207d617a07022828d81c1ebc8143707d5b6155d318"
+                "sha256:1a9960998cd17cfe1d447d7ac3133982010b7a20913c5c0e17b4fa1be94c5233",
+                "sha256:43956bf7d6a28769bf854318b395dfd39dcac53f41c293b3b32de0bd7bf02ac7"
             ],
             "index": "pypi",
-            "version": "==1.6.0.0"
+            "version": "==1.6.0.1"
         },
         "distlib": {
             "hashes": [
