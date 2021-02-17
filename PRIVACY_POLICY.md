@@ -17,6 +17,9 @@ The Service has settings that administrators of servers can set up on a per serv
 
 When you connect to the site traffic is provided through a proxy from cloudflare for security and performance reasons. Cloudflare collects anonymous data which may include but is not limited IP addresses, country, device and browser type, http request type and time. Cloudflare's privacy policy can be found [here](https://www.cloudflare.com/privacy)
 
+We also use Cloudflare's privacy aware analytics service, which recordes: Referer, Host, Country, Path, Browser, Operating System and Device Type. All data recorded is anonymous.
+
+
 #### Cookies
 
 Cookies are only currently used by Cloudflare to detect bad actors and block them, and to provide their other services to us. These cookies do not allow cross site tracking and in most cases log data retrieved using these cookies is only stored for 24 hours by Cloudflare on their servers.
@@ -51,7 +54,7 @@ Other than Discord, users of the Service and developers of the Service your data
 
 ## How to contact us
 
-If you have a concern about the bot you can contact us a few ways.  
+If you have a concern you can contact us a few ways.  
 You can:
 
 - Join the discord [server](https://discord.gg/xFZu29t) and contact me at `Another Cat#3829`
@@ -63,4 +66,4 @@ If you would like us to remove your data please reach out to us and ask.
 
 ## Changes to the policy
 
-Note: This Privacy Policy was last updated on the 30/12/2020. The privacy policy can be updated at anytime without any notice, however we will make an effort to inform you about the change.
+Note: This Privacy Policy was last updated on the 17/02/2021. The privacy policy can be updated at anytime without any notice, however we will make an effort to inform you about the change.
