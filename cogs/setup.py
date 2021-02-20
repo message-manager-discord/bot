@@ -24,7 +24,7 @@ from typing import TYPE_CHECKING, Optional, Union
 import discord
 
 from discord.ext import commands
-from discord_slash import SlashCommand, SlashContext, cog_ext
+from discord_slash import SlashContext, cog_ext
 from discord_slash.utils import manage_commands
 
 from cogs.utils import errors
@@ -339,17 +339,8 @@ class SetupCog(Cog):
 
 class SetupCogSlash(Cog):
     def __init__(self, bot: Bot, logic_functions: LogicFunctions) -> None:
-        if not hasattr(bot, "slash"):
-            # Creates new SlashCommand instance to bot if bot doesn't have.
-            bot.slash = SlashCommand(
-                bot, override_type=True, auto_register=True, auto_delete=True
-            )
         self.bot = bot
         self.logic_functions = logic_functions
-        self.bot.slash.get_cog_commands(self)
-
-    def cog_unload(self) -> None:
-        self.bot.slash.remove_cog_commands(self)
 
     @cog_ext.cog_subcommand(
         base="settings",
@@ -372,22 +363,20 @@ class SetupCogSlash(Cog):
         ctx: SlashContext,
         prefix: Optional[str] = None,
     ) -> None:
-        if not isinstance(ctx.guild, discord.Guild):
-            for guild in self.bot.guilds:
-                if ctx.guild == guild.id:
-                    ctx.guild = self.bot.get_channel(ctx.guild)
-                    break
-            else:
-                await ctx.send(
-                    content=(
-                        "Error!! A bot user is required for this command to work!"
-                        "\nPlease invite me, invite link here: https://messagemanager.xyz/invite"
-                    ),
-                    complete_hidden=True,
-                )
-                return
-        if not isinstance(ctx.author, discord.Member):
-            ctx.author = await ctx.guild.fetch_member(ctx.author)
+        if ctx.guild is None:
+            await ctx.ack(eat=True)
+            await ctx.send(
+                content=(
+                    "You've either ran this command in a dm or in a server without the bot user!"
+                    "\nYou cannot run this command in dms"
+                    "\nAnd a bot user is required for this command to work!"
+                    "\nPlease invite me, invite link here: https://messagemanager.xyz/invite"
+                ),
+                hidden=True,
+            )
+            return
+        if ctx.author is None:
+            ctx.author = await ctx.guild.fetch_member(ctx.author_id)
 
         try:
 
@@ -405,12 +394,13 @@ class SetupCogSlash(Cog):
                     errors.WebhookChannelNotTextChannel,
                 ),
             ):
-
-                await ctx.send(content=str(e), complete_hidden=True)
+                await ctx.ack(eat=True)
+                await ctx.send(content=str(e), hidden=True)
                 return
 
             else:
                 raise
+        await ctx.ack()
         await ctx.send(embeds=[msg])
 
     @cog_ext.cog_subcommand(
@@ -422,30 +412,29 @@ class SetupCogSlash(Cog):
         base_description=settings_base_desc,
     )
     async def _get_prefix(self, ctx: SlashContext) -> None:
-        if not isinstance(ctx.guild, discord.Guild):
-            for guild in self.bot.guilds:
-                if ctx.guild == guild.id:
-                    ctx.guild = self.bot.get_channel(ctx.guild)
-                    break
-            else:
-                await ctx.send(
-                    content=(
-                        "Error!! A bot user is required for this command to work!"
-                        "\nPlease invite me, invite link here: https://messagemanager.xyz/invite"
-                    ),
-                    complete_hidden=True,
-                )
-                return
-        if not isinstance(ctx.author, discord.Member):
-            ctx.author = await ctx.guild.fetch_member(ctx.author)
+        if ctx.guild is None:
+            await ctx.ack(eat=True)
+            await ctx.send(
+                content=(
+                    "You've either ran this command in a dm or in a server without the bot user!"
+                    "\nYou cannot run this command in dms"
+                    "\nAnd a bot user is required for this command to work!"
+                    "\nPlease invite me, invite link here: https://messagemanager.xyz/invite"
+                ),
+                hidden=True,
+            )
+            return
+        if ctx.author is None:
+            ctx.author = await ctx.guild.fetch_member(ctx.author_id)
 
         try:
             msg = await self.logic_functions.get_prefix_logic(ctx.guild, ctx.author)
 
         except commands.MissingPermissions as e:
-
-            await ctx.send(content=str(e), complete_hidden=True)
+            await ctx.ack(eat=True)
+            await ctx.send(content=str(e), hidden=True)
             return
+        await ctx.ack()
         await ctx.send(content=msg)
 
     @cog_ext.cog_subcommand(
@@ -469,22 +458,20 @@ class SetupCogSlash(Cog):
         ctx: SlashContext,
         channel: Optional[Union[discord.TextChannel, int, str]] = None,
     ) -> None:
-        if not isinstance(ctx.guild, discord.Guild):
-            for guild in self.bot.guilds:
-                if ctx.guild == guild.id:
-                    ctx.guild = self.bot.get_channel(ctx.guild)
-                    break
-            else:
-                await ctx.send(
-                    content=(
-                        "Error!! A bot user is required for this command to work!"
-                        "\nPlease invite me, invite link here: https://messagemanager.xyz/invite"
-                    ),
-                    complete_hidden=True,
-                )
-                return
-        if not isinstance(ctx.author, discord.Member):
-            ctx.author = await ctx.guild.fetch_member(ctx.author)
+        if ctx.guild is None:
+            await ctx.ack(eat=True)
+            await ctx.send(
+                content=(
+                    "You've either ran this command in a dm or in a server without the bot user!"
+                    "\nYou cannot run this command in dms"
+                    "\nAnd a bot user is required for this command to work!"
+                    "\nPlease invite me, invite link here: https://messagemanager.xyz/invite"
+                ),
+                hidden=True,
+            )
+            return
+        if ctx.author is None:
+            ctx.author = await ctx.guild.fetch_member(ctx.author_id)
 
         if not isinstance(channel, (int, str)) and channel is not None:
 
@@ -509,12 +496,13 @@ class SetupCogSlash(Cog):
                     errors.WebhookChannelNotTextChannel,
                 ),
             ):
-
-                await ctx.send(content=str(e), complete_hidden=True)
+                await ctx.ack(eat=True)
+                await ctx.send(content=str(e), hidden=True)
                 return
 
             else:
                 raise
+        await ctx.ack()
         await ctx.send(embeds=[msg])
 
     @cog_ext.cog_subcommand(
@@ -526,30 +514,30 @@ class SetupCogSlash(Cog):
         base_description=settings_base_desc,
     )
     async def _get_logging(self, ctx: SlashContext) -> None:
-        if not isinstance(ctx.guild, discord.Guild):
-            for guild in self.bot.guilds:
-                if ctx.guild == guild.id:
-                    ctx.guild = self.bot.get_channel(ctx.guild)
-                    break
-            else:
-                await ctx.send(
-                    content=(
-                        "Error!! A bot user is required for this command to work!"
-                        "\nPlease invite me, invite link here: https://messagemanager.xyz/invite"
-                    ),
-                    complete_hidden=True,
-                )
-                return
-        if not isinstance(ctx.author, discord.Member):
-            ctx.author = await ctx.guild.fetch_member(ctx.author)
+        if ctx.guild is None:
+            await ctx.ack(eat=True)
+            await ctx.send(
+                content=(
+                    "You've either ran this command in a dm or in a server without the bot user!"
+                    "\nYou cannot run this command in dms"
+                    "\nAnd a bot user is required for this command to work!"
+                    "\nPlease invite me, invite link here: https://messagemanager.xyz/invite"
+                ),
+                hidden=True,
+            )
+            return
+        if ctx.author is None:
+            ctx.author = await ctx.guild.fetch_member(ctx.author_id)
 
         try:
             msg = await self.logic_functions.get_logging_logic(ctx.guild, ctx.author)
 
         except commands.MissingPermissions as e:
+            await ctx.ack(eat=True)
 
-            await ctx.send(content=str(e), complete_hidden=True)
+            await ctx.send(content=str(e), hidden=True)
             return
+        await ctx.ack()
         if isinstance(msg, str):
             await ctx.send(content=msg)
         else:
@@ -576,22 +564,20 @@ class SetupCogSlash(Cog):
         ctx: SlashContext,
         role: Optional[Union[discord.Role, int, str]] = None,
     ) -> None:
-        if not isinstance(ctx.guild, discord.Guild):
-            for guild in self.bot.guilds:
-                if ctx.guild == guild.id:
-                    ctx.guild = self.bot.get_channel(ctx.guild)
-                    break
-            else:
-                await ctx.send(
-                    content=(
-                        "Error!! A bot user is required for this command to work!"
-                        "\nPlease invite me, invite link here: https://messagemanager.xyz/invite"
-                    ),
-                    complete_hidden=True,
-                )
-                return
-        if not isinstance(ctx.author, discord.Member):
-            ctx.author = await ctx.guild.fetch_member(ctx.author)
+        if ctx.guild is None:
+            await ctx.ack(eat=True)
+            await ctx.send(
+                content=(
+                    "You've either ran this command in a dm or in a server without the bot user!"
+                    "\nYou cannot run this command in dms"
+                    "\nAnd a bot user is required for this command to work!"
+                    "\nPlease invite me, invite link here: https://messagemanager.xyz/invite"
+                ),
+                hidden=True,
+            )
+            return
+        if ctx.author is None:
+            ctx.author = await ctx.guild.fetch_member(ctx.author_id)
 
         if not isinstance(role, (int, str)) and role is not None:
 
@@ -616,12 +602,13 @@ class SetupCogSlash(Cog):
                     errors.WebhookChannelNotTextChannel,
                 ),
             ):
-
-                await ctx.send(content=str(e), complete_hidden=True)
+                await ctx.ack(hidden=True)
+                await ctx.send(content=str(e), hidden=True)
                 return
 
             else:
                 raise
+        await ctx.ack()
         await ctx.send(embeds=[msg])
 
     @cog_ext.cog_subcommand(
@@ -633,30 +620,29 @@ class SetupCogSlash(Cog):
         base_description=settings_base_desc,
     )
     async def _get_admin(self, ctx: SlashContext) -> None:
-        if not isinstance(ctx.guild, discord.Guild):
-            for guild in self.bot.guilds:
-                if ctx.guild == guild.id:
-                    ctx.guild = self.bot.get_channel(ctx.guild)
-                    break
-            else:
-                await ctx.send(
-                    content=(
-                        "Error!! A bot user is required for this command to work!"
-                        "\nPlease invite me, invite link here: https://messagemanager.xyz/invite"
-                    ),
-                    complete_hidden=True,
-                )
-                return
-        if not isinstance(ctx.author, discord.Member):
-            ctx.author = await ctx.guild.fetch_member(ctx.author)
+        if ctx.guild is None:
+            await ctx.ack(eat=True)
+            await ctx.send(
+                content=(
+                    "You've either ran this command in a dm or in a server without the bot user!"
+                    "\nYou cannot run this command in dms"
+                    "\nAnd a bot user is required for this command to work!"
+                    "\nPlease invite me, invite link here: https://messagemanager.xyz/invite"
+                ),
+                hidden=True,
+            )
+            return
+        if ctx.author is None:
+            ctx.author = await ctx.guild.fetch_member(ctx.author_id)
 
         try:
             msg = await self.logic_functions.get_admin_role_logic(ctx.guild, ctx.author)
 
         except commands.MissingPermissions as e:
-
-            await ctx.send(content=str(e), complete_hidden=True)
+            await ctx.ack(eat=True)
+            await ctx.send(content=str(e), hidden=True)
             return
+        await ctx.ack()
         if isinstance(msg, str):
             await ctx.send(content=msg)
         else:

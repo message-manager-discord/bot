@@ -62,7 +62,7 @@ class Bot(BotBase):
         self.del_token: str
         self.dbgg_token: str
         self.topgg_token: str
-        self.slash: SlashCommand
+        SlashCommand(self, sync_commands=True, sync_on_cog_reload=True)
 
     def command_with_prefix(self, ctx: commands.Context, command_name: str) -> str:
         if str(self.user.id) in ctx.prefix:

@@ -24,7 +24,7 @@ import random
 import string
 
 from math import floor
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 import discord
 
@@ -158,14 +158,6 @@ class AdminCog(Cog):
                 timestamp=datetime.datetime.now(datetime.timezone.utc),
             )
         )
-
-    @commands.command(name="sync-slash")
-    async def sync_slash(
-        self, ctx: commands.Context, guild_id: Optional[int] = None
-    ) -> None:
-        await self.bot.slash.register_all_commands()
-        await self.bot.slash.delete_unused_commands()
-        await ctx.send("synced!")
 
 
 def setup(bot: Bot) -> None:
