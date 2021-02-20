@@ -62,7 +62,8 @@ async def create_info_embed(
         else:
             in_guild = False
     if in_guild:
-        prefix = await bot.db.get_prefix(ctx.guild)
+        db_guild = await bot.db.get_guild(ctx.guild)
+        prefix = db_guild.prefix
         embed.add_field(name="Prefix", value=f"`{prefix}`", inline=True),
 
     embed.add_field(name="Version", value=bot.version, inline=True),
@@ -197,7 +198,8 @@ class MainCog(Cog):
                         channel = c
                         break
         if channel is not None:
-            prefix = await self.bot.db.get_prefix(guild)
+            db_guild = await self.bot.db.get_guild(guild)
+            prefix = db_guild.prefix
             embed = discord.Embed(
                 title="Hi there!",
                 colour=discord.Colour(16761035),

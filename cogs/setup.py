@@ -49,15 +49,16 @@ class LogicFunctions:
     async def get_prefix_logic(
         self, guild: discord.Guild, author: discord.Member
     ) -> str:
-        prefix = await self.bot.db.get_prefix(guild)
-        return f"My prefix for this server is: `{prefix}`"
+        guild = await self.bot.db.get_guild(guild)
+        return f"My prefix for this server is: `{guild.prefix}`"
 
     async def set_prefix_logic(
         self, guild: discord.Guild, author: discord.Member, new_prefix: Optional[str]
     ) -> discord.Embed:
         if not author.guild_permissions.administrator:
             raise commands.MissingPermissions(["administrator"])  # type: ignore
-        current_prefix = await self.bot.db.get_prefix(guild)
+        guild = await self.bot.db.get_guild(guild)
+        current_prefix = guild.prefix
         if new_prefix is None:
             await self.bot.db.update_prefix(guild, self.bot.default_prefix)
             return discord.Embed(
@@ -149,7 +150,8 @@ class LogicFunctions:
     ) -> Union[discord.Embed, str]:
         if not author.guild_permissions.administrator:
             raise commands.MissingPermissions(["administrator"])  # type: ignore
-        original_role_id = await self.bot.db.get_management_role(guild)
+        db_guild = await self.bot.db.get_guild(guild)
+        original_role_id = db_guild.management_role
         if original_role_id is None:
             return "The admin role has not been set yet!"
         original_role = guild.get_role(original_role_id)
@@ -168,7 +170,8 @@ class LogicFunctions:
     ) -> discord.Embed:
         if not author.guild_permissions.administrator:
             raise commands.MissingPermissions(["administrator"])  # type: ignore
-        original_role_id = await self.bot.db.get_management_role(guild)
+        db_guild = await self.bot.db.get_guild(guild)
+        original_role_id = db_guild.management_role
         original_role = guild.get_role(original_role_id)
         if new_role_id is None:
             await self.bot.db.update_admin_role(guild, None)
@@ -333,8 +336,8 @@ class SetupCog(Cog):
 
     @commands.command(name="prefix")
     async def prefix(self, ctx: commands.Context) -> None:
-        prefix = await self.bot.db.get_prefix(ctx.guild)
-        await ctx.send(f"My prefix for this server is: `{prefix}`")
+        guild = await self.bot.db.get_guild(ctx.guild)
+        await ctx.send(f"My prefix for this server is: `{guild.prefix}`")
 
 
 class SetupCogSlash(Cog):

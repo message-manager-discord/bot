@@ -30,7 +30,8 @@ async def check_if_manage_role(bot: Bot, ctx: commands.Context) -> bool:
     if guild_only(bot, ctx):
         assert isinstance(ctx.author, discord.Member)
         assert ctx.guild is not None
-        management_role = await bot.db.get_management_role(ctx.guild)
+        db_guild = await bot.db.get_guild(ctx.guild)
+        management_role = db_guild.management_role
         if ctx.author.id == ctx.guild.owner_id:
             return True
         elif management_role is None:

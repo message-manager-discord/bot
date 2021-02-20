@@ -123,9 +123,10 @@ intents = discord.Intents(guilds=True, members=False, messages=True)
 
 
 async def get_prefix(bot: Bot, message: discord.Message) -> List[str]:
-    prefix = await bot.db.get_prefix(
+    guild = await bot.db.get_guild(
         message.guild
     )  # Fetch current server prefix from database
+    prefix = guild.prefix
     if message.guild is None:
         prefix = [prefix, ""]
 
