@@ -76,7 +76,12 @@ queries: Dict[str, Dict[str, Union[str, None]]] = {
         "query": "ALTER TABLE servers DROP COLUMN slash_enabled;",
         "new_version": "v1.5.1",
     },
-    "v1.5.1": {"query": None, "new_version": None},
+    "v1.5.1": {
+        "query": """ALTER TABLE servers
+    ADD COLUMN auto_delete BOOLEAN DEFAULT FALSE NOT NULL;""",
+        "new_version": "v1.6.0",
+    },
+    "v1.6.0": {"query": None, "new_version": None},
 }
 
 create_db = """

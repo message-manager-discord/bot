@@ -62,6 +62,7 @@ class GuildTuple(NamedTuple):
     id: int
     management_role: Optional[int]
     prefix: str
+    auto_delete: bool
 
 
 class DatabasePool:
@@ -108,12 +109,30 @@ class DatabasePool:
                 guild_id,
             )
             if query == []:
-                return GuildTuple(guild_id, None, self.bot.default_prefix)
+                return GuildTuple(guild_id, None, self.bot.default_prefix, False)
             prefix: str = query[0].get("prefix")
             role: int = query[0].get("management_role_id")
             if prefix is None:
                 prefix = self.bot.default_prefix
-            return GuildTuple(guild_id, role, prefix)
+            auto_delete: bool = query[0].get("auto_delete")
+            return GuildTuple(guild_id, role, prefix, auto_delete)
+
+    async def update_auto_delete(
+        self, guild: Union[discord.Guild, int], auto_delete: bool = False
+    ) -> None:
+        guild_id = process_guild_id(guild)
+        async with self.pool.acquire() as conn:
+            await conn.execute(
+                """
+                INSERT INTO servers
+                    (id, auto_delete)
+                    VALUES($1, $2)
+                    ON CONFLICT (id)
+                    DO UPDATE SET auto_delete = $2;
+                """,
+                guild_id,
+                auto_delete,
+            )
 
     async def update_prefix(
         self, guild: Union[discord.Guild, int], prefix: str

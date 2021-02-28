@@ -36,7 +36,7 @@ from cogs.utils.db import db
 
 starttime = datetime.datetime.utcnow()
 
-__version__ = "v1.5.1"
+__version__ = "v1.6.0"
 
 if TYPE_CHECKING:
     BotBase = commands.Bot[commands.Context]

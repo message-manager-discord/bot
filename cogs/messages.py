@@ -84,19 +84,34 @@ class MessagesCog(Cog):
             )
             raise error
 
+    async def get_auto_delete(self, guild):
+        db_guild = await self.bot.db.get_guild(guild)
+        return db_guild.auto_delete
+
+    async def try_auto_delete(self, message, auto_delete):
+        if not auto_delete:
+            return
+        if message.channel.permissions_for(message.guild.me).manage_messages:
+            await message.delete()
+
     async def check_channel(
-        self, ctx: commands.Context, channel: Optional[discord.TextChannel]
+        self,
+        ctx: commands.Context,
+        channel: Optional[discord.TextChannel],
+        auto_delete: bool = False,
     ) -> discord.TextChannel:
         def is_correct(m: discord.Message) -> bool:
             return m.author == ctx.author
 
         if channel is None:
-            await ctx.send("What is the channel?")
+            q_message = await ctx.send("What is the channel?")
             get_channel = await self.bot.wait_for("message", check=is_correct)
             get_channel.content
             channel = await commands.TextChannelConverter().convert(
                 ctx, get_channel.content
             )
+            await self.try_auto_delete(q_message, auto_delete)
+            await self.try_auto_delete(get_channel, auto_delete)
         assert ctx.guild is not None
         assert ctx.guild.me is not None
         assert isinstance(ctx.author, discord.Member)
@@ -122,14 +137,17 @@ class MessagesCog(Cog):
         ctx: commands.Context,
         content: Optional[str],
         ask_message: str = "What is the content of the message to be?",
+        auto_delete: bool = False,
     ) -> str:
         def is_correct(m: discord.Message) -> bool:
             return m.author == ctx.author
 
         if content is None or content == "":
-            await ctx.send(ask_message)
+            q_message = await ctx.send(ask_message)
             get_content = await self.bot.wait_for("message", check=is_correct)
             content = get_content.content
+            await self.try_auto_delete(q_message, auto_delete)
+            await self.try_auto_delete(get_content, auto_delete)
             return content
         else:
             return content
@@ -272,10 +290,14 @@ class MessagesCog(Cog):
         *,
         content: Optional[str] = None,
     ) -> None:
-        channel = await self.check_channel(ctx, channel)  # Get the channel.
+        auto_delete = await self.get_auto_delete(ctx.guild)
+        await self.try_auto_delete(ctx.message, auto_delete)
+        channel = await self.check_channel(
+            ctx, channel, auto_delete
+        )  # Get the channel.
         if channel.guild != ctx.guild:
             raise errors.DifferentServer()
-        content = await self.check_content(ctx, content)
+        content = await self.check_content(ctx, content, auto_delete)
         if content[1:4] == "```" and content[-3:] == "```":
             content = content[4:-3]
         msg = await channel.send(content)
