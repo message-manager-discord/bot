@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "41323b627675152caea8ff0500d3d9232afaf9932266461a6120762897752db3"
+            "sha256": "3c77ada65c6191e50d17b69451c74fe706eddb9befe9893eea2a3981988f953d"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -226,11 +226,11 @@
         },
         "discord.py-stubs": {
             "hashes": [
-                "sha256:1a9960998cd17cfe1d447d7ac3133982010b7a20913c5c0e17b4fa1be94c5233",
-                "sha256:43956bf7d6a28769bf854318b395dfd39dcac53f41c293b3b32de0bd7bf02ac7"
+                "sha256:42e527eb7db7c147a753ab4bd22f30fc561962d78937edfd53e94731584054ae",
+                "sha256:d35ec693369b3ee2d7918f48d0b15c55c1a55de82c0d6a15f6b90da222109718"
             ],
             "index": "pypi",
-            "version": "==1.6.0.1"
+            "version": "==1.6.0.2"
         },
         "distlib": {
             "hashes": [
@@ -256,10 +256,10 @@
         },
         "identify": {
             "hashes": [
-                "sha256:70b638cf4743f33042bebb3b51e25261a0a10e80f978739f17e7fd4837664a66",
-                "sha256:9dfb63a2e871b807e3ba62f029813552a24b5289504f5b071dea9b041aee9fe4"
+                "sha256:2179e7359471ab55729f201b3fdf7dc2778e221f868410fedcb0987b791ba552",
+                "sha256:2a5fdf2f5319cc357eda2550bea713a404392495961022cf2462624ce62f0f46"
             ],
-            "version": "==1.5.13"
+            "version": "==2.1.0"
         },
         "isort": {
             "hashes": [
@@ -327,11 +327,11 @@
         },
         "pre-commit": {
             "hashes": [
-                "sha256:16212d1fde2bed88159287da88ff03796863854b04dc9f838a55979325a3d20e",
-                "sha256:399baf78f13f4de82a29b649afd74bef2c4e28eb4f021661fc7f29246e8c7a3a"
+                "sha256:06f8cb95e29e56788fb5dc98d7ca7a714969dc96633e1ba654ccd5953b64c195",
+                "sha256:c4853e29c24b27d81359357fae891e00bc83e6a0575c93d815e0e8077bd53b3b"
             ],
             "index": "pypi",
-            "version": "==2.10.1"
+            "version": "==2.11.0"
         },
         "pycodestyle": {
             "hashes": [
