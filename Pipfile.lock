@@ -93,11 +93,11 @@
         },
         "discord-py-slash-command": {
             "hashes": [
-                "sha256:954e3d2fde44eae43e5d592cf2aaf2cd484ac0d3490a4d5f2e72d3d3b5138145",
-                "sha256:c4fc7eeb68e051344df88c309207bca2437ab556226937763bc57fc48352c70c"
+                "sha256:821ae953a0d7f40820c308c45c8c0856bfd8bbf4ce390dbea9feb31af1081972",
+                "sha256:d9ebe87656485e8230baa0ab849705e72e4fed9d65ee16ae017673ec1a5f00e8"
             ],
             "index": "pypi",
-            "version": "==1.0.9.4"
+            "version": "==1.0.9.5"
         },
         "discord.py": {
             "hashes": [
