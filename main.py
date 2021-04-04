@@ -68,7 +68,7 @@ class Bot(BotBase):
         self.del_token: str
         self.dbgg_token: str
         self.topgg_token: str
-        SlashCommand(self, sync_commands=True, sync_on_cog_reload=True)
+        SlashCommand(self, sync_commands=True)
 
     async def init_db(self) -> None:
         database = db.DatabasePool(config.uri, self)

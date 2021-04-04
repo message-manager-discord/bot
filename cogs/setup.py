@@ -367,7 +367,6 @@ class SetupCogSlash(Cog):
         prefix: Optional[str] = None,
     ) -> None:
         if ctx.guild is None:
-            await ctx.ack(eat=True)
             await ctx.send(
                 content=(
                     "You've either ran this command in a dm or in a server without the bot user!"
@@ -397,13 +396,11 @@ class SetupCogSlash(Cog):
                     errors.WebhookChannelNotTextChannel,
                 ),
             ):
-                await ctx.ack(eat=True)
                 await ctx.send(content=str(e), hidden=True)
                 return
 
             else:
                 raise
-        await ctx.ack()
         await ctx.send(embeds=[msg])
 
     @cog_ext.cog_subcommand(
@@ -416,7 +413,7 @@ class SetupCogSlash(Cog):
     )
     async def _get_prefix(self, ctx: SlashContext) -> None:
         if ctx.guild is None:
-            await ctx.ack(eat=True)
+
             await ctx.send(
                 content=(
                     "You've either ran this command in a dm or in a server without the bot user!"
@@ -434,10 +431,10 @@ class SetupCogSlash(Cog):
             msg = await self.logic_functions.get_prefix_logic(ctx.guild, ctx.author)
 
         except commands.MissingPermissions as e:
-            await ctx.ack(eat=True)
+
             await ctx.send(content=str(e), hidden=True)
             return
-        await ctx.ack()
+
         await ctx.send(content=msg)
 
     @cog_ext.cog_subcommand(
@@ -462,7 +459,7 @@ class SetupCogSlash(Cog):
         channel: Optional[Union[discord.TextChannel, int, str]] = None,
     ) -> None:
         if ctx.guild is None:
-            await ctx.ack(eat=True)
+
             await ctx.send(
                 content=(
                     "You've either ran this command in a dm or in a server without the bot user!"
@@ -499,13 +496,13 @@ class SetupCogSlash(Cog):
                     errors.WebhookChannelNotTextChannel,
                 ),
             ):
-                await ctx.ack(eat=True)
+
                 await ctx.send(content=str(e), hidden=True)
                 return
 
             else:
                 raise
-        await ctx.ack()
+
         await ctx.send(embeds=[msg])
 
     @cog_ext.cog_subcommand(
@@ -518,7 +515,7 @@ class SetupCogSlash(Cog):
     )
     async def _get_logging(self, ctx: SlashContext) -> None:
         if ctx.guild is None:
-            await ctx.ack(eat=True)
+
             await ctx.send(
                 content=(
                     "You've either ran this command in a dm or in a server without the bot user!"
@@ -536,11 +533,10 @@ class SetupCogSlash(Cog):
             msg = await self.logic_functions.get_logging_logic(ctx.guild, ctx.author)
 
         except commands.MissingPermissions as e:
-            await ctx.ack(eat=True)
 
             await ctx.send(content=str(e), hidden=True)
             return
-        await ctx.ack()
+
         if isinstance(msg, str):
             await ctx.send(content=msg)
         else:
@@ -568,7 +564,7 @@ class SetupCogSlash(Cog):
         role: Optional[Union[discord.Role, int, str]] = None,
     ) -> None:
         if ctx.guild is None:
-            await ctx.ack(eat=True)
+
             await ctx.send(
                 content=(
                     "You've either ran this command in a dm or in a server without the bot user!"
@@ -611,7 +607,7 @@ class SetupCogSlash(Cog):
 
             else:
                 raise
-        await ctx.ack()
+
         await ctx.send(embeds=[msg])
 
     @cog_ext.cog_subcommand(
@@ -624,7 +620,7 @@ class SetupCogSlash(Cog):
     )
     async def _get_admin(self, ctx: SlashContext) -> None:
         if ctx.guild is None:
-            await ctx.ack(eat=True)
+
             await ctx.send(
                 content=(
                     "You've either ran this command in a dm or in a server without the bot user!"
@@ -642,10 +638,10 @@ class SetupCogSlash(Cog):
             msg = await self.logic_functions.get_admin_role_logic(ctx.guild, ctx.author)
 
         except commands.MissingPermissions as e:
-            await ctx.ack(eat=True)
+
             await ctx.send(content=str(e), hidden=True)
             return
-        await ctx.ack()
+
         if isinstance(msg, str):
             await ctx.send(content=msg)
         else:

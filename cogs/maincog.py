@@ -337,7 +337,6 @@ class MainCog(Cog):
         base_description=info_base_description,
     )
     async def _info(self, ctx: SlashContext) -> None:
-        await ctx.ack()
         embed = await create_info_embed(ctx, self.bot)
         await ctx.send(embeds=[embed])
 
@@ -354,7 +353,6 @@ class MainCog(Cog):
         base_description=info_base_description,
     )
     async def _ping(self, ctx: SlashContext) -> None:
-        await ctx.ack()
         await ctx.send(content=f"Gateway latency: {round(self.bot.latency*1000, 2)}ms")
 
     # Privacy commands
@@ -371,7 +369,6 @@ class MainCog(Cog):
         base_description=info_base_description,
     )
     async def _privacy(self, ctx: SlashContext) -> None:
-        await ctx.ack()
         embed = create_privacy_embed()
         await ctx.send(embeds=[embed])
 
@@ -388,7 +385,6 @@ class MainCog(Cog):
         base_description=info_base_description,
     )
     async def _invite(self, ctx: SlashContext) -> None:
-        await ctx.ack()
         await ctx.send(embeds=[create_invite_embed()])
 
     # Docs commands
@@ -404,7 +400,6 @@ class MainCog(Cog):
         base_description=info_base_description,
     )
     async def _docs(self, ctx: SlashContext) -> None:
-        await ctx.ack()
         await ctx.send(embeds=[create_docs_embed()])
 
     # Source Commands
@@ -420,7 +415,6 @@ class MainCog(Cog):
         base_description=info_base_description,
     )
     async def _source(self, ctx: SlashContext) -> None:
-        await ctx.ack()
         await ctx.send(embeds=[create_source_embed()])
 
     # Support Commands
@@ -436,7 +430,6 @@ class MainCog(Cog):
         base_description=info_base_description,
     )
     async def _support(self, ctx: SlashContext) -> None:
-        await ctx.ack()
         await ctx.send(embeds=[create_support_embed()])
 
 
