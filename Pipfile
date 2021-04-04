@@ -6,7 +6,7 @@ name = "pypi"
 [packages]
 asyncpg = "==0.22.0"
 "discord.py" = "~=1.6"
-aiohttp = "<3.7.0,>=3.6.0"
+aiohttp = "~=3.7"
 jishaku = "*"
 discord-py-slash-command = "~=1.0.9"
 

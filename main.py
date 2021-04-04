@@ -17,7 +17,6 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-import asyncio
 import datetime
 import logging
 
@@ -34,8 +33,6 @@ import config
 
 from cogs.utils.db import db
 
-starttime = datetime.datetime.utcnow()
-
 __version__ = "v1.5.1"
 
 if TYPE_CHECKING:
@@ -48,13 +45,22 @@ class Bot(BotBase):
     def __init__(
         self, default_prefix: str, self_hosted: bool = False, **kwargs: Any
     ) -> None:
-        super().__init__(case_insensitive=True, **kwargs)
+
+        super().__init__(
+            case_insensitive=True,
+            chunk_guilds_on_startup=False,
+            intents=discord.Intents(guilds=True, members=False, messages=True),
+            activity=discord.Game(name="Watching our important messages!"),
+            command_prefix=self.get_custom_prefix,
+            help_command=None,
+            **kwargs,
+        )
         self.default_prefix = default_prefix
         self.self_hosted = self_hosted
+        self.start_time = datetime.datetime.utcnow()
         self.session: aiohttp.ClientSession
         self.version = __version__
         self.db: asyncpg.pool.Pool
-        self.start_time: datetime.datetime
         self.load_time: datetime.datetime
         self.join_log_channel: int
         self.dbl_token: str
@@ -63,6 +69,20 @@ class Bot(BotBase):
         self.dbgg_token: str
         self.topgg_token: str
         SlashCommand(self, sync_commands=True, sync_on_cog_reload=True)
+
+    async def init_db(self) -> None:
+        database = db.DatabasePool(config.uri, self)
+        await database._init()
+        self.db = database
+
+    async def start(self, *args, **kwargs) -> None:  # type: ignore
+        self.session = aiohttp.ClientSession()
+        await self.init_db()
+        await super().start(*args, **kwargs)
+
+    async def close(self) -> None:
+        await self.db.close()
+        await super().close()
 
     def command_with_prefix(self, ctx: commands.Context, command_name: str) -> str:
         if str(self.user.id) in ctx.prefix:
@@ -73,16 +93,34 @@ class Bot(BotBase):
         else:
             return f"`{ctx.prefix}{command_name}`"
 
+    async def get_custom_prefix(
+        self, bot: BotBase, message: discord.Message
+    ) -> List[str]:
+        guild = await self.db.get_guild(
+            message.guild
+        )  # Fetch current server prefix from database
+        prefix = guild.prefix
+        if message.guild is None:
+            prefix = [prefix, ""]
 
-async def run() -> None:
-    bot.session = aiohttp.ClientSession()
-    database = db.DatabasePool(config.uri, bot)
-    await database._init()
-    bot.db = database
+        return commands.when_mentioned_or(*prefix)(self, message)
 
-    bot.start_time = starttime
 
-    bot.remove_command("help")
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="w")
+handler.setFormatter(
+    logging.Formatter("%(asctime)s:%(levelname)s:%(name)s: %(message)s")
+)
+logger.addHandler(handler)
+
+
+def run() -> None:
+    bot = Bot(
+        owner_ids=config.owners,
+        default_prefix=config.default_prefix,
+        self_hosted=config.self_host,
+    )
 
     extensions = [
         "cogs.maincog",
@@ -103,43 +141,8 @@ async def run() -> None:
     print("Loading extensions...")
     for extension in extensions:
         bot.load_extension(extension)
-
-    try:
-        await bot.start(config.token)
-    except KeyboardInterrupt:
-        await database.close()
-        await bot.logout()
+    bot.run(config.token)
 
 
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
-handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="w")
-handler.setFormatter(
-    logging.Formatter("%(asctime)s:%(levelname)s:%(name)s: %(message)s")
-)
-logger.addHandler(handler)
-
-intents = discord.Intents(guilds=True, members=False, messages=True)
-
-
-async def get_prefix(bot: Bot, message: discord.Message) -> List[str]:
-    guild = await bot.db.get_guild(
-        message.guild
-    )  # Fetch current server prefix from database
-    prefix = guild.prefix
-    if message.guild is None:
-        prefix = [prefix, ""]
-
-    return commands.when_mentioned_or(*prefix)(bot, message)
-
-
-bot = Bot(
-    owner_ids=config.owners,
-    activity=discord.Game(name="Watching our important messages!"),
-    intents=intents,
-    default_prefix=config.default_prefix,
-    self_hosted=config.self_host,
-    command_prefix=get_prefix,
-)
 if __name__ == "__main__":
-    asyncio.run(run())
+    run()
