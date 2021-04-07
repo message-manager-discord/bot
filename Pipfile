@@ -16,7 +16,7 @@ isort = "==5.8.0"
 flake8 = "*"
 mypy = "==0.800"
 "discord.py-stubs" = "~=1.6"
-pre-commit = "~=2.10"
+pre-commit = "~=2.12"
 
 [requires]
 python_version = "3.8"
