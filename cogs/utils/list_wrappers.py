@@ -18,41 +18,33 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-from typing import Dict, Optional, Union
-
-import aiohttp
+from typing import Dict, Union
 
 from main import Bot
 
 
 class HttpClient:
-    def __init__(
-        self, bot: Bot, token: str, session: Optional[aiohttp.ClientSession] = None
-    ) -> None:
+    def __init__(self, bot: Bot, token: str) -> None:
         self.token = token
-        self.session: aiohttp.ClientSession = session or aiohttp.ClientSession(
-            loop=bot.loop
-        )
         self.base_url: str
+        self.bot = bot
 
     async def _request(
         self, method: str, url: str, json: Dict[str, Union[str, int]]
     ) -> int:
         url = f"{self.base_url}{url}"
         headers = {"Authorization": self.token, "Content-Type": "application/json"}
-        async with self.session.request(
+        async with self.bot.session.request(
             method=method, url=url, headers=headers, json=json
         ) as r:
             return r.status
 
 
 class TopGG(HttpClient):
-    def __init__(
-        self, bot: Bot, token: str, session: Optional[aiohttp.ClientSession] = None
-    ) -> None:
+    def __init__(self, bot: Bot, token: str) -> None:
         self.base_url = "https://top.gg/api/"
         self.bot = bot
-        super().__init__(bot, token, session)
+        super().__init__(bot, token)
 
     async def post_guild_stats(self) -> None:
         url = f"bots/{self.bot.user.id}/stats"
@@ -62,12 +54,10 @@ class TopGG(HttpClient):
 
 
 class Del(HttpClient):
-    def __init__(
-        self, bot: Bot, token: str, session: Optional[aiohttp.ClientSession] = None
-    ) -> None:
+    def __init__(self, bot: Bot, token: str) -> None:
         self.base_url = "https://api.discordextremelist.xyz/v2/"
         self.bot = bot
-        super().__init__(bot, token, session)
+        super().__init__(bot, token)
 
     async def post_guild_stats(self) -> None:
         url = f"bot/{self.bot.user.id}/stats"
@@ -77,12 +67,10 @@ class Del(HttpClient):
 
 
 class Dbl(HttpClient):
-    def __init__(
-        self, bot: Bot, token: str, session: Optional[aiohttp.ClientSession] = None
-    ) -> None:
+    def __init__(self, bot: Bot, token: str) -> None:
         self.base_url = "https://discordbotlist.com/api/v1/"
         self.bot = bot
-        super().__init__(bot, token, session)
+        super().__init__(bot, token)
 
     async def post_guild_stats(self) -> None:
         url = f"/bots/{self.bot.user.id}/stats"
@@ -92,12 +80,10 @@ class Dbl(HttpClient):
 
 
 class DBoats(HttpClient):
-    def __init__(
-        self, bot: Bot, token: str, session: Optional[aiohttp.ClientSession] = None
-    ) -> None:
+    def __init__(self, bot: Bot, token: str) -> None:
         self.base_url = "https://discord.boats/api/"
         self.bot = bot
-        super().__init__(bot, token, session)
+        super().__init__(bot, token)
 
     async def post_guild_stats(self) -> None:
         url = f"bot/{self.bot.user.id}"
@@ -107,12 +93,10 @@ class DBoats(HttpClient):
 
 
 class Dbgg(HttpClient):
-    def __init__(
-        self, bot: Bot, token: str, session: Optional[aiohttp.ClientSession] = None
-    ) -> None:
+    def __init__(self, bot: Bot, token: str) -> None:
         self.base_url = "https://discord.bots.gg/api/v1/"
         self.bot = bot
-        super().__init__(bot, token, session)
+        super().__init__(bot, token)
 
     async def post_guild_stats(self) -> None:
         url = f"bots/{self.bot.user.id}/stats"

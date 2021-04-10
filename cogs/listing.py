@@ -35,22 +35,11 @@ class ListingCog(Cog):
     def __init__(self, bot: Bot) -> None:
         self.bot = bot
         self.stats_post_loop.start()
-        self.session = bot.session
-        self.de_list = list_wrappers.Del(
-            token=self.bot.del_token, bot=self.bot, session=self.session
-        )
-        self.dbl = list_wrappers.Dbl(
-            token=self.bot.dbl_token, bot=self.bot, session=self.session
-        )
-        self.dboats = list_wrappers.DBoats(
-            token=self.bot.dboats_token, bot=self.bot, session=self.session
-        )
-        self.dbgg = list_wrappers.Dbgg(
-            token=self.bot.dbgg_token, bot=self.bot, session=self.session
-        )
-        self.topgg = list_wrappers.TopGG(
-            token=self.bot.topgg_token, bot=self.bot, session=self.session
-        )
+        self.de_list = list_wrappers.Del(token=self.bot.del_token, bot=self.bot)
+        self.dbl = list_wrappers.Dbl(token=self.bot.dbl_token, bot=self.bot)
+        self.dboats = list_wrappers.DBoats(token=self.bot.dboats_token, bot=self.bot)
+        self.dbgg = list_wrappers.Dbgg(token=self.bot.dbgg_token, bot=self.bot)
+        self.topgg = list_wrappers.TopGG(token=self.bot.topgg_token, bot=self.bot)
 
     def cog_unload(self) -> None:
         self.stats_post_loop.cancel()
