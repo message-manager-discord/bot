@@ -17,8 +17,9 @@ The Service has settings that administrators of servers can set up on a per serv
 
 When you connect to the site traffic is provided through a proxy from cloudflare for security and performance reasons. Cloudflare collects anonymous data which may include but is not limited IP addresses, country, device and browser type, http request type and time. Cloudflare's privacy policy can be found [here](https://www.cloudflare.com/privacy)
 
-We also use Cloudflare's privacy aware analytics service, which recordes: Referer, Host, Country, Path, Browser, Operating System and Device Type. All data recorded is anonymous.
+We also use Cloudflare's privacy aware analytics service, which records: Referrer, Host, Country, Path, Browser, Operating System and Device Type. All data recorded is anonymous.
 
+We use a LFU (least frequently used) caching method for caching guild settings. Part of this means that the count of times that the data per guild has been access is stored in ram. Because the prefix is checked each time a message event is received to check if the message is a command (most bots work this way) this means that the count will roughly represent the amount of messages in that guild since the bot was loaded. This data will not be used for any other purpose than to maintain the cache.
 
 #### Cookies
 
@@ -48,6 +49,10 @@ Anonymous data is collected by Cloudflare that contains approximate location, de
 
 Data may also be used in development and testing.
 
+### To optimise the service
+
+Cache access frequency is required to ensure that the data in cache is the most likely to be needed, improving the speed of the bot.
+
 ## Who is your data shared with
 
 Other than Discord, users of the Service and developers of the Service your data is not currently shared with anyone else. However Cloudflare does collect data on our behalf regarding usage statics and preventing attacks on the service. We do not send any data that we don't collect through Cloudflare to Cloudflare.
@@ -57,7 +62,7 @@ Other than Discord, users of the Service and developers of the Service your data
 If you have a concern you can contact us a few ways.  
 You can:
 
-- Join the discord [server](https://discord.gg/xFZu29t) and contact me at `Another Cat#3829`
+- Join the discord [server](https://discord.gg/xFZu29t) and contact me at `Another Cat#4247`
 - Emailing [privacy@messagemanager.xyz](mailto:privacy@messagemanager.xyz)
 
 ## How to get your data removed
@@ -66,4 +71,4 @@ If you would like us to remove your data please reach out to us and ask.
 
 ## Changes to the policy
 
-Note: This Privacy Policy was last updated on the 17/02/2021. The privacy policy can be updated at anytime without any notice, however we will make an effort to inform you about the change.
+Note: This Privacy Policy was last updated on the 10/04/2021. The privacy policy can be updated at anytime without any notice, however we will make an effort to inform you about the change.

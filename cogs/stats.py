@@ -20,14 +20,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from discord.ext import commands
 
-from cogs.utils import errors
+from cogs.utils import Context, errors
 
 
 class StatsCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    async def cog_command_error(self, ctx: commands.Context, error):
+    async def cog_command_error(self, ctx: Context, error):
         if isinstance(
             error,
             (
@@ -47,13 +47,13 @@ class StatsCog(commands.Cog):
             raise error
 
     @commands.group()
-    async def stats(self, ctx: commands.Context):
+    async def stats(self, ctx: Context):
         if ctx.invoked_subcommand is None:
             await ctx.invoke(self.bot.get_command("stats update"))
 
     @stats.command(name="update", aliases=["_update"])
     @commands.guild_only()
-    async def stats_force_update(self, ctx: commands.Context):
+    async def stats_force_update(self, ctx: Context):
         await ctx.send(
             "Unfortunately this function had to be removed.\nSee https://github.com/AnotherCat/message-bot/blob/master/CHANGELOG.md/#v110 for more info."
         )

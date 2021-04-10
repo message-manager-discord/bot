@@ -29,11 +29,11 @@ import discord
 
 from discord.ext import commands
 
-from cogs.utils import checks, errors, send_log_once
+from cogs.utils import Context, checks, errors, send_log_once
 from main import Bot
 
 if TYPE_CHECKING:
-    Cog = commands.Cog[commands.Context]
+    Cog = commands.Cog[Context]
 else:
     Cog = commands.Cog
 
@@ -48,11 +48,11 @@ class MessagesCog(Cog):
     def __init__(self, bot: Bot) -> None:
         self.bot = bot
 
-    async def cog_check(self, ctx: commands.Context) -> bool:
+    async def cog_check(self, ctx: Context) -> bool:
         return await checks.check_if_manage_role(self.bot, ctx)
 
     async def cog_command_error(
-        self, ctx: commands.Context, error: discord.DiscordException
+        self, ctx: Context, error: discord.DiscordException
     ) -> None:
         if isinstance(
             error,
@@ -85,7 +85,7 @@ class MessagesCog(Cog):
             raise error
 
     async def check_channel(
-        self, ctx: commands.Context, channel: Optional[discord.TextChannel]
+        self, ctx: Context, channel: Optional[discord.TextChannel]
     ) -> discord.TextChannel:
         def is_correct(m: discord.Message) -> bool:
             return m.author == ctx.author
@@ -119,7 +119,7 @@ class MessagesCog(Cog):
 
     async def check_content(
         self,
-        ctx: commands.Context,
+        ctx: Context,
         content: Optional[str],
         ask_message: str = "What is the content of the message to be?",
     ) -> str:
@@ -136,7 +136,7 @@ class MessagesCog(Cog):
 
     async def check_message_id(
         self,
-        ctx: commands.Context,
+        ctx: Context,
         channel: Union[discord.TextChannel, str, int],
         message_id: Optional[int],
     ) -> discord.Message:
@@ -172,7 +172,7 @@ class MessagesCog(Cog):
 
     async def send_message_info_embed(
         self,
-        ctx: commands.Context,
+        ctx: Context,
         command_type: str,
         author: Union[discord.Member, discord.User],
         content: str,
@@ -267,7 +267,7 @@ class MessagesCog(Cog):
     @commands.command(name="send")
     async def send(
         self,
-        ctx: commands.Context,
+        ctx: Context,
         channel: Optional[discord.TextChannel] = None,
         *,
         content: Optional[str] = None,
@@ -287,7 +287,7 @@ class MessagesCog(Cog):
     @commands.command(name="edit")
     async def edit(
         self,
-        ctx: commands.Context,
+        ctx: Context,
         channel: Optional[discord.TextChannel] = None,
         message_id: Optional[int] = None,
         *,
@@ -314,7 +314,7 @@ class MessagesCog(Cog):
     @commands.command(name="delete", aliases=["delete-embed"])
     async def delete(
         self,
-        ctx: commands.Context,
+        ctx: Context,
         channel: Optional[discord.TextChannel] = None,
         message_id: Optional[int] = None,
     ) -> None:
@@ -416,7 +416,7 @@ class MessagesCog(Cog):
     @commands.command(name="fetch", aliases=["fetch-embed"])
     async def fetch(
         self,
-        ctx: commands.Context,
+        ctx: Context,
         channel: Optional[discord.TextChannel] = None,
         message_id: Optional[int] = None,
     ) -> None:
@@ -455,7 +455,7 @@ class MessagesCog(Cog):
 
     @commands.command(name="send-embed")
     async def send_embed(
-        self, ctx: commands.Context, channel: Optional[discord.TextChannel] = None
+        self, ctx: Context, channel: Optional[discord.TextChannel] = None
     ) -> None:
         if ctx.invoked_subcommand is None:
             channel = await self.check_channel(ctx, channel)  # Get the channel.
@@ -503,7 +503,7 @@ class MessagesCog(Cog):
     @commands.command(name="send-embed-json")
     async def send_json_embed(
         self,
-        ctx: commands.Context,
+        ctx: Context,
         channel: Optional[discord.TextChannel] = None,
         *,
         json_content: Optional[str] = None,
@@ -582,7 +582,7 @@ class MessagesCog(Cog):
     @commands.command(name="edit-embed")
     async def edit_embed(
         self,
-        ctx: commands.Context,
+        ctx: Context,
         channel: Optional[discord.TextChannel] = None,
         message_id: Optional[int] = None,
     ) -> None:
@@ -656,7 +656,7 @@ class MessagesCog(Cog):
     @commands.command(name="edit-embed-json")
     async def json_edit(
         self,
-        ctx: commands.Context,
+        ctx: Context,
         channel: Optional[discord.TextChannel] = None,
         message_id: Optional[int] = None,
         *,

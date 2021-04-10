@@ -133,7 +133,7 @@ class DatabasePool:
             )
 
     async def update_admin_role(
-        self, guild: Union[discord.Guild, int], role_id: int
+        self, guild: Union[discord.Guild, int], role_id: Optional[int]
     ) -> None:
         guild_id = process_guild_id(guild)
         async with self.pool.acquire() as conn:
@@ -150,60 +150,65 @@ class DatabasePool:
             )
 
     async def get_loggers(
-        self, guild: Union[discord.Guild, int], logger_type: Optional[str] = None
-    ) -> Optional[Union[LoggerTuple, List[LoggerTuple]]]:
+        self, guild: Union[discord.Guild, int]
+    ) -> Optional[List[LoggerTuple]]:
         guild_id = process_guild_id(guild)
         async with self.pool.acquire() as conn:
-            if logger_type is None:
-                loggers_query = await conn.fetch(
-                    """
-                    SELECT channels.id AS channel_id, channels.webhook_id, channels.webhook_token, logging_channels.logger_type
-                    FROM logging_channels
-                    INNER JOIN channels ON channels.id = logging_channels.channel_id
-                    WHERE logging_channels.guild_id = $1;
-                    """,
-                    guild_id,
-                )
+            loggers_query = await conn.fetch(
+                """
+                SELECT channels.id AS channel_id, channels.webhook_id, channels.webhook_token, logging_channels.logger_type
+                FROM logging_channels
+                INNER JOIN channels ON channels.id = logging_channels.channel_id
+                WHERE logging_channels.guild_id = $1;
+                """,
+                guild_id,
+            )
 
-                if len(loggers_query) == 0:
-                    return None
-                elif len(loggers_query) > 1:
-                    raise errors.DatabaseError()
-                else:
-                    loggers: List[LoggerTuple] = []
-                    for logger in loggers_query:
-                        logger_tuple = LoggerTuple(
-                            channel_id=logger.get("channel_id"),
-                            webhook_id=logger.get("webhook_id"),
-                            webhook_token=logger.get("webhook_token"),
-                            logger_type=logger.get("logger_type"),
-                        )
-                        loggers.append(logger_tuple)
-                    return loggers
+            if len(loggers_query) == 0:
+                return None
             else:
-                logger_query = await conn.fetch(
-                    """
-                    SELECT channels.id AS channel_id, channels.webhook_id, channels.webhook_token, logging_channels.logger_type
-                    FROM logging_channels
-                    INNER JOIN channels ON channels.id = logging_channels.channel_id
-                    WHERE logging_channels.guild_id = $1 AND logging_channels.logger_type = $2;
-                    """,
-                    guild_id,
-                    logger_type,
-                )
-                if len(logger_query) == 0:
-                    return None
-                elif len(logger_query) > 1:
-                    raise errors.DatabaseError()
-                else:
-                    logger = logger_query[0]
+                loggers: List[LoggerTuple] = []
+                for logger in loggers_query:
                     logger_tuple = LoggerTuple(
                         channel_id=logger.get("channel_id"),
                         webhook_id=logger.get("webhook_id"),
                         webhook_token=logger.get("webhook_token"),
                         logger_type=logger.get("logger_type"),
                     )
-                    return logger_tuple
+                    loggers.append(logger_tuple)
+                return loggers
+
+    async def get_logger(
+        self, guild: Union[discord.Guild, int], logger_type: str
+    ) -> Optional[LoggerTuple]:
+        guild_id = process_guild_id(guild)
+        async with self.pool.acquire() as conn:
+            loggers_query = await conn.fetch(
+                """
+                SELECT channels.id AS channel_id, channels.webhook_id, channels.webhook_token, logging_channels.logger_type
+                FROM logging_channels
+                INNER JOIN channels ON channels.id = logging_channels.channel_id
+                WHERE logging_channels.guild_id = $1 AND logging_channels.logger_type = $2;
+                """,
+                guild_id,
+                logger_type,
+            )
+
+            if len(loggers_query) == 0:
+                return None
+            if len(loggers_query) == 1:
+                logger_data = loggers_query[0]
+                return LoggerTuple(
+                    channel_id=logger_data.get("channel_id"),
+                    webhook_id=logger_data.get("webhook_id"),
+                    webhook_token=logger_data.get("webhook_token"),
+                    logger_type=logger_data.get("logger_type"),
+                )
+            else:
+                raise errors.DatabaseError(
+                    "Internal error occurred, please contact the devs\n"
+                    "Error: More than one logger when returning 'main' logger"
+                )
 
     async def remove_logger(
         self, guild: Union[discord.Guild, int], logger_type: str

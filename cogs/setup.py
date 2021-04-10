@@ -27,11 +27,11 @@ from discord.ext import commands
 from discord_slash import SlashContext, cog_ext
 from discord_slash.utils import manage_commands
 
-from cogs.utils import errors
+from cogs.utils import Context, errors
 from main import Bot
 
 if TYPE_CHECKING:
-    Cog = commands.Cog[commands.Context]
+    Cog = commands.Cog[Context]
 else:
     Cog = commands.Cog
 
@@ -49,7 +49,7 @@ class LogicFunctions:
     async def get_prefix_logic(
         self, guild: discord.Guild, author: discord.Member
     ) -> str:
-        guild = await self.bot.db.get_guild(guild)
+        guild = await self.bot.guild_cache.get(guild.id)
         return f"My prefix for this server is: `{guild.prefix}`"
 
     async def set_prefix_logic(
@@ -57,10 +57,10 @@ class LogicFunctions:
     ) -> discord.Embed:
         if not author.guild_permissions.administrator:
             raise commands.MissingPermissions(["administrator"])  # type: ignore
-        guild = await self.bot.db.get_guild(guild)
-        current_prefix = guild.prefix
+        guild_data = await self.bot.guild_cache.get(guild.id)
+        current_prefix = guild_data.prefix
         if new_prefix is None:
-            await self.bot.db.update_prefix(guild, self.bot.default_prefix)
+            await self.bot.guild_cache.update_prefix(guild.id, self.bot.default_prefix)
             return discord.Embed(
                 title="Config updated!",
                 description=f"Server prefix updated from `{current_prefix}` to `{self.bot.default_prefix}`",
@@ -73,7 +73,7 @@ class LogicFunctions:
                     "Prefix's can only be 1 character long!"
                 )
             else:
-                await self.bot.db.update_prefix(guild, new_prefix)
+                await self.bot.guild_cache.update_prefix(guild.id, new_prefix)
                 return discord.Embed(
                     title="Config updated!",
                     description=f"Server prefix updated from `{current_prefix}` to `{new_prefix}`",
@@ -86,16 +86,16 @@ class LogicFunctions:
     ) -> Union[discord.Embed, str]:
         if not author.guild_permissions.administrator:
             raise commands.MissingPermissions(["administrator"])  # type: ignore
-        original_logging_channel = await self.bot.db.get_loggers(guild.id, "main")
+        original_logging_channel = await self.bot.db.get_logger(guild.id, "main")
         if original_logging_channel is None:
             return "Nothing has been set yet for logging!"
-        else:
-            return discord.Embed(
-                title="Current logging channel",
-                description=f"<#{original_logging_channel.channel_id}>",
-                colour=discord.Colour(15653155),
-                timestamp=datetime.now(timezone.utc),
-            )
+
+        return discord.Embed(
+            title="Current logging channel",
+            description=f"<#{original_logging_channel.channel_id}>",
+            colour=discord.Colour(15653155),
+            timestamp=datetime.now(timezone.utc),
+        )
 
     async def set_logging_logic(
         self,
@@ -105,17 +105,17 @@ class LogicFunctions:
     ) -> Union[discord.Embed, str]:
         if not author.guild_permissions.administrator:
             raise commands.MissingPermissions(["administrator"])  # type: ignore
-        original_logging_channel = await self.bot.db.get_loggers(guild.id, "main")
+        original_logging_channel = await self.bot.db.get_logger(guild.id, "main")
         embed = discord.Embed(
             title="Config updated!",
             timestamp=datetime.now(timezone.utc),
             colour=discord.Colour(15653155),
         )
         if channel_input is None:
-            await self.bot.db.remove_logger(guild, "main")
             if original_logging_channel is None:
                 embed.description = "Logging channel not updated! It remains None"
             else:
+                await self.bot.db.remove_logger(guild, "main")
                 embed.description = f"Logging channel updated from <#{original_logging_channel.channel_id}> to None"
             return embed
         else:
@@ -150,7 +150,7 @@ class LogicFunctions:
     ) -> Union[discord.Embed, str]:
         if not author.guild_permissions.administrator:
             raise commands.MissingPermissions(["administrator"])  # type: ignore
-        db_guild = await self.bot.db.get_guild(guild)
+        db_guild = await self.bot.guild_cache.get(guild.id)
         original_role_id = db_guild.management_role
         if original_role_id is None:
             return "The admin role has not been set yet!"
@@ -170,11 +170,13 @@ class LogicFunctions:
     ) -> discord.Embed:
         if not author.guild_permissions.administrator:
             raise commands.MissingPermissions(["administrator"])  # type: ignore
-        db_guild = await self.bot.db.get_guild(guild)
+        db_guild = await self.bot.guild_cache.get(guild.id)
         original_role_id = db_guild.management_role
-        original_role = guild.get_role(original_role_id)
+        original_role = (
+            guild.get_role(original_role_id) if original_role_id is not None else None
+        )
         if new_role_id is None:
-            await self.bot.db.update_admin_role(guild, None)
+            await self.bot.guild_cache.update_management_role(guild.id, None)
 
             embed = discord.Embed(
                 title="Config updated!",
@@ -204,7 +206,7 @@ class LogicFunctions:
                 raise errors.InputContentIncorrect(
                     "I could not find that role! Please try again"
                 )
-            await self.bot.db.update_admin_role(guild, new_role_id)
+            await self.bot.guild_cache.update_management_role(guild.id, new_role_id)
 
             embed = discord.Embed(
                 title="Config updated!",
@@ -224,7 +226,7 @@ class SetupCog(Cog):
         self.logic_functions = logic_functions
 
     async def cog_command_error(
-        self, ctx: commands.Context, error: discord.DiscordException
+        self, ctx: Context, error: discord.DiscordException
     ) -> None:
         if isinstance(
             error,
@@ -250,7 +252,7 @@ class SetupCog(Cog):
 
     @commands.has_guild_permissions(administrator=True)
     @commands.group()
-    async def setup(self, ctx: commands.Context) -> None:
+    async def setup(self, ctx: Context) -> None:
         if ctx.invoked_subcommand is None:
             embed = discord.Embed(
                 title="Setup!",
@@ -277,7 +279,7 @@ class SetupCog(Cog):
 
     @setup.command(name="prefix")
     async def return_prefix(
-        self, ctx: commands.Context, new_prefix: Optional[str] = None
+        self, ctx: Context, new_prefix: Optional[str] = None
     ) -> None:
         if ctx.guild is None:
             raise commands.CheckFailure("Internal error: ctx.guild was None")
@@ -295,9 +297,7 @@ class SetupCog(Cog):
 
     @commands.has_guild_permissions(administrator=True)
     @setup.command()
-    async def admin(
-        self, ctx: commands.Context, role_id_input: Optional[str] = None
-    ) -> None:
+    async def admin(self, ctx: Context, role_id_input: Optional[str] = None) -> None:
         assert ctx.guild is not None
         assert isinstance(ctx.author, discord.Member)
         if role_id_input is None:
@@ -316,7 +316,7 @@ class SetupCog(Cog):
 
     @setup.command(name="logging")
     async def set_logging(
-        self, ctx: commands.Context, channel_input: Optional[str] = None
+        self, ctx: Context, channel_input: Optional[str] = None
     ) -> None:
         if ctx.guild is None:
             raise commands.CheckFailure("Internal error: ctx.guild was None")
@@ -335,9 +335,12 @@ class SetupCog(Cog):
             await ctx.send(msg)
 
     @commands.command(name="prefix")
-    async def prefix(self, ctx: commands.Context) -> None:
-        guild = await self.bot.db.get_guild(ctx.guild)
-        await ctx.send(f"My prefix for this server is: `{guild.prefix}`")
+    async def prefix(self, ctx: Context) -> None:
+        if ctx.guild is not None:
+            guild = await self.bot.guild_cache.get(ctx.guild.id)
+            await ctx.send(f"My prefix for this server is: `{guild.prefix}`")
+        else:
+            await ctx.send(f"My prefix is `{self.bot.default_prefix}`")
 
 
 class SetupCogSlash(Cog):

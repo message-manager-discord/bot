@@ -46,7 +46,8 @@ async def create_webhook(
             await webhook.delete()
             return await create_webhook(channel_id, bot, attempt=attempt + 1)
         elif (
-            stored_webhook.webhook_token != webhook.token
+            stored_webhook is None
+            or stored_webhook.webhook_token != webhook.token
             or stored_webhook.webhook_id != webhook.id
         ):
             await bot.db.update_channel(
@@ -62,10 +63,11 @@ async def create_webhook(
         stored_webhook = await bot.db.get_channel(channel_id)
         for webhook in existing_webhooks:
             if (
-                stored_webhook.webhook_token != webhook.token
+                stored_webhook is None  # Nothing is stored, delete all
+                or stored_webhook.webhook_token != webhook.token
                 or stored_webhook.webhook_id != webhook.id
             ):
-                # if the webhook does not match with the stored one, delete it
+                # if the webhook does not match the stored one, delete it
                 await webhook.delete()
         return await create_webhook(channel_id, bot, attempt=attempt + 1)
 
@@ -105,7 +107,7 @@ class ServerLogger:
 
     @classmethod
     async def get_logger(cls, guild_id: int, bot: Bot, logger_type: str):  # type: ignore
-        logger = await bot.db.get_loggers(guild=guild_id, logger_type=logger_type)
+        logger = await bot.db.get_logger(guild=guild_id, logger_type=logger_type)
         if logger is None:
             return None
         if logger.webhook_id is not None and logger.webhook_token is not None:

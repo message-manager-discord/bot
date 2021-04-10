@@ -22,11 +22,11 @@ from typing import TYPE_CHECKING
 
 from discord.ext import commands, tasks
 
-from cogs.utils import list_wrappers
+from cogs.utils import Context, list_wrappers
 from main import Bot
 
 if TYPE_CHECKING:
-    Cog = commands.Cog[commands.Context]
+    Cog = commands.Cog[Context]
 else:
     Cog = commands.Cog
 

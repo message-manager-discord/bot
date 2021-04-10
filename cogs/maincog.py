@@ -27,10 +27,11 @@ import discord
 from discord.ext import commands
 from discord_slash import SlashContext, cog_ext
 
+from cogs.utils import Context
 from main import Bot
 
 if TYPE_CHECKING:
-    Cog = commands.Cog[commands.Context]
+    Cog = commands.Cog[Context]
 else:
     Cog = commands.Cog
 
@@ -38,7 +39,7 @@ info_base_description = "Information Commands"
 
 
 async def create_info_embed(
-    ctx: Union[commands.Context, SlashContext], bot: Bot
+    ctx: Union[Context, SlashContext], bot: Bot
 ) -> discord.Embed:
     total_seconds = (datetime.utcnow() - bot.start_time).total_seconds()
     days = total_seconds // 86400
@@ -62,9 +63,11 @@ async def create_info_embed(
         else:
             in_guild = False
     if in_guild:
-        db_guild = await bot.db.get_guild(ctx.guild)
-        prefix = db_guild.prefix
-        embed.add_field(name="Prefix", value=f"`{prefix}`", inline=True),
+        if isinstance(ctx, SlashContext):
+            ctx.guild_data = await bot.guild_cache.get(ctx.guild.id)
+        elif ctx.guild_data is None:
+            ctx.guild_data = await bot.guild_cache.get(ctx.guild.id)
+        embed.add_field(name="Prefix", value=f"`{ctx.guild_data.prefix}`", inline=True),
 
     embed.add_field(name="Version", value=bot.version, inline=True),
     embed.add_field(
@@ -158,7 +161,7 @@ class MainCog(Cog):
         self.bot = bot
 
     async def on_command_error(
-        self, ctx: commands.Context, error: discord.DiscordException
+        self, ctx: Context, error: discord.DiscordException
     ) -> None:
         await ctx.send(
             "There was an unknown error!\n"
@@ -198,7 +201,7 @@ class MainCog(Cog):
                         channel = c
                         break
         if channel is not None:
-            db_guild = await self.bot.db.get_guild(guild)
+            db_guild = await self.bot.guild_cache.get(guild.id)
             prefix = db_guild.prefix
             embed = discord.Embed(
                 title="Hi there!",
@@ -254,7 +257,7 @@ class MainCog(Cog):
     @commands.command(
         name="help", help="Responds with an embed with all the commands and options"
     )
-    async def help(self, ctx: commands.Context, option: Optional[str] = None) -> None:
+    async def help(self, ctx: Context, option: Optional[str] = None) -> None:
         if option is None or option.lower() != "setup":
             embed = discord.Embed(
                 title="Help!",
@@ -326,7 +329,7 @@ class MainCog(Cog):
 
     # Create the info command.
     @commands.command(name="info")
-    async def info(self, ctx: commands.Context) -> None:
+    async def info(self, ctx: Context) -> None:
         embed = await create_info_embed(ctx, self.bot)
         await ctx.send(embed=embed)
 
@@ -343,7 +346,7 @@ class MainCog(Cog):
     # Ping commands
 
     @commands.command(name="ping")
-    async def ping(self, ctx: commands.Context) -> None:
+    async def ping(self, ctx: Context) -> None:
         await ctx.send(f"Gateway latency: {round(self.bot.latency*1000, 2)}ms")
 
     @cog_ext.cog_subcommand(
@@ -358,7 +361,7 @@ class MainCog(Cog):
     # Privacy commands
 
     @commands.command()
-    async def privacy(self, ctx: commands.Context) -> None:
+    async def privacy(self, ctx: Context) -> None:
         embed = create_privacy_embed()
         await ctx.send(embed=embed)
 
@@ -375,7 +378,7 @@ class MainCog(Cog):
     # Invite Commands
 
     @commands.command()
-    async def invite(self, ctx: commands.Context) -> None:
+    async def invite(self, ctx: Context) -> None:
         await ctx.send(embed=create_invite_embed())
 
     @cog_ext.cog_subcommand(
@@ -390,7 +393,7 @@ class MainCog(Cog):
     # Docs commands
 
     @commands.command()
-    async def docs(self, ctx: commands.Context) -> None:
+    async def docs(self, ctx: Context) -> None:
         await ctx.send(embed=create_docs_embed())
 
     @cog_ext.cog_subcommand(
@@ -405,7 +408,7 @@ class MainCog(Cog):
     # Source Commands
 
     @commands.command()
-    async def source(self, ctx: commands.Context) -> None:
+    async def source(self, ctx: Context) -> None:
         await ctx.send(embed=create_source_embed())
 
     @cog_ext.cog_subcommand(
@@ -420,7 +423,7 @@ class MainCog(Cog):
     # Support Commands
 
     @commands.command()
-    async def support(self, ctx: commands.Context) -> None:
+    async def support(self, ctx: Context) -> None:
         await ctx.send(embed=create_support_embed())
 
     @cog_ext.cog_subcommand(

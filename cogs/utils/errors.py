@@ -20,6 +20,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from typing import Any
 
+from discord import DiscordException
 from discord.ext.commands import CheckFailure
 
 
@@ -61,7 +62,7 @@ class InputContentIncorrect(CheckFailure):
     pass
 
 
-class JSONFailure(CheckFailure):
+class JSONFailure(DiscordException):
     pass
 
 
@@ -69,13 +70,17 @@ class MissingManageWebhooks(CheckFailure):
     pass
 
 
-class DatabaseError(CheckFailure):
+class DatabaseError(DiscordException):
     pass
 
 
-class WebhookFailed(CheckFailure):
+class WebhookFailed(DiscordException):
     pass
 
 
 class WebhookChannelNotTextChannel(CheckFailure):
+    pass
+
+
+class CacheError(DiscordException):
     pass

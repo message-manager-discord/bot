@@ -23,7 +23,6 @@ import logging
 from typing import TYPE_CHECKING, Any, List
 
 import aiohttp
-import asyncpg
 import discord
 
 from discord.ext import commands
@@ -31,12 +30,13 @@ from discord_slash.client import SlashCommand
 
 import config
 
+from cogs.utils import Context, PartialGuildCache
 from cogs.utils.db import db
 
 __version__ = "v1.5.1"
 
 if TYPE_CHECKING:
-    BotBase = commands.Bot[commands.Context]
+    BotBase = commands.Bot[Context]
 else:
     BotBase = commands.Bot
 
@@ -60,7 +60,8 @@ class Bot(BotBase):
         self.start_time = datetime.datetime.utcnow()
         self.session: aiohttp.ClientSession
         self.version = __version__
-        self.db: asyncpg.pool.Pool
+        self.db: db.DatabasePool
+        self.guild_cache: PartialGuildCache
         self.load_time: datetime.datetime
         self.join_log_channel: int
         self.dbl_token: str
@@ -74,6 +75,11 @@ class Bot(BotBase):
         database = db.DatabasePool(config.uri, self)
         await database._init()
         self.db = database
+        self.guild_cache = PartialGuildCache(
+            capacity=config.guild_cache_max,
+            db=self.db,
+            drop_amount=config.guild_cache_drop,
+        )
 
     async def start(self, *args, **kwargs) -> None:  # type: ignore
         self.session = aiohttp.ClientSession()
@@ -84,7 +90,7 @@ class Bot(BotBase):
         await self.db.close()
         await super().close()
 
-    def command_with_prefix(self, ctx: commands.Context, command_name: str) -> str:
+    def command_with_prefix(self, ctx: Context, command_name: str) -> str:
         if str(self.user.id) in ctx.prefix:
             if isinstance(ctx.me, discord.Member):
                 return f"`@{ctx.me.nick or ctx.me.name} {command_name}`"
@@ -96,14 +102,26 @@ class Bot(BotBase):
     async def get_custom_prefix(
         self, bot: BotBase, message: discord.Message
     ) -> List[str]:
-        guild = await self.db.get_guild(
-            message.guild
-        )  # Fetch current server prefix from database
-        prefix = guild.prefix
-        if message.guild is None:
-            prefix = [prefix, ""]
+
+        if message.guild is not None:
+            guild = await self.guild_cache.get(
+                message.guild.id
+            )  # Fetch current server prefix from database
+            prefix = [guild.prefix]
+        else:
+            prefix = [config.default_prefix, ""]
 
         return commands.when_mentioned_or(*prefix)(self, message)
+
+    async def process_commands(self, message: discord.Message) -> None:
+        if message.author.bot:
+            return
+        ctx = await self.get_context(message, cls=Context)
+        if ctx.command is None:
+            return
+        if message.guild is not None:
+            await ctx.fetch_guild_data()
+        await self.invoke(ctx)
 
 
 logger = logging.getLogger()

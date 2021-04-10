@@ -30,11 +30,11 @@ import discord
 
 from discord.ext import commands
 
-from cogs.utils import errors
+from cogs.utils import Context, errors
 from main import Bot
 
 if TYPE_CHECKING:
-    Cog = commands.Cog[commands.Context]
+    Cog = commands.Cog[Context]
 else:
     Cog = commands.Cog
 
@@ -43,14 +43,14 @@ class AdminCog(Cog):
     def __init__(self, bot: Bot) -> None:
         self.bot = bot
 
-    async def cog_check(self, ctx: commands.Context) -> bool:
+    async def cog_check(self, ctx: Context) -> bool:
         if await self.bot.is_owner(ctx.author):
             return True
         else:
             raise errors.MissingPermission("You need to be a bot dev to do that!")
 
     async def cog_command_error(
-        self, ctx: commands.Context, error: discord.DiscordException
+        self, ctx: Context, error: discord.DiscordException
     ) -> None:
         if isinstance(
             error,
@@ -69,7 +69,7 @@ class AdminCog(Cog):
             raise error
 
     @commands.command(hidden=True)
-    async def load(self, ctx: commands.Context, *, module: str) -> None:
+    async def load(self, ctx: Context, *, module: str) -> None:
         try:
             self.bot.load_extension(module)
         except Exception as error:
@@ -78,7 +78,7 @@ class AdminCog(Cog):
             await ctx.send(f"The module {module} was loaded!")
 
     @commands.command(hidden=True)
-    async def unload(self, ctx: commands.Context, *, module: str) -> None:
+    async def unload(self, ctx: Context, *, module: str) -> None:
         """Unloads a module."""
         try:
             self.bot.unload_extension(module)
@@ -88,7 +88,7 @@ class AdminCog(Cog):
             await ctx.send(f"The module {module} was unloaded!")
 
     @commands.command(name="reload", hidden=True)
-    async def _reload(self, ctx: commands.Context, *, module: str) -> None:
+    async def _reload(self, ctx: Context, *, module: str) -> None:
         """Reloads a module."""
         try:
             self.bot.unload_extension(module)
@@ -99,7 +99,7 @@ class AdminCog(Cog):
             await ctx.send(f"The module {module} was reloaded!")
 
     @commands.command(aliases=["restart"])
-    async def stop(self, ctx: commands.Context) -> None:
+    async def stop(self, ctx: Context) -> None:
         message = await ctx.send("Are you sure you want to stop the current process?")
 
         def is_correct(m: discord.Message) -> bool:
@@ -143,7 +143,7 @@ class AdminCog(Cog):
                     await ctx.send(f"{type(error).__name__}: {error}")
 
     @commands.command()
-    async def loadtime(self, ctx: commands.Context) -> None:
+    async def loadtime(self, ctx: Context) -> None:
         diff = self.bot.load_time - self.bot.start_time
         hours = floor(diff.seconds / 3600)
         minutes = floor((diff.seconds - (hours * 3600)) / 60)

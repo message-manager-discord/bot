@@ -20,18 +20,18 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import discord
 
-from discord.ext import commands
-
-from cogs.utils import errors
+from cogs.utils import Context, errors
 from main import Bot
 
 
-async def check_if_manage_role(bot: Bot, ctx: commands.Context) -> bool:
+async def check_if_manage_role(bot: Bot, ctx: Context) -> bool:
     if guild_only(bot, ctx):
         assert isinstance(ctx.author, discord.Member)
         assert ctx.guild is not None
-        db_guild = await bot.db.get_guild(ctx.guild)
-        management_role = db_guild.management_role
+        assert (
+            ctx.guild_data is not None
+        )  # fetch_data is called on processing commands if guild is not None
+        management_role = ctx.guild_data.management_role
         if ctx.author.id == ctx.guild.owner_id:
             return True
         elif management_role is None:
@@ -51,7 +51,7 @@ async def check_if_manage_role(bot: Bot, ctx: commands.Context) -> bool:
     return False
 
 
-def guild_only(bot: Bot, ctx: discord.ext.commands.Context) -> bool:
+def guild_only(bot: Bot, ctx: Context) -> bool:
     if ctx.guild is None:
         raise discord.ext.commands.NoPrivateMessage(
             "That command can only be used in guilds!"
