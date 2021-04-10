@@ -46,7 +46,7 @@ class Bot(BotBase):
         self, default_prefix: str, self_hosted: bool = False, **kwargs: Any
     ) -> None:
 
-        super().__init__(
+        super().__init__(  # type: ignore
             case_insensitive=True,
             chunk_guilds_on_startup=False,
             intents=discord.Intents(guilds=True, members=False, messages=True),
