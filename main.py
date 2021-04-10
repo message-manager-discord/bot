@@ -51,7 +51,6 @@ class Bot(BotBase):
             chunk_guilds_on_startup=False,
             intents=discord.Intents(guilds=True, members=False, messages=True),
             activity=discord.Game(name="Watching our important messages!"),
-            command_prefix=self.get_custom_prefix,
             help_command=None,
             **kwargs,
         )
@@ -99,20 +98,6 @@ class Bot(BotBase):
         else:
             return f"`{ctx.prefix}{command_name}`"
 
-    async def get_custom_prefix(
-        self, bot: BotBase, message: discord.Message
-    ) -> List[str]:
-
-        if message.guild is not None:
-            guild = await self.guild_cache.get(
-                message.guild.id
-            )  # Fetch current server prefix from database
-            prefix = [guild.prefix]
-        else:
-            prefix = [config.default_prefix, ""]
-
-        return commands.when_mentioned_or(*prefix)(self, message)
-
     async def process_commands(self, message: discord.Message) -> None:
         if message.author.bot:
             return
@@ -133,11 +118,25 @@ handler.setFormatter(
 logger.addHandler(handler)
 
 
+async def get_custom_prefix(bot: Bot, message: discord.Message) -> List[str]:
+
+    if message.guild is not None:
+        guild = await bot.guild_cache.get(
+            message.guild.id
+        )  # Fetch current server prefix from database
+        prefix = [guild.prefix]
+    else:
+        prefix = [config.default_prefix, ""]
+
+    return commands.when_mentioned_or(*prefix)(bot, message)
+
+
 def run() -> None:
     bot = Bot(
         owner_ids=config.owners,
         default_prefix=config.default_prefix,
         self_hosted=config.self_host,
+        command_prefix=get_custom_prefix,
     )
 
     extensions = [
