@@ -341,7 +341,7 @@ class MainCog(Cog):
     )
     async def _info(self, ctx: SlashContext) -> None:
         embed = await create_info_embed(ctx, self.bot)
-        await ctx.send(embeds=[embed])
+        await ctx.send(embeds=[embed], hidden=True)
 
     # Ping commands
 
@@ -356,7 +356,9 @@ class MainCog(Cog):
         base_description=info_base_description,
     )
     async def _ping(self, ctx: SlashContext) -> None:
-        await ctx.send(content=f"Gateway latency: {round(self.bot.latency*1000, 2)}ms")
+        await ctx.send(
+            content=f"Gateway latency: {round(self.bot.latency*1000, 2)}ms", hidden=True
+        )
 
     # Privacy commands
 
@@ -373,7 +375,7 @@ class MainCog(Cog):
     )
     async def _privacy(self, ctx: SlashContext) -> None:
         embed = create_privacy_embed()
-        await ctx.send(embeds=[embed])
+        await ctx.send(embeds=[embed], hidden=True)
 
     # Invite Commands
 
@@ -388,7 +390,7 @@ class MainCog(Cog):
         base_description=info_base_description,
     )
     async def _invite(self, ctx: SlashContext) -> None:
-        await ctx.send(embeds=[create_invite_embed()])
+        await ctx.send(embeds=[create_invite_embed()], hidden=True)
 
     # Docs commands
 
@@ -403,7 +405,7 @@ class MainCog(Cog):
         base_description=info_base_description,
     )
     async def _docs(self, ctx: SlashContext) -> None:
-        await ctx.send(embeds=[create_docs_embed()])
+        await ctx.send(embeds=[create_docs_embed()], hidden=True)
 
     # Source Commands
 
@@ -418,7 +420,7 @@ class MainCog(Cog):
         base_description=info_base_description,
     )
     async def _source(self, ctx: SlashContext) -> None:
-        await ctx.send(embeds=[create_source_embed()])
+        await ctx.send(embeds=[create_source_embed()], hidden=True)
 
     # Support Commands
 
@@ -433,7 +435,7 @@ class MainCog(Cog):
         base_description=info_base_description,
     )
     async def _support(self, ctx: SlashContext) -> None:
-        await ctx.send(embeds=[create_support_embed()])
+        await ctx.send(embeds=[create_support_embed()], hidden=True)
 
 
 def setup(bot: Bot) -> None:
