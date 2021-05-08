@@ -662,7 +662,6 @@ class MessagesCog(Cog):
         *,
         json_content: Optional[str] = None,
     ) -> None:
-        print(type(channel))
         channel = await self.check_channel(ctx, channel)
         if channel.guild != ctx.guild:
             raise errors.DifferentServer()
