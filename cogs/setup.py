@@ -29,6 +29,7 @@ from discord_slash.utils import manage_commands
 
 from cogs.utils import Context, errors
 from main import Bot
+from models import Channel, LoggingChannel
 
 if TYPE_CHECKING:
     Cog = commands.Cog[Context]
@@ -86,13 +87,15 @@ class LogicFunctions:
     ) -> Union[discord.Embed, str]:
         if not author.guild_permissions.administrator:
             raise commands.MissingPermissions(["administrator"])  # type: ignore
-        original_logging_channel = await self.bot.db.get_logger(guild.id, "main")
-        if original_logging_channel is None:
+        logging_channel = await LoggingChannel.get_or_none(
+            guild_id=guild.id, logger_type="main"
+        )
+        if logging_channel is None:
             return "Nothing has been set yet for logging!"
 
         return discord.Embed(
             title="Current logging channel",
-            description=f"<#{original_logging_channel.channel_id}>",
+            description=f"<#{logging_channel.channel_id}>",
             colour=discord.Colour(15653155),
             timestamp=datetime.now(timezone.utc),
         )
@@ -105,18 +108,20 @@ class LogicFunctions:
     ) -> Union[discord.Embed, str]:
         if not author.guild_permissions.administrator:
             raise commands.MissingPermissions(["administrator"])  # type: ignore
-        original_logging_channel = await self.bot.db.get_logger(guild.id, "main")
+        logging_channel = await LoggingChannel.get_or_none(
+            guild_id=guild.id, logger_type="main"
+        )
         embed = discord.Embed(
             title="Config updated!",
             timestamp=datetime.now(timezone.utc),
             colour=discord.Colour(15653155),
         )
         if channel_input is None:
-            if original_logging_channel is None:
+            if logging_channel is None:
                 embed.description = "Logging channel not updated! It remains None"
             else:
-                await self.bot.db.remove_logger(guild, "main")
-                embed.description = f"Logging channel updated from <#{original_logging_channel.channel_id}> to None"
+                await logging_channel.delete()
+                embed.description = f"Logging channel updated from <#{logging_channel.channel_id}> to None"
             return embed
         else:
             if channel_input[:2] == "<#":
@@ -137,12 +142,22 @@ class LogicFunctions:
                     "That channel is not a text channel! "
                     "Try again with a text channel."
                 )
-            await self.bot.db.update_logger(guild, channel.id, "main")
 
-            if original_logging_channel is None:
+            db_channel = await Channel.get_or_create(id=channel.id)
+            if logging_channel is None:
+                original_channel = None
+                logging_channel = LoggingChannel(
+                    guild_id=guild.id, channel=db_channel[0], logger_type="main"
+                )
+            else:
+                original_channel = logging_channel.channel_id
+                logging_channel.channel = db_channel[0]
+            await logging_channel.save()
+
+            if original_channel is None:
                 embed.description = f"Logging channel updated to {channel.mention}"
             else:
-                embed.description = f"Logging channel updated from <#{original_logging_channel.channel_id}> to {channel.mention}"
+                embed.description = f"Logging channel updated from <#{original_channel}> to {channel.mention}"
             return embed
 
     async def get_admin_role_logic(
@@ -151,10 +166,10 @@ class LogicFunctions:
         if not author.guild_permissions.administrator:
             raise commands.MissingPermissions(["administrator"])  # type: ignore
         db_guild = await self.bot.guild_cache.get(guild.id)
-        original_role_id = db_guild.management_role
-        if original_role_id is None:
+        role_id = db_guild.management_role_id
+        if role_id is None:
             return "The admin role has not been set yet!"
-        original_role = guild.get_role(original_role_id)
+        original_role = guild.get_role(role_id)
         if original_role is None:
             return "The role could not be found!"
         else:
@@ -171,7 +186,7 @@ class LogicFunctions:
         if not author.guild_permissions.administrator:
             raise commands.MissingPermissions(["administrator"])  # type: ignore
         db_guild = await self.bot.guild_cache.get(guild.id)
-        original_role_id = db_guild.management_role
+        original_role_id = db_guild.management_role_id
         original_role = (
             guild.get_role(original_role_id) if original_role_id is not None else None
         )

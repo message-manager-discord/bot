@@ -31,10 +31,10 @@ async def check_if_manage_role(bot: Bot, ctx: Context) -> bool:
         assert (
             ctx.guild_data is not None
         )  # fetch_data is called on processing commands if guild is not None
-        management_role = ctx.guild_data.management_role
+        management_role_id = ctx.guild_data.management_role_id
         if ctx.author.id == ctx.guild.owner_id:
             return True
-        elif management_role is None:
+        elif management_role_id is None:
             raise errors.ConfigNotSet(
                 f"You have not set the management role!\nDo this with the `{ctx.prefix}setup` command"
             )
@@ -42,7 +42,7 @@ async def check_if_manage_role(bot: Bot, ctx: Context) -> bool:
             return True
         else:
             for role in ctx.author.roles:
-                if int(management_role) == role.id:
+                if int(management_role_id) == role.id:
                     return True
             raise errors.MissingPermission(
                 "You need the management role to do that!\n"

@@ -43,10 +43,11 @@ This file incorporates work covered by the following copyright and permission no
 
 from __future__ import annotations
 
-from typing import Any, Dict, Hashable, Optional, Union
+from typing import Any, Dict, Hashable, NamedTuple, Optional, Union
 
 from cogs.utils import errors
-from cogs.utils.db.db import DatabasePool, GuildTuple
+from config import default_prefix
+from models import Guild
 
 
 class CacheNode:
@@ -167,11 +168,10 @@ class FreqNode:
 
 
 class BaseLFUCache:
-    def __init__(self, capacity: int, db: DatabasePool, drop_amount: int) -> None:
+    def __init__(self, capacity: int, drop_amount: int) -> None:
         self.cache: Dict[Hashable, CacheNode] = {}  # {key: cache_node}
         self.capacity = capacity
         self.freq_link_head: Optional[FreqNode] = None
-        self.db = db
         self.drop_amount = drop_amount
         if drop_amount > capacity:
             pass
@@ -265,6 +265,12 @@ class BaseLFUCache:
             self.freq_link_head.append_cache_to_tail(cache_node)
 
 
+class GuildTuple(NamedTuple):
+    id: int
+    management_role_id: Optional[int]
+    prefix: str
+
+
 class PartialGuildCache(BaseLFUCache):
     async def get(self, key: int) -> GuildTuple:  # type: ignore[override]
         data = await super().get(key)
@@ -273,24 +279,33 @@ class PartialGuildCache(BaseLFUCache):
         return data
 
     async def fetch(self, key: int) -> GuildTuple:  # type: ignore[override]
-        return await self.db.get_guild(key)
+        data = await Guild.get_or_create(
+            defaults={"management_role_id": None, "prefix": default_prefix}, id=key
+        )
+        data = data[0]
+        small_data = GuildTuple(
+            id=data.id, management_role_id=data.management_role_id, prefix=data.prefix
+        )
+        return small_data
 
     async def update_prefix(self, guild_id: int, prefix: str) -> GuildTuple:
-        before = await self.get(guild_id)
+        data = await Guild.get(id=guild_id)
+        data.prefix = prefix
+        await data.save()
         new = GuildTuple(
-            id=before.id, management_role=before.management_role, prefix=prefix
+            id=data.id, management_role_id=data.management_role_id, prefix=data.prefix
         )
-        await self.db.update_prefix(guild_id, prefix)
         self.set(guild_id, new)
         return new
 
     async def update_management_role(
-        self, guild_id: int, management_role: Optional[int]
+        self, guild_id: int, management_role_id: Optional[int]
     ) -> GuildTuple:
-        before = await self.get(guild_id)
+        data = await Guild.get(id=guild_id)
+        data.management_role_id = management_role_id
+        await data.save()
         new = GuildTuple(
-            id=before.id, management_role=management_role, prefix=before.prefix
+            id=data.id, management_role_id=data.management_role_id, prefix=data.prefix
         )
-        await self.db.update_admin_role(guild_id, management_role)
         self.set(guild_id, new)
         return new

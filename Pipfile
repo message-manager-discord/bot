@@ -9,6 +9,8 @@ asyncpg = "==0.22.0"
 aiohttp = "~=3.7"
 jishaku = "*"
 discord-py-slash-command = "~=1.1"
+tortoise-orm = {extras = ["asyncpg"], version = "*"}
+aerich = "*"
 
 [dev-packages]
 black = "==21.4b2"

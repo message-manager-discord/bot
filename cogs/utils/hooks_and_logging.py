@@ -6,6 +6,7 @@ from discord import AsyncWebhookAdapter
 
 from cogs.utils import errors
 from main import Bot
+from models import Channel, LoggingChannel
 
 
 async def create_webhook(
@@ -30,18 +31,16 @@ async def create_webhook(
             webhook = await channel.create_webhook(
                 name=bot.user.name, avatar=await bot.user.avatar_url_as().read()
             )
-            await bot.db.update_channel(
+            await Channel.update_or_create(
+                defaults={"webhook_token": webhook.token, "webhook_id": webhook.id},
                 channel_id=channel_id,
-                wipe=True,
-                webhook_token=webhook.token,
-                webhook_id=webhook.id,
             )
         except discord.Forbidden:
             return errors.MissingManageWebhooks()
         return webhook
     elif len(existing_webhooks) == 1:
         webhook = existing_webhooks[0]
-        stored_webhook = await bot.db.get_channel(channel_id)
+        stored_webhook = await Channel.get_or_none(channel_id=channel_id)
         if webhook.token is None:
             await webhook.delete()
             return await create_webhook(channel_id, bot, attempt=attempt + 1)
@@ -50,17 +49,15 @@ async def create_webhook(
             or stored_webhook.webhook_token != webhook.token
             or stored_webhook.webhook_id != webhook.id
         ):
-            await bot.db.update_channel(
+            await Channel.update_or_create(
+                defaults={"webhook_token": webhook.token, "webhook_id": webhook.id},
                 channel_id=channel_id,
-                wipe=True,
-                webhook_token=webhook.token,
-                webhook_id=webhook.id,
             )
             return webhook
         else:
             return webhook
     else:  # More than one webhook by this bot in that channel. THIS SHOULD NOT HAPPEN
-        stored_webhook = await bot.db.get_channel(channel_id)
+        stored_webhook = await Channel.get_or_none(channel_id=channel_id)
         for webhook in existing_webhooks:
             if (
                 stored_webhook is None  # Nothing is stored, delete all
@@ -107,13 +104,20 @@ class ServerLogger:
 
     @classmethod
     async def get_logger(cls, guild_id: int, bot: Bot, logger_type: str):  # type: ignore
-        logger = await bot.db.get_logger(guild=guild_id, logger_type=logger_type)
+        logger = await LoggingChannel.get_or_none(
+            guild_id=guild_id, logger_type=logger_type
+        )
         if logger is None:
             return None
-        if logger.webhook_id is not None and logger.webhook_token is not None:
+        await logger.fetch_related("channel")
+        assert isinstance(logger.channel, Channel)
+        if (
+            logger.channel.webhook_id is not None
+            and logger.channel.webhook_token is not None
+        ):
             webhook = discord.Webhook.partial(
-                id=logger.webhook_id,
-                token=logger.webhook_token,
+                id=logger.channel.webhook_id,
+                token=logger.channel.webhook_token,
                 adapter=AsyncWebhookAdapter(bot.session),
             )
             return cls(bot, logger_type, logger.channel_id, webhook=webhook)
@@ -174,7 +178,10 @@ class ServerLogger:
                     avatar_url=self.bot.user.avatar_url,
                 )
             except (discord.Forbidden, discord.NotFound):
-                await self.bot.db.update_channel(channel_id=self.channel_id, wipe=True)
+                await Channel.update_or_create(
+                    defaults={"webhook_token": None, "webhook_id": None},
+                    channel_id=self.channel_id,
+                )
                 self.webhook = None
                 self.has_webhook = False
 
