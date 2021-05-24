@@ -22,7 +22,7 @@ from typing import TYPE_CHECKING, Any, Dict, Optional
 from discord.ext import commands
 
 if TYPE_CHECKING:
-    from cogs.utils.cache import GuildTuple
+    from src.cache import GuildTuple
     from main import Bot
 else:
     # Avoid circlar imports

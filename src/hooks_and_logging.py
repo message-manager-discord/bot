@@ -4,7 +4,7 @@ import discord
 
 from discord import AsyncWebhookAdapter
 
-from cogs.utils import errors
+from src import errors
 from main import Bot
 from models import Channel, LoggingChannel
 

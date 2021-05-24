@@ -27,7 +27,7 @@ from discord.ext import commands
 from discord_slash import SlashContext, cog_ext
 from discord_slash.utils import manage_commands
 
-from cogs.utils import Context, errors
+from src import Context, errors
 from main import Bot
 from models import Channel, LoggingChannel
 

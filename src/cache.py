@@ -45,7 +45,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, Hashable, NamedTuple, Optional, Union
 
-from cogs.utils import errors
+from src import errors
 from config import default_prefix
 from models import Guild
 

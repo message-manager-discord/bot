@@ -20,7 +20,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from discord.ext import commands
 
-from cogs.utils import Context, errors
+from src import Context, errors
 
 
 class StatsCog(commands.Cog):

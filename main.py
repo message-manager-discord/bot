@@ -31,7 +31,7 @@ from tortoise import Tortoise
 
 import config
 
-from cogs.utils import Context, PartialGuildCache
+from src import Context, PartialGuildCache
 from tortoise_config import TORTOISE_ORM
 
 __version__ = "v1.5.1"

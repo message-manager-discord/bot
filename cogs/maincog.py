@@ -27,7 +27,7 @@ import discord
 from discord.ext import commands
 from discord_slash import SlashContext, cog_ext
 
-from cogs.utils import Context
+from src import Context
 from main import Bot
 
 if TYPE_CHECKING:

@@ -20,7 +20,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import discord
 
-from cogs.utils import Context, errors
+from src import Context, errors
 from main import Bot
 
 
