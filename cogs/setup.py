@@ -29,7 +29,7 @@ from discord_slash.utils import manage_commands
 
 from src import Context, errors
 from main import Bot
-from models import Channel, LoggingChannel
+from src.models import Channel, LoggingChannel
 
 if TYPE_CHECKING:
     Cog = commands.Cog[Context]

@@ -47,7 +47,7 @@ from typing import Any, Dict, Hashable, NamedTuple, Optional, Union
 
 from src import errors
 from config import default_prefix
-from models import Guild
+from src.models import Guild
 
 
 class CacheNode:

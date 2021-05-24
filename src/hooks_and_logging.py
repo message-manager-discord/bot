@@ -6,7 +6,7 @@ from discord import AsyncWebhookAdapter
 
 from src import errors
 from main import Bot
-from models import Channel, LoggingChannel
+from src.models import Channel, LoggingChannel
 
 
 async def create_webhook(
