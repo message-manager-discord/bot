@@ -8,7 +8,7 @@ asyncpg = "~=0.23"
 "discord.py" = "~=1.7"
 aiohttp = "~=3.7"
 jishaku = "*"
-discord-py-slash-command = "~=1.1"
+discord-py-slash-command = "~=1.2"
 
 [dev-packages]
 black = "==21.4b2"
