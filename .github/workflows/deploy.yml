@@ -39,7 +39,7 @@ jobs:
             source ~/.nvm/nvm.sh
             cd $PROCESS_PATH
             pip install --user -U pipenv
-            git pull origin main --tags
+            git pull origin master --tags
             git checkout $GITHUB_REF
             pipenv install
             pm2 restart $PROCESS_ID -s
