@@ -77,7 +77,8 @@ queries: Dict[str, Dict[str, Union[str, None]]] = {
         "new_version": "v1.5.1",
     },
     "v1.5.1": {"query": None, "new_version": "v1.6"},
-    "v1.6": {"query": None, "new_version": None},
+    "v1.6": {"query": None, "new_version": "v1.7"},
+    "v1.7": {"query": None, "new_version": None},
 }
 
 create_db = """

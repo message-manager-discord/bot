@@ -1,5 +1,9 @@
 # Changelog - Bot
 
+## v1.7 - Changes
+
+- Add action that deploys changes on non major tag release
+- Fix bug when user doesn't have required permissions and uses a `/settings` command
 ## v1.6 - Changes
 
 - Bump dependencies

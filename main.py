@@ -33,7 +33,7 @@ import config
 from cogs.utils import Context, PartialGuildCache
 from cogs.utils.db import db
 
-__version__ = "v1.6"
+__version__ = "v1.7"
 
 if TYPE_CHECKING:
     BotBase = commands.Bot[Context]
