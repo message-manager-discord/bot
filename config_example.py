@@ -2,7 +2,7 @@ token = ""
 default_prefix = "!"
 owner = None
 owners = {0}
-uri = "postgresql://user:password@host/database"
+uri = "postgres://user:password@host/database"
 
 guild_cache_max = 500
 guild_cache_drop = 50

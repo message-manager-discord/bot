@@ -105,13 +105,13 @@ def create_privacy_embed() -> discord.Embed:
     embed = discord.Embed(
         title="Privacy Policy",
         description="We do store data. Please read our privacy policy.",
-        url="https://github.com/AnotherCat/message-bot/blob/master/PRIVACY_POLICY.md",
+        url="https://github.com/AnotherCat/message-manager/blob/master/PRIVACY_POLICY.md",
         colour=discord.Colour.red(),
         timestamp=datetime.now(timezone.utc),
     )
     embed.add_field(
         name="Where to find the privacy policy",
-        value="My privacy policy is located on [github](https://github.com/AnotherCat/message-bot/blob/master/PRIVACY_POLICY.md)",
+        value="My privacy policy is located on [github](https://github.com/AnotherCat/message-manager/blob/master/PRIVACY_POLICY.md)",
     )
     return embed
 
@@ -139,8 +139,8 @@ def create_docs_embed() -> discord.Embed:
 def create_source_embed() -> discord.Embed:
     return discord.Embed(
         title="Source Code!",
-        description="My [source code](https://github.com/AnotherCat/message-bot)",
-        url="https://github.com/AnotherCat/message-bot",
+        description="My [source code](https://github.com/AnotherCat/message-manager)",
+        url="https://github.com/AnotherCat/message-manager",
         colour=discord.Colour(0xC387C1),
         timestamp=datetime.now(timezone.utc),
     )
