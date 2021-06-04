@@ -4,7 +4,7 @@
 
 In v2 the database is now managed with Tortoise-ORM and aerich.
 
-## Steps
+### Steps
 
 - Backup the database. There are a number of ways you can do this, the easiest is `pg_dump`
 - Pull the latest `v1.x` tag, check that tag and then run the bot. **This step is vital to avoid data loss**.
