@@ -1,0 +1,45 @@
+name: Deploy on tag
+
+on:
+  push:
+    tags:
+      "v*"
+
+jobs:
+  deploy:
+    environment: production_deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+        
+      - name: Get major of current tag and previous tag
+        id: vars
+        run: |
+          git fetch -a
+          echo ::set-output name=current_major::$(git tag --sort "-committerdate" | cut -d$'\n' -f1 | cut -d. -f1)
+          echo ::set-output name=previous_major::$(git tag --sort "-committerdate" | cut -d$'\n' -f2 | cut -d. -f1)
+      
+      - name: SSH Commands
+        if: ${{ steps.vars.outputs.current_major == steps.vars.outputs.previous_major }}
+        uses: appleboy/ssh-action@v0.1.4
+        env:
+          PROCESS_PATH: ${{ secrets.CD_PROCESS_PATH }}
+          PROCESS_ID: ${{ secrets.CD_PROCESS_ID }}
+          GITHUB_REF: ${{ env.GITHUB_REF }}
+        with:
+          host: ${{ secrets.CD_HOST }}
+          username: ${{ secrets.CD_USERNAME }}
+          key: ${{ secrets.CD_SECRET_KEY }}
+          script_stop: true
+          envs: PROCESS_PATH, PROCESS_ID, GITHUB_REF
+          script: |
+            source ~/.profile
+            source ~/.nvm/nvm.sh
+            cd $PROCESS_PATH
+            pip install --user -U pipenv
+            git pull origin master --tags
+            git checkout $GITHUB_REF
+            pipenv install
+            pm2 restart $PROCESS_ID -s

@@ -619,7 +619,6 @@ class SetupCogSlash(Cog):
                     errors.WebhookChannelNotTextChannel,
                 ),
             ):
-                await ctx.ack(hidden=True)
                 await ctx.send(content=str(e), hidden=True)
                 return
 

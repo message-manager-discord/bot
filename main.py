@@ -34,7 +34,7 @@ import config
 from src import Context, PartialGuildCache
 from tortoise_config import TORTOISE_ORM
 
-__version__ = "v1.5.1"
+__version__ = "v1.7"
 
 if TYPE_CHECKING:
     BotBase = commands.Bot[Context]

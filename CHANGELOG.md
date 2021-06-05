@@ -1,5 +1,24 @@
 # Changelog - Bot
 
+## v1.7 - Changes
+
+- Add action that deploys changes on non major tag release
+- Fix bug when user doesn't have required permissions and uses a `/settings` command
+## v1.6 - Changes
+
+- Bump dependencies
+- Improve logger format (code logger)
+- Improve db migration
+- Typing fixes
+- Refactoring internals
+- Add slash commands for logging setting (`/settings get/set logging`)
+- Add security and contact info to readme
+- Update contributing templates
+- Implement caching for guild settings
+  - Updated privacy policy
+- Make `/info` slash commands ephemeral
+
+
 ## v1.5.1 - Changes
 
 - Slash commands:
