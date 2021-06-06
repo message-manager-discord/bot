@@ -19,3 +19,4 @@
 
 * [Installing](self-hosting/installing.md)
 * [Maintaining](self-hosting/maintaining.md)
+* [Migration](self-hosting/migration.md)

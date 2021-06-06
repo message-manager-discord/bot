@@ -27,11 +27,12 @@ import discord
 
 from discord.ext import commands
 from discord_slash.client import SlashCommand
+from tortoise import Tortoise
 
 import config
 
-from cogs.utils import Context, PartialGuildCache
-from cogs.utils.db import db
+from src import Context, PartialGuildCache
+from tortoise_config import TORTOISE_ORM
 
 __version__ = "v1.7"
 
@@ -59,7 +60,6 @@ class Bot(BotBase):
         self.start_time = datetime.datetime.utcnow()
         self.session: aiohttp.ClientSession
         self.version = __version__
-        self.db: db.DatabasePool
         self.guild_cache: PartialGuildCache
         self.load_time: datetime.datetime
         self.join_log_channel: int
@@ -71,22 +71,20 @@ class Bot(BotBase):
         SlashCommand(self, sync_commands=True)
 
     async def init_db(self) -> None:
-        database = db.DatabasePool(config.uri, self)
-        await database._init()
-        self.db = database
+        await Tortoise.init(config=TORTOISE_ORM)
         self.guild_cache = PartialGuildCache(
             capacity=config.guild_cache_max,
-            db=self.db,
             drop_amount=config.guild_cache_drop,
         )
 
     async def start(self, *args, **kwargs) -> None:  # type: ignore
         self.session = aiohttp.ClientSession()
+
         await self.init_db()
         await super().start(*args, **kwargs)
 
     async def close(self) -> None:
-        await self.db.close()
+        await Tortoise.close_connections()
         await super().close()
 
     def command_with_prefix(self, ctx: Context, command_name: str) -> str:

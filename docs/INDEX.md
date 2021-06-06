@@ -1,7 +1,7 @@
 # Introduction
 
 This is an open source discord bot written in [discord.py](https://github.com/Rapptz/discord.py).  
-Source code is available at [AnotherCat/message-bot](https://github.com/AnotherCat/message-bot)
+Source code is available at [AnotherCat/message-manager](https://github.com/AnotherCat/message-manager)
 
 ## Functions
 
@@ -19,4 +19,4 @@ With a few simple, interactive commands you can send messages from the bot, and 
 ## Privacy Policy
 
 We **do** store data about you.  
-By using this bot you acknowledge that you have read the privacy policy located on [github](https://github.com/AnotherCat/message-bot/blob/master/PRIVACY_POLICY.md)
+By using this bot you acknowledge that you have read the privacy policy located on [github](https://github.com/AnotherCat/message-manager/blob/master/PRIVACY_POLICY.md)

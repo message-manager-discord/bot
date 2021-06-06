@@ -30,7 +30,7 @@ import discord
 
 from discord.ext import commands
 
-from cogs.utils import Context, errors
+from src import Context, errors
 from main import Bot
 
 if TYPE_CHECKING:

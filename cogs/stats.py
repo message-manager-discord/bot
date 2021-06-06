@@ -20,7 +20,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from discord.ext import commands
 
-from cogs.utils import Context, errors
+from src import Context, errors
 
 
 class StatsCog(commands.Cog):
@@ -55,7 +55,7 @@ class StatsCog(commands.Cog):
     @commands.guild_only()
     async def stats_force_update(self, ctx: Context):
         await ctx.send(
-            "Unfortunately this function had to be removed.\nSee https://github.com/AnotherCat/message-bot/blob/master/CHANGELOG.md/#v110 for more info."
+            "Unfortunately this function had to be removed.\nSee https://github.com/AnotherCat/message-manager/blob/master/CHANGELOG.md/#v110 for more info."
         )
 
 
