@@ -174,11 +174,11 @@
         },
         "humanize": {
             "hashes": [
-                "sha256:a0dca9eb010dd1fab61819acaea54be344a4c22c77261f72ac4dbee183dd9a59",
-                "sha256:b8e7878f3063174b212bb82b9e5bee3b24bc47931e44df0bd34bcb1d8e0acf2f"
+                "sha256:37711ee4f10525fa94e0133353d3c20888dd3b78570ec6e53005ba04f75fc3b8",
+                "sha256:bd6e8aa313ca07ed882695f89e4bf09e05049d2d489d4e2bf34b74c0da8d1613"
             ],
             "markers": "python_version >= '3.6'",
-            "version": "==3.7.1"
+            "version": "==3.8.0"
         },
         "idna": {
             "hashes": [
@@ -204,15 +204,13 @@
         },
         "jishaku": {
             "hashes": [
-                "sha256:2075e8aa8c6b24b0691df2471146b9a6a2285685639f27cb78f29bc5c4eca56b",
-                "sha256:2ced3fb5b5d3c82cd9e938591eb5867da06f8acefd71450a044d7e79e17e04d9",
-                "sha256:af565758d5ec2ab97df497bc3cd840b71660c58f66fb31d6042ce425f41849a5",
-                "sha256:ba4cdab5eb3893b213d0aaf82e711665d6dedab3182c6c071507f22ec7f981ff",
-                "sha256:eb6d2e2fc9d4f89ca98d20be7487b3354ae745e0cf14e234d31df573054bcf9e",
-                "sha256:fbe6e9160df5688538becea0c32558ddccbd026cd0820cd83122c3419ec4625b"
+                "sha256:1e3626c85b60c93ed32798ea32291b23e5b39031e7c48f903fb896437e7c0a78",
+                "sha256:276e186e6ef99a23cb667efe64a0ae2de9e49f7cfd10f5fbfe4db4eb30379183",
+                "sha256:7ac6fd1f2a048fae78299b800be555aec012631e40c96438f7d9201538b09c0c",
+                "sha256:9e31e43117c14cd785ec8578dde524bf00d94186cd0178d61759183c8d706319"
             ],
             "index": "pypi",
-            "version": "==1.20.0.220"
+            "version": "==2.0.0"
         },
         "multidict": {
             "hashes": [
