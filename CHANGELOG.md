@@ -1,5 +1,9 @@
 # Changelog - Bot
 
+## v2 - Changes
+
+- Use `tortoise-orm` for database management
+
 ## v1.7 - Changes
 
 - Add action that deploys changes on non major tag release
