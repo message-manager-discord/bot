@@ -29,8 +29,8 @@ import discord
 
 from discord.ext import commands
 
-from src import Context, checks, errors, send_log_once
 from main import Bot
+from src import Context, checks, errors, send_log_once
 
 if TYPE_CHECKING:
     Cog = commands.Cog[Context]

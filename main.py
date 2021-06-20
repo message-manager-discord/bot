@@ -20,18 +20,23 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import datetime
 import logging
 
-from typing import TYPE_CHECKING, Any, List
+from typing import TYPE_CHECKING, Any, Callable, Dict, List
 
 import aiohttp
 import discord
 
 from discord.ext import commands
-from discord_slash.client import SlashCommand
 from tortoise import Tortoise
 
 import config
 
 from src import Context, PartialGuildCache
+from src.interactions import (
+    CommandInteraction,
+    ComponentInteraction,
+    Interaction,
+    InteractionType,
+)
 from tortoise_config import TORTOISE_ORM
 
 __version__ = "v2"
@@ -68,7 +73,8 @@ class Bot(BotBase):
         self.del_token: str
         self.dbgg_token: str
         self.topgg_token: str
-        SlashCommand(self, sync_commands=True)
+        self.slash_commands: Dict[str, Callable] = {}
+        self.inject_parsers()
 
     async def init_db(self) -> None:
         await Tortoise.init(config=TORTOISE_ORM)
@@ -105,6 +111,31 @@ class Bot(BotBase):
         if message.guild is not None:
             await ctx.fetch_guild_data()
         await self.invoke(ctx)
+
+    async def on_command_interaction(self, interaction: CommandInteraction) -> None:
+        call = self.slash_commands[interaction.data.name]
+        await call(interaction)
+
+    def parse_interaction_create(self, data: Dict[Any, Any]) -> None:
+        interaction = Interaction(data=data, state=self._connection)  # type: ignore
+        if data["type"] == InteractionType.APPLICATION_COMMAND:
+            interaction = CommandInteraction(data=data, state=self._connection)  # type: ignore
+            self.dispatch("command_interaction", interaction)
+        elif data["type"] == InteractionType.MESSAGE_COMPONENT:
+            interaction = ComponentInteraction(data=data, state=self._connection)  # type: ignore
+            self.dispatch("component_interaction_create", interaction)
+
+    def parse_unhandled_event(self, data: Dict[Any, Any]) -> None:
+        pass
+
+    def inject_parsers(self) -> None:
+        parsers = {
+            "INTERACTION_CREATE": self.parse_interaction_create,
+            "APPLICATION_COMMAND_CREATE": self.parse_unhandled_event,
+            "APPLICATION_COMMAND_DELETE": self.parse_unhandled_event,
+            "APPLICATION_COMMAND_UPDATE": self.parse_unhandled_event,
+        }
+        self._connection.parsers.update(parsers)  # type: ignore
 
 
 logger = logging.getLogger()

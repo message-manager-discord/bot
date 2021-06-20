@@ -1,14 +1,18 @@
 from enum import IntEnum
-from typing import Any, Awaitable, Dict, Optional, Union
+from typing import Any, Awaitable, Dict, List, Optional, Union
 from urllib.parse import quote as _uriquote
 
-from discord import Guild, Member, User
+from discord import Embed, Guild, Member, User
 from discord.colour import Colour
 from discord.enums import ChannelType
 from discord.http import Route
 from discord.permissions import Permissions
 from discord.role import Role, RoleTags
 from discord.state import ConnectionState
+
+
+class InteractionResponseFlags(IntEnum):
+    EPHEMERAL = 64
 
 
 class InteractionType(IntEnum):
@@ -90,11 +94,15 @@ class Interaction:
     @property
     def guild(self) -> Optional[Guild]:
         guild = self._state._get_guild(self.guild_id)  # type: ignore
-        assert guild is None or guild is Guild
         return guild  # type: ignore
 
     async def respond(
-        self, response_type: InteractionResponseType, **data: Dict[Any, Any]
+        self,
+        *,
+        response_type: InteractionResponseType,
+        content: Optional[str] = None,
+        embeds: Optional[List[Embed]] = None,
+        flags: Optional[InteractionResponseFlags] = None,
     ) -> None:
         route = InteractionRoute(
             method="POST",
@@ -102,17 +110,35 @@ class Interaction:
             interaction_id=self.id,
             webhook_token=self.token,
         )
-        json = {"type": response_type, "data": data}
+        embeds = [e.to_dict() for e in embeds] if embeds is not None else None
+
+        json = {
+            "type": response_type,
+            "data": {
+                "embeds": embeds,
+                "content": content,
+                "flags": flags,
+            },
+        }
         self.responded = True
         await self._state.http.request(route=route, json=json)  # type: ignore
 
-    def edit_response(self, **data: Dict[Any, Any]) -> Awaitable:
+    def edit_response(
+        self,
+        *,
+        content: Optional[str] = None,
+        embeds: Optional[List[Embed]] = None,
+    ) -> Awaitable:
         if not self.responded:
             raise
-        return self.edit_message(message_id="@original", **data)
+        return self.edit_message(message_id="@original", content=content, embeds=embeds)
 
     async def edit_message(
-        self, message_id: Union[str, int], **data: Dict[Any, Any]
+        self,
+        message_id: Union[str, int],
+        *,
+        content: Optional[str] = None,
+        embeds: Optional[List[Embed]] = None,
     ) -> Dict[Any, Any]:
         route = InteractionRoute(
             method="PATCH",
@@ -121,10 +147,23 @@ class Interaction:
             webhook_token=self.token,
             message_id=message_id,
         )
+        embeds = [e.to_dict() for e in embeds] if embeds is not None else None
+        data = {
+            "embeds": embeds,
+            "content": content,
+        }
+
         response = await self._state.http.request(route=route, json=data)  # type: ignore
         return response  # type: ignore
 
-    async def create_followup(self, **data: Dict[Any, Any]) -> Dict[Any, Any]:
+    async def create_followup(
+        self, *, content: Optional[str] = None, embeds: Optional[List[Embed]] = None
+    ) -> Dict[Any, Any]:
+        embeds = [e.to_dict() for e in embeds] if embeds is not None else None
+        data = {
+            "embeds": embeds,
+            "content": content,
+        }
         route = InteractionRoute(
             method="POST",
             path="/webhooks/{application_id}/{webhook_token}/",
@@ -267,7 +306,7 @@ class ApplicationCommandInteractionDataOption:
             else:
                 self.value = self.raw_value
 
-        else:
+        elif "options" in data:
             self.value = self.raw_value = None
             self.options = [
                 ApplicationCommandInteractionDataOption(
@@ -275,6 +314,8 @@ class ApplicationCommandInteractionDataOption:
                 )
                 for d in data["options"]
             ]
+        else:
+            self.value = self.raw_value = self.options = None
 
 
 class PartialRole:

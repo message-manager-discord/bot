@@ -22,8 +22,8 @@ from typing import TYPE_CHECKING, Any, Dict, Optional
 from discord.ext import commands
 
 if TYPE_CHECKING:
-    from src.cache import GuildTuple
     from main import Bot
+    from src.cache import GuildTuple
 else:
     # Avoid circlar imports
     Bot = None

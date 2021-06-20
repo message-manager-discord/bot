@@ -30,8 +30,8 @@ import discord
 
 from discord.ext import commands
 
-from src import Context, errors
 from main import Bot
+from src import Context, errors
 
 if TYPE_CHECKING:
     Cog = commands.Cog[Context]

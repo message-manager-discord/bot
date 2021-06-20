@@ -27,8 +27,8 @@ from discord.ext import commands
 from discord_slash import SlashContext, cog_ext
 from discord_slash.utils import manage_commands
 
-from src import Context, errors
 from main import Bot
+from src import Context, errors
 from src.models import Channel, LoggingChannel
 
 if TYPE_CHECKING:

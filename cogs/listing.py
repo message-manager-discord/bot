@@ -22,8 +22,8 @@ from typing import TYPE_CHECKING
 
 from discord.ext import commands, tasks
 
-from src import Context, list_wrappers
 from main import Bot
+from src import Context, list_wrappers
 
 if TYPE_CHECKING:
     Cog = commands.Cog[Context]
