@@ -18,6 +18,8 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 import platform
+import sys
+import traceback
 
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Optional
@@ -163,7 +165,10 @@ class MainCog(Cog):
             f"Report a bug or get support from the support server at {self.bot.command_with_prefix(ctx, 'support')}\n"
             f"Error: {error}"
         )
-        raise error
+        print("Ignoring exception in command {}:".format(ctx.command), file=sys.stderr)
+        traceback.print_exception(
+            type(error), error, error.__traceback__, file=sys.stderr
+        )
 
     @commands.Cog.listener()
     async def on_ready(self) -> None:

@@ -84,3 +84,10 @@ class WebhookChannelNotTextChannel(CheckFailure):
 
 class CacheError(DiscordException):
     pass
+
+
+class NotResponded(DiscordException):
+    def __init__(
+        self, message: str = "The interaction has not been responded to", *args: Any
+    ) -> None:
+        super().__init__(message, *args)

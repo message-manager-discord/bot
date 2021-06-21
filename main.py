@@ -19,6 +19,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import datetime
 import logging
+import sys
+import traceback
 
 from typing import TYPE_CHECKING, Any, Callable, Dict, List
 
@@ -35,6 +37,8 @@ from src.interactions import (
     CommandInteraction,
     ComponentInteraction,
     Interaction,
+    InteractionResponseFlags,
+    InteractionResponseType,
     InteractionType,
 )
 from tortoise_config import TORTOISE_ORM
@@ -114,7 +118,40 @@ class Bot(BotBase):
 
     async def on_command_interaction(self, interaction: CommandInteraction) -> None:
         call = self.slash_commands[interaction.data.name]
-        await call(interaction)
+        try:
+            await call(interaction)
+        except Exception as e:
+            self.dispatch("slash_command_error", interaction, e)
+
+    async def on_slash_command_error(
+        self, interaction: CommandInteraction, error: Exception
+    ) -> None:
+        if not interaction.responded:
+            await interaction.respond(
+                content=(
+                    "There was an unknown error!\n"
+                    f"Report a bug or get support from the support server at `/info support`\n"
+                    f"Error: {error}"
+                ),
+                response_type=InteractionResponseType.ChannelMessageWithSource,
+                flags=InteractionResponseFlags.EPHEMERAL,
+            )
+        else:
+            await interaction.create_followup(
+                content=(
+                    "There was an unknown error!\n"
+                    f"Report a bug or get support from the support server at `/info support`\n"
+                    f"Error: {error}"
+                ),
+                flags=InteractionResponseFlags.EPHEMERAL,
+            )
+        print(
+            "Ignoring exception in command {}:".format(interaction.data.name),
+            file=sys.stderr,
+        )
+        traceback.print_exception(
+            type(error), error, error.__traceback__, file=sys.stderr
+        )
 
     def parse_interaction_create(self, data: Dict[Any, Any]) -> None:
         interaction = Interaction(data=data, state=self._connection)  # type: ignore

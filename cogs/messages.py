@@ -21,6 +21,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import asyncio
 import json
 import os
+import sys
+import traceback
 
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Dict, Optional, TypedDict, Union
@@ -82,7 +84,13 @@ class MessagesCog(Cog):
                 f"Report a bug or get support from the support server at {self.bot.command_with_prefix(ctx, 'support')}\n"
                 f"Error: {error}"
             )
-            raise error
+
+            print(
+                "Ignoring exception in command {}:".format(ctx.command), file=sys.stderr
+            )
+            traceback.print_exception(
+                type(error), error, error.__traceback__, file=sys.stderr
+            )
 
     async def check_channel(
         self, ctx: Context, channel: Optional[discord.TextChannel]
