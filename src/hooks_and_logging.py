@@ -4,8 +4,8 @@ import discord
 
 from discord import AsyncWebhookAdapter
 
-from src import errors
 from main import Bot
+from src import errors
 from src.models import Channel, LoggingChannel
 
 
@@ -33,14 +33,14 @@ async def create_webhook(
             )
             await Channel.update_or_create(
                 defaults={"webhook_token": webhook.token, "webhook_id": webhook.id},
-                channel_id=channel_id,
+                id=channel_id,
             )
         except discord.Forbidden:
             return errors.MissingManageWebhooks()
         return webhook
     elif len(existing_webhooks) == 1:
         webhook = existing_webhooks[0]
-        stored_webhook = await Channel.get_or_none(channel_id=channel_id)
+        stored_webhook = await Channel.get_or_none(id=channel_id)
         if webhook.token is None:
             await webhook.delete()
             return await create_webhook(channel_id, bot, attempt=attempt + 1)
@@ -51,13 +51,13 @@ async def create_webhook(
         ):
             await Channel.update_or_create(
                 defaults={"webhook_token": webhook.token, "webhook_id": webhook.id},
-                channel_id=channel_id,
+                id=channel_id,
             )
             return webhook
         else:
             return webhook
     else:  # More than one webhook by this bot in that channel. THIS SHOULD NOT HAPPEN
-        stored_webhook = await Channel.get_or_none(channel_id=channel_id)
+        stored_webhook = await Channel.get_or_none(id=channel_id)
         for webhook in existing_webhooks:
             if (
                 stored_webhook is None  # Nothing is stored, delete all
@@ -180,7 +180,7 @@ class ServerLogger:
             except (discord.Forbidden, discord.NotFound):
                 await Channel.update_or_create(
                     defaults={"webhook_token": None, "webhook_id": None},
-                    channel_id=self.channel_id,
+                    id=self.channel_id,
                 )
                 self.webhook = None
                 self.has_webhook = False
