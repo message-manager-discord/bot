@@ -1,5 +1,9 @@
 # Changelog - Bot
 
+## v2.0.1 - Changes
+
+- Fix `id` named `channel_id` when fetching channel from database. 
+
 ## v2 - Changes
 
 - Use `tortoise-orm` for database management
