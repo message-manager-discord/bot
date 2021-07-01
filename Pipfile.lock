@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "500f35075324a125f6f61d287fcc34749066c866f5f2b711193c86b64cac156d"
+            "sha256": "d72c5c8951aad6503bcb77671eb9e02f590e5b1f74d2c8c3956ef676a657e0ff"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -158,27 +158,27 @@
         },
         "discord-py-slash-command": {
             "hashes": [
-                "sha256:192b4454bb5ca9e6032812a4142469782ab7a8a4f93c13fb04bb5a2ff100ddfb",
-                "sha256:5539b931af40b3bc91ee0a8ed1e97a58400c442ef542007db9dda315dce90144"
+                "sha256:16997ddf80cbd635126ea722c5fe332e65a2f639b762ac151853df8ecb6e4ac1",
+                "sha256:7461e42f9702b144479c537ea262c3265463e985efe25827dd525fc521daba6e"
             ],
             "index": "pypi",
-            "version": "==1.2.2"
+            "version": "==2.2.0"
         },
         "discord.py": {
             "hashes": [
-                "sha256:114e76cd27362fb919abf7f001a2dbdc77c9a67cff74ed6a89aecd6582ee298e",
-                "sha256:f179db299c949a8cf0a12c1b1b94d0da9a18e088857154d93ae5ab1d807ec61d"
+                "sha256:462cd0fe307aef8b29cbfa8dd613e548ae4b2cb581d46da9ac0d46fb6ea19408",
+                "sha256:c6f64db136de0e18e090f6752ea68bdd4ab0a61b82dfe7acecefa22d6477bb0c"
             ],
             "index": "pypi",
-            "version": "==1.7.2"
+            "version": "==1.7.3"
         },
         "humanize": {
             "hashes": [
-                "sha256:a0dca9eb010dd1fab61819acaea54be344a4c22c77261f72ac4dbee183dd9a59",
-                "sha256:b8e7878f3063174b212bb82b9e5bee3b24bc47931e44df0bd34bcb1d8e0acf2f"
+                "sha256:2cc4f7d2f5994ea9fcddd4b681ddea9abd23baa8cc64bd0af041a0162636f31c",
+                "sha256:892a5b7b87763c4c6997a58382c2b1f4614048a2e01c23ef1bb0456e6f9d4d5d"
             ],
             "markers": "python_version >= '3.6'",
-            "version": "==3.7.1"
+            "version": "==3.9.0"
         },
         "idna": {
             "hashes": [
@@ -488,11 +488,11 @@
         },
         "discord.py": {
             "hashes": [
-                "sha256:114e76cd27362fb919abf7f001a2dbdc77c9a67cff74ed6a89aecd6582ee298e",
-                "sha256:f179db299c949a8cf0a12c1b1b94d0da9a18e088857154d93ae5ab1d807ec61d"
+                "sha256:462cd0fe307aef8b29cbfa8dd613e548ae4b2cb581d46da9ac0d46fb6ea19408",
+                "sha256:c6f64db136de0e18e090f6752ea68bdd4ab0a61b82dfe7acecefa22d6477bb0c"
             ],
             "index": "pypi",
-            "version": "==1.7.2"
+            "version": "==1.7.3"
         },
         "discord.py-stubs": {
             "hashes": [
