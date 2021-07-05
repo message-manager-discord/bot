@@ -159,15 +159,14 @@ class Interaction:
         return response  # type: ignore
 
     async def create_followup(
-        self, *, content: Optional[str] = None, embeds: Optional[List[Embed]] = None,
+        self,
+        *,
+        content: Optional[str] = None,
+        embeds: Optional[List[Embed]] = None,
         flags: Optional[InteractionResponseFlags] = None,
     ) -> Dict[Any, Any]:
         embeds = [e.to_dict() for e in embeds] if embeds is not None else None
-        data = {
-            "embeds": embeds,
-            "content": content,
-            "flags": flags
-        }
+        data = {"embeds": embeds, "content": content, "flags": flags}
         route = InteractionRoute(
             method="POST",
             path="/webhooks/{application_id}/{webhook_token}/",
