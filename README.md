@@ -1,7 +1,8 @@
 # Message Manager
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/326569ef23ba4a46848e531a662970c0)](https://app.codacy.com/gh/AnotherCat/message-bot?utm_source=github.com&utm_medium=referral&utm_content=AnotherCat/message-bot&utm_campaign=Badge_Grade_Settings)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black) [![wakatime](https://wakatime.com/badge/github/AnotherCat/message-manager.svg)](https://wakatime.com/badge/github/AnotherCat/message-manager)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![wakatime](https://wakatime.com/badge/github/message-manager-discord/bot.svg)](https://wakatime.com/badge/github/message-manager-discord/bot)
 
 <!--
 [![Support Server Invite](https://discord.com/api/guilds/742373263593963614/embed.png)](https://discord.gg/xFZu29t)
