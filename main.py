@@ -18,14 +18,22 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 import asyncio
-from asyncio.futures import Future
 import datetime
 import logging
-from src.errors import NoComponents
 import sys
 import traceback
 
-from typing import TYPE_CHECKING, Any, Callable, Coroutine, Dict, List, Optional, Tuple, Union
+from asyncio.futures import Future
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    List,
+    Optional,
+    Tuple,
+    Union,
+)
 
 import aiohttp
 import discord
@@ -36,6 +44,7 @@ from tortoise import Tortoise
 import config
 
 from src import Context, PartialGuildCache
+from src.errors import NoComponents
 from src.interactions import (
     ActionRow,
     Button,
@@ -84,7 +93,9 @@ class Bot(BotBase):
         self.dbgg_token: str
         self.topgg_token: str
         self.slash_commands: Dict[str, Callable] = {}
-        self.component_listeners: Dict[str, Tuple[Future[Any], Callable[[ComponentInteraction], bool]]] = {}
+        self.component_listeners: Dict[
+            str, Tuple[Future[Any], Callable[[ComponentInteraction], bool]]
+        ] = {}
         self.inject_parsers()
 
     async def init_db(self) -> None:
@@ -246,7 +257,7 @@ class Bot(BotBase):
                     self.component_listeners.pop(custom_id)
                 else:
                     no_response = True
-            
+
         else:
             no_response = True
         if no_response:

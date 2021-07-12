@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from enum import IntEnum
-from typing import TYPE_CHECKING, Any, Awaitable, Dict, List, Optional, Union
+from typing import Any, Awaitable, Dict, List, Optional, Union
 from urllib.parse import quote as _uriquote
 
 from discord import Embed, Guild, Member, User
@@ -600,8 +600,7 @@ def send_message_components(
     components: Optional[List[Union[ActionRow, Button, Select]]] = None,
 ) -> Any:
 
-
-    allowed_mentions = state.allowed_mentions and state.allowed_mentions.to_dict() # type: ignore
+    allowed_mentions = state.allowed_mentions and state.allowed_mentions.to_dict()  # type: ignore
     components = [c.to_dict() for c in components] if components is not None else None
 
     r = Route("POST", "/channels/{channel_id}/messages", channel_id=channel_id)
@@ -619,4 +618,4 @@ def send_message_components(
     if components:
         payload["components"] = components
 
-    return state.http.request(r, json=payload) # type: ignore
+    return state.http.request(r, json=payload)  # type: ignore
