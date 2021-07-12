@@ -25,6 +25,8 @@ import traceback
 
 from asyncio.futures import Future
 from typing import (
+    Awaitable,
+    Coroutine,
     TYPE_CHECKING,
     Any,
     Callable,
@@ -94,7 +96,7 @@ class Bot(BotBase):
         self.topgg_token: str
         self.slash_commands: Dict[str, Callable] = {}
         self.component_listeners: Dict[
-            str, Tuple[Future[Any], Callable[[ComponentInteraction], bool]]
+            str, Tuple[Future[Any], Callable[[ComponentInteraction], Awaitable[bool]]]
         ] = {}
         self.inject_parsers()
 
@@ -222,7 +224,7 @@ class Bot(BotBase):
         components: Union[
             Button, Select, List[Union[Button, Select, ActionRow]], ActionRow
         ],
-        check: Callable[[ComponentInteraction], bool] = None,
+        check: Callable[[ComponentInteraction], Awaitable[bool]] = None,
         timeout: float = None,
     ) -> "Future[Any]":
         cleaned_components = self.clean_components(components)
@@ -232,7 +234,7 @@ class Bot(BotBase):
         future = self.loop.create_future()
         if check is None:
 
-            def _check(*args: Any) -> bool:
+            async def _check(interaction: ComponentInteraction) -> bool:
                 return True
 
             check = _check
@@ -251,7 +253,7 @@ class Bot(BotBase):
                 self.component_listeners.pop(custom_id)
                 no_response = True
             else:
-                result = condition(interaction)
+                result = await condition(interaction)
                 if result:
                     future.set_result(interaction)
                     self.component_listeners.pop(custom_id)
@@ -261,6 +263,8 @@ class Bot(BotBase):
         else:
             no_response = True
         if no_response:
+            if interaction.responded:
+                return
             if interaction.message.components is None:
                 # ephemeral message
                 await interaction.respond(
