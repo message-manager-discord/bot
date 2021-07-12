@@ -224,35 +224,6 @@ class MainCog(Cog):
                 value="Please read my [privacy policy](). \nBy using the bot you are confirming that you have read the privacy policy.",
             )
             await channel.send(embed=embed)
-        if not self.bot.self_hosted:
-            embed = discord.Embed(
-                title="Joined a server!",
-                colour=discord.Colour(16761035),
-                timestamp=datetime.now(timezone.utc),
-            )
-            embed.add_field(name="Name", value=guild.name, inline=False)
-            embed.add_field(name="ID", value=str(guild.id), inline=False)
-            log_channel = self.bot.get_channel(self.bot.join_log_channel)
-            if isinstance(
-                log_channel, discord.TextChannel
-            ):  # ensure that log_channel is a text channel
-                await log_channel.send(embed=embed)
-
-    @commands.Cog.listener()
-    async def on_guild_remove(self, guild: discord.Guild) -> None:
-        if not self.bot.self_hosted:
-            embed = discord.Embed(
-                title="Left a server!",
-                colour=discord.Colour(16761035),
-                timestamp=datetime.now(timezone.utc),
-            )
-            embed.add_field(name="Name", value=guild.name, inline=False)
-            embed.add_field(name="ID", value=str(guild.id), inline=False)
-            log_channel = self.bot.get_channel(self.bot.join_log_channel)
-            if isinstance(
-                log_channel, discord.TextChannel
-            ):  # ensure that the log channel is a text channel
-                await log_channel.send(embed=embed)
 
     @commands.command(
         name="help", help="Responds with an embed with all the commands and options"

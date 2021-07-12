@@ -62,7 +62,6 @@ class Bot(BotBase):
         self.version = __version__
         self.guild_cache: PartialGuildCache
         self.load_time: datetime.datetime
-        self.join_log_channel: int
         self.dbl_token: str
         self.dboats_token: str
         self.del_token: str
@@ -145,7 +144,6 @@ def run() -> None:
         "cogs.setup",
     ]
     if not config.self_host:
-        bot.join_log_channel = config.join_logs
         bot.dbl_token = config.dbl_token
         bot.dboats_token = config.dboats_token
         bot.del_token = config.def_token
