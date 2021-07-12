@@ -91,3 +91,10 @@ class NotResponded(DiscordException):
         self, message: str = "The interaction has not been responded to", *args: Any
     ) -> None:
         super().__init__(message, *args)
+
+
+class NoComponents(DiscordException):
+    def __init__(
+        self, message: str = "No components were provided", *args: Any
+    ) -> None:
+        super().__init__(message, *args)
