@@ -72,7 +72,7 @@ class PartialEmoji:
 
     @classmethod
     def from_data(cls, data: Dict[Any, Any]) -> PartialEmoji:
-        id = int(data["id"]) if 'id' in data else None
+        id = int(data["id"]) if "id" in data else None
         name = data["name"]
         animated = data.get("animated", False)
         return cls(id=id, name=name, animated=animated)

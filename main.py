@@ -25,15 +25,14 @@ import traceback
 
 from asyncio.futures import Future
 from typing import (
-    Awaitable,
-    Coroutine,
-    Sequence,
     TYPE_CHECKING,
     Any,
+    Awaitable,
     Callable,
     Dict,
     List,
     Optional,
+    Sequence,
     Tuple,
     Union,
 )
