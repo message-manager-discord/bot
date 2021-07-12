@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from enum import IntEnum
-from typing import Any, Awaitable, Dict, List, Optional, Union
+from typing import Any, Awaitable, Dict, List, Optional, Sequence, Union
 from urllib.parse import quote as _uriquote
 
 from discord import Embed, Guild, Member, User
@@ -312,7 +312,7 @@ class Interaction:
         content: Optional[str] = None,
         embeds: Optional[List[Embed]] = None,
         flags: Optional[InteractionResponseFlags] = None,
-        components: Optional[List[Union[ActionRow, Button, Select]]] = None,
+        components: Optional[Sequence[Union[ActionRow, Button, Select]]] = None,
     ) -> None:
         route = InteractionRoute(
             method="POST",
@@ -341,7 +341,7 @@ class Interaction:
         *,
         content: Optional[str] = None,
         embeds: Optional[List[Embed]] = None,
-        components: Optional[List[Union[ActionRow, Button, Select]]] = None,
+        components: Optional[Sequence[Union[ActionRow, Button, Select]]] = None,
     ) -> Awaitable:
         if not self.responded:
             raise NotResponded()
@@ -358,7 +358,7 @@ class Interaction:
         *,
         content: Optional[str] = None,
         embeds: Optional[List[Embed]] = None,
-        components: Optional[List[Union[ActionRow, Button, Select]]] = None,
+        components: Optional[Sequence[Union[ActionRow, Button, Select]]] = None,
     ) -> Dict[Any, Any]:
         route = InteractionRoute(
             method="PATCH",
@@ -382,7 +382,7 @@ class Interaction:
         content: Optional[str] = None,
         embeds: Optional[List[Embed]] = None,
         flags: Optional[InteractionResponseFlags] = None,
-        components: Optional[List[Union[ActionRow, Button, Select]]] = None,
+        components: Optional[Sequence[Union[ActionRow, Button, Select]]] = None,
     ) -> Dict[Any, Any]:
         embeds = [e.to_dict() for e in embeds] if embeds is not None else None
         components = (
@@ -597,7 +597,7 @@ def send_message_components(
     state: ConnectionState,
     channel_id: int,
     embed: Optional[Embed] = None,
-    components: Optional[List[Union[ActionRow, Button, Select]]] = None,
+    components: Optional[Sequence[Union[ActionRow, Button, Select]]] = None,
 ) -> Any:
 
     allowed_mentions = state.allowed_mentions and state.allowed_mentions.to_dict()  # type: ignore

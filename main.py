@@ -27,6 +27,7 @@ from asyncio.futures import Future
 from typing import (
     Awaitable,
     Coroutine,
+    Sequence,
     TYPE_CHECKING,
     Any,
     Callable,
@@ -203,7 +204,7 @@ class Bot(BotBase):
     def clean_components(
         self,
         components: Union[
-            Button, Select, List[Union[Button, Select, ActionRow]], ActionRow
+            Button, Select, Sequence[Union[Button, Select, ActionRow]], ActionRow
         ],
     ) -> Optional[List[Union[Button, Select]]]:
         result: List[Union[Button, Select]] = []
@@ -222,7 +223,7 @@ class Bot(BotBase):
     def wait_for_components(
         self,
         components: Union[
-            Button, Select, List[Union[Button, Select, ActionRow]], ActionRow
+            Button, Select, Sequence[Union[Button, Select, ActionRow]], ActionRow
         ],
         check: Callable[[ComponentInteraction], Awaitable[bool]] = None,
         timeout: float = None,
