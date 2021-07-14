@@ -791,7 +791,9 @@ class MessagesCog(Cog):
             content_name = "Content"
         else:
             content_name = "Content too complicated to condense"
-        content_for_confirm = embed_titles[0] if len(embed_titles) > 0 else content_to_send
+        content_for_confirm = (
+            embed_titles[0] if len(embed_titles) > 0 else content_to_send
+        )
         if content_for_confirm is None:
             content_for_confirm = "Content too complicated to condense"
         embeds = self.generate_confirmation_embeds(
