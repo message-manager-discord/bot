@@ -98,6 +98,7 @@ class Bot(BotBase):
         self.component_listeners: Dict[
             str, Tuple[Future[Any], Callable[[ComponentInteraction], Awaitable[bool]]]
         ] = {}
+        self.removed_listeners: List[str] = []
         self.inject_parsers()
 
     async def init_db(self) -> None:
@@ -228,9 +229,8 @@ class Bot(BotBase):
         timeout: float = None,
     ) -> "Future[Any]":
         cleaned_components = self.clean_components(components)
-        if cleaned_components is None:
+        if cleaned_components is None or len(cleaned_components) == 0:
             raise NoComponents()
-
         future = self.loop.create_future()
         if check is None:
 
@@ -240,6 +240,9 @@ class Bot(BotBase):
             check = _check
         for component in cleaned_components:
             self.component_listeners[component.custom_id] = (future, check)
+
+        if len(self.component_listeners) > 1000:
+            logger.warning("Bot.component_listeners exceeded 1000")
 
         return asyncio.wait_for(future, timeout)
 
@@ -298,13 +301,16 @@ class Bot(BotBase):
                 )
 
     async def check_component_listener(self, custom_id: str) -> None:
-        future = self.component_listeners[custom_id][0]
+        future, check = self.component_listeners[custom_id]
         if future.done():
-            self.component_listeners.pop(custom_id)
+            self.removed_listeners.append(custom_id)
 
     async def clean_component_listeners(self) -> None:
         for listener in self.component_listeners:
             await self.check_component_listener(listener)
+        for custom_id in self.removed_listeners:
+            self.component_listeners.pop(custom_id)
+        self.removed_listeners = []
 
 
 logger = logging.getLogger()
@@ -343,6 +349,7 @@ def run() -> None:
         "cogs.stats",
         "cogs.admin",
         "cogs.setup",
+        "cogs.component_management",
     ]
     if not config.self_host:
         bot.join_log_channel = config.join_logs
