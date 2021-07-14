@@ -32,14 +32,9 @@ from main import Bot
 from src import Context
 from src.cache import GuildTuple
 from src.interactions import (
-    ActionRow,
-    Button,
-    ButtonStyle,
     CommandInteraction,
-    ComponentInteraction,
     InteractionResponseFlags,
     InteractionResponseType,
-    send_message_components,
 )
 
 if TYPE_CHECKING:
@@ -347,48 +342,10 @@ class MainCog(Cog):
                 flags=InteractionResponseFlags.EPHEMERAL,
             )
         elif sub_name == "ping":
-            components = [
-                ActionRow(
-                    components=[
-                        Button(
-                            style=ButtonStyle.Primary, custom_id="AIND", label="Heelo"
-                        ),
-                        Button(
-                            style=ButtonStyle.Danger, custom_id="AINsD", label="Heel2o"
-                        ),
-                    ]
-                ),
-                ActionRow(
-                    components=[
-                        Button(
-                            style=ButtonStyle.Secondary,
-                            custom_id="AW*#",
-                            label="WHy hello",
-                        ),
-                        Button(
-                            style=ButtonStyle.Danger, custom_id="AWER*#@", label="WHALE"
-                        ),
-                    ]
-                ),
-            ]
             await interaction.respond(
                 response_type=InteractionResponseType.ChannelMessageWithSource,
                 content=f"Gateway latency: {round(self.bot.latency*1000, 2)}ms",
-                components=components,
-            )
-
-            def check(interaction):
-                if interaction.component.custom_id == "AW*#":
-                    return True
-                else:
-                    return False
-
-            second_interaction: ComponentInteraction = (
-                await self.bot.wait_for_components(components=components, check=check)
-            )
-            await second_interaction.respond(
-                response_type=InteractionResponseType.ChannelMessageWithSource,
-                content="YAY",
+                flags=InteractionResponseFlags.EPHEMERAL,
             )
         elif sub_name == "privacy":
             embed = create_privacy_embed()
@@ -435,20 +392,6 @@ class MainCog(Cog):
 
     @commands.command(name="ping")
     async def ping(self, ctx: Context) -> None:
-        components = [
-            ActionRow(
-                components=[
-                    Button(style=ButtonStyle.Primary, custom_id="AIND", label="Heelo"),
-                    Button(style=ButtonStyle.Danger, custom_id="AINsD", label="Heel2o"),
-                ]
-            )
-        ]
-        await send_message_components(
-            content=f"Gateway latency: {round(self.bot.latency*1000, 2)}ms",
-            components=components,
-            channel_id=ctx.channel.id,
-            state=self.bot._connection,
-        )
         await ctx.send(f"Gateway latency: {round(self.bot.latency*1000, 2)}ms")
 
     @commands.command()
