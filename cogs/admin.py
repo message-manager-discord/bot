@@ -22,6 +22,8 @@ import asyncio
 import datetime
 import random
 import string
+import sys
+import traceback
 
 from math import floor
 from typing import TYPE_CHECKING
@@ -30,8 +32,8 @@ import discord
 
 from discord.ext import commands
 
-from src import Context, errors
 from main import Bot
+from src import Context, errors
 
 if TYPE_CHECKING:
     Cog = commands.Cog[Context]
@@ -66,7 +68,12 @@ class AdminCog(Cog):
                 f"Report a bug or get support from the support server at {self.bot.command_with_prefix(ctx, 'support')}\n"
                 f"Error: {error}"
             )
-            raise error
+            print(
+                "Ignoring exception in command {}:".format(ctx.command), file=sys.stderr
+            )
+            traceback.print_exception(
+                type(error), error, error.__traceback__, file=sys.stderr
+            )
 
     @commands.command(hidden=True)
     async def load(self, ctx: Context, *, module: str) -> None:

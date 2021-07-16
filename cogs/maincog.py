@@ -18,17 +18,24 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 import platform
+import sys
+import traceback
 
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Optional
 
 import discord
 
 from discord.ext import commands
-from discord_slash import SlashContext, cog_ext
 
-from src import Context
 from main import Bot
+from src import Context
+from src.cache import GuildTuple
+from src.interactions import (
+    CommandInteraction,
+    InteractionResponseFlags,
+    InteractionResponseType,
+)
 
 if TYPE_CHECKING:
     Cog = commands.Cog[Context]
@@ -39,7 +46,7 @@ info_base_description = "Information Commands"
 
 
 async def create_info_embed(
-    ctx: Union[Context, SlashContext], bot: Bot
+    bot: Bot, guild_id: Optional[int] = None, guild_data: Optional[GuildTuple] = None
 ) -> discord.Embed:
     total_seconds = (datetime.utcnow() - bot.start_time).total_seconds()
     days = total_seconds // 86400
@@ -53,21 +60,10 @@ async def create_info_embed(
         url="https://messagemanager.xyz",
     )
     embed.add_field(name="Username", value=str(bot.user), inline=True),
-    if isinstance(ctx.guild, discord.Guild):
-        in_guild = True
-    else:
-        for guild in bot.guilds:
-            if ctx.guild == guild.id:
-                in_guild = True
-                break
-        else:
-            in_guild = False
-    if in_guild:
-        if isinstance(ctx, SlashContext):
-            ctx.guild_data = await bot.guild_cache.get(ctx.guild.id)
-        elif ctx.guild_data is None:
-            ctx.guild_data = await bot.guild_cache.get(ctx.guild.id)
-        embed.add_field(name="Prefix", value=f"`{ctx.guild_data.prefix}`", inline=True),
+    if guild_id is not None:
+        if guild_data is None:
+            guild_data = await bot.guild_cache.get(guild_id)
+            embed.add_field(name="Prefix", value=f"`{guild_data.prefix}`", inline=True),
 
     embed.add_field(name="Version", value=bot.version, inline=True),
     embed.add_field(
@@ -159,6 +155,7 @@ def create_support_embed() -> discord.Embed:
 class MainCog(Cog):
     def __init__(self, bot: Bot) -> None:
         self.bot = bot
+        self.bot.slash_commands.update({"info": self.handle_info_command})
 
     async def on_command_error(
         self, ctx: Context, error: discord.DiscordException
@@ -168,7 +165,10 @@ class MainCog(Cog):
             f"Report a bug or get support from the support server at {self.bot.command_with_prefix(ctx, 'support')}\n"
             f"Error: {error}"
         )
-        raise error
+        print("Ignoring exception in command {}:".format(ctx.command), file=sys.stderr)
+        traceback.print_exception(
+            type(error), error, error.__traceback__, file=sys.stderr
+        )
 
     @commands.Cog.listener()
     async def on_ready(self) -> None:
@@ -298,115 +298,93 @@ class MainCog(Cog):
                 if help_command is not None:
                     await ctx.invoke(help_command)
 
+    async def handle_info_command(self, interaction: CommandInteraction) -> None:
+        sub_commands = interaction.data.options
+        if sub_commands is None:
+            return
+            # Partly to appease mypy, partly if discord messes up.
+        sub_name = sub_commands[0].name
+        # Since it's a subcommand only one option, the command
+        if sub_name == "info":
+            embed = await create_info_embed(bot=self.bot, guild_id=interaction.guild_id)
+            await interaction.respond(
+                response_type=InteractionResponseType.ChannelMessageWithSource,
+                embeds=[embed],
+                flags=InteractionResponseFlags.EPHEMERAL,
+            )
+        elif sub_name == "ping":
+            await interaction.respond(
+                response_type=InteractionResponseType.ChannelMessageWithSource,
+                content=f"Gateway latency: {round(self.bot.latency*1000, 2)}ms",
+                flags=InteractionResponseFlags.EPHEMERAL,
+            )
+        elif sub_name == "privacy":
+            embed = create_privacy_embed()
+            await interaction.respond(
+                response_type=InteractionResponseType.ChannelMessageWithSource,
+                flags=InteractionResponseFlags.EPHEMERAL,
+                embeds=[embed],
+            )
+        elif sub_name == "invite":
+
+            await interaction.respond(
+                response_type=InteractionResponseType.ChannelMessageWithSource,
+                flags=InteractionResponseFlags.EPHEMERAL,
+                embeds=[create_invite_embed()],
+            )
+        elif sub_name == "docs":
+            await interaction.respond(
+                response_type=InteractionResponseType.ChannelMessageWithSource,
+                flags=InteractionResponseFlags.EPHEMERAL,
+                embeds=[create_docs_embed()],
+            )
+        elif sub_name == "source":
+            await interaction.respond(
+                response_type=InteractionResponseType.ChannelMessageWithSource,
+                flags=InteractionResponseFlags.EPHEMERAL,
+                embeds=[create_source_embed()],
+            )
+
+        elif sub_name == "support":
+            await interaction.respond(
+                response_type=InteractionResponseType.ChannelMessageWithSource,
+                flags=InteractionResponseFlags.EPHEMERAL,
+                embeds=[create_support_embed()],
+            )
+
     # Create the info command.
     @commands.command(name="info")
     async def info(self, ctx: Context) -> None:
-        embed = await create_info_embed(ctx, self.bot)
+        guild_id = None if ctx.guild is None else ctx.guild.id
+        embed = await create_info_embed(
+            bot=self.bot, guild_id=guild_id, guild_data=ctx.guild_data
+        )
         await ctx.send(embed=embed)
-
-    @cog_ext.cog_subcommand(
-        base="info",
-        name="info",
-        description="Bot information",
-        base_description=info_base_description,
-    )
-    async def _info(self, ctx: SlashContext) -> None:
-        embed = await create_info_embed(ctx, self.bot)
-        await ctx.send(embeds=[embed], hidden=True)
-
-    # Ping commands
 
     @commands.command(name="ping")
     async def ping(self, ctx: Context) -> None:
         await ctx.send(f"Gateway latency: {round(self.bot.latency*1000, 2)}ms")
-
-    @cog_ext.cog_subcommand(
-        base="info",
-        name="ping",
-        description="Returns the current gateway latency",
-        base_description=info_base_description,
-    )
-    async def _ping(self, ctx: SlashContext) -> None:
-        await ctx.send(
-            content=f"Gateway latency: {round(self.bot.latency*1000, 2)}ms", hidden=True
-        )
-
-    # Privacy commands
 
     @commands.command()
     async def privacy(self, ctx: Context) -> None:
         embed = create_privacy_embed()
         await ctx.send(embed=embed)
 
-    @cog_ext.cog_subcommand(
-        base="info",
-        name="privacy",
-        description="Privacy information",
-        base_description=info_base_description,
-    )
-    async def _privacy(self, ctx: SlashContext) -> None:
-        embed = create_privacy_embed()
-        await ctx.send(embeds=[embed], hidden=True)
-
-    # Invite Commands
-
     @commands.command()
     async def invite(self, ctx: Context) -> None:
         await ctx.send(embed=create_invite_embed())
-
-    @cog_ext.cog_subcommand(
-        base="info",
-        name="invite",
-        description="Bot invite",
-        base_description=info_base_description,
-    )
-    async def _invite(self, ctx: SlashContext) -> None:
-        await ctx.send(embeds=[create_invite_embed()], hidden=True)
-
-    # Docs commands
 
     @commands.command()
     async def docs(self, ctx: Context) -> None:
         await ctx.send(embed=create_docs_embed())
 
-    @cog_ext.cog_subcommand(
-        base="info",
-        name="docs",
-        description="Bot documentation",
-        base_description=info_base_description,
-    )
-    async def _docs(self, ctx: SlashContext) -> None:
-        await ctx.send(embeds=[create_docs_embed()], hidden=True)
-
-    # Source Commands
-
     @commands.command()
     async def source(self, ctx: Context) -> None:
         await ctx.send(embed=create_source_embed())
 
-    @cog_ext.cog_subcommand(
-        base="info",
-        name="source",
-        description="Bot's source code",
-        base_description=info_base_description,
-    )
-    async def _source(self, ctx: SlashContext) -> None:
-        await ctx.send(embeds=[create_source_embed()], hidden=True)
-
-    # Support Commands
-
     @commands.command()
     async def support(self, ctx: Context) -> None:
         await ctx.send(embed=create_support_embed())
-
-    @cog_ext.cog_subcommand(
-        base="info",
-        name="support",
-        description="Join my support server!",
-        base_description=info_base_description,
-    )
-    async def _support(self, ctx: SlashContext) -> None:
-        await ctx.send(embeds=[create_support_embed()], hidden=True)
 
 
 def setup(bot: Bot) -> None:

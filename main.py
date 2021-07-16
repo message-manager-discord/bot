@@ -17,21 +17,47 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
+import asyncio
 import datetime
 import logging
+import sys
+import traceback
 
-from typing import TYPE_CHECKING, Any, List
+from asyncio.futures import Future
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Awaitable,
+    Callable,
+    Dict,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+)
 
 import aiohttp
 import discord
 
 from discord.ext import commands
-from discord_slash.client import SlashCommand
 from tortoise import Tortoise
 
 import config
 
 from src import Context, PartialGuildCache
+from src.errors import NoComponents
+from src.interactions import (
+    ActionRow,
+    Button,
+    CommandInteraction,
+    ComponentInteraction,
+    Interaction,
+    InteractionResponseFlags,
+    InteractionResponseType,
+    InteractionType,
+    Select,
+)
 from tortoise_config import TORTOISE_ORM
 
 __version__ = "v2.0.1"
@@ -67,7 +93,12 @@ class Bot(BotBase):
         self.del_token: str
         self.dbgg_token: str
         self.topgg_token: str
-        SlashCommand(self, sync_commands=True)
+        self.slash_commands: Dict[str, Callable] = {}
+        self.component_listeners: Dict[
+            str, Tuple[Future[Any], Callable[[ComponentInteraction], Awaitable[bool]]]
+        ] = {}
+        self.removed_listeners: List[str] = []
+        self.inject_parsers()
 
     async def init_db(self) -> None:
         await Tortoise.init(config=TORTOISE_ORM)
@@ -104,6 +135,181 @@ class Bot(BotBase):
         if message.guild is not None:
             await ctx.fetch_guild_data()
         await self.invoke(ctx)
+
+    async def on_command_interaction(self, interaction: CommandInteraction) -> None:
+        call = self.slash_commands[interaction.data.name]
+        try:
+            await call(interaction)
+        except Exception as e:
+            self.dispatch("slash_command_error", interaction, e)
+
+    async def on_slash_command_error(
+        self, interaction: CommandInteraction, error: Exception
+    ) -> None:
+        traceback.print_exception(
+            type(error), error, error.__traceback__, file=sys.stderr
+        )
+        if not interaction.responded:
+            await interaction.respond(
+                content=(
+                    "There was an unknown error!\n"
+                    f"Report a bug or get support from the support server at `/info support`\n"
+                    f"Error: {error}"
+                ),
+                response_type=InteractionResponseType.ChannelMessageWithSource,
+                flags=InteractionResponseFlags.EPHEMERAL,
+            )
+        else:
+            await interaction.create_followup(
+                content=(
+                    "There was an unknown error!\n"
+                    f"Report a bug or get support from the support server at `/info support`\n"
+                    f"Error: {error}"
+                ),
+                flags=InteractionResponseFlags.EPHEMERAL,
+            )
+        print(
+            "Ignoring exception in command {}:".format(interaction.data.name),
+            file=sys.stderr,
+        )
+
+    def parse_interaction_create(self, data: Dict[Any, Any]) -> None:
+        interaction = Interaction(data=data, state=self._connection)  # type: ignore
+        if data["type"] == InteractionType.APPLICATION_COMMAND:
+            interaction = CommandInteraction(data=data, state=self._connection)  # type: ignore
+            self.dispatch("command_interaction", interaction)
+        elif data["type"] == InteractionType.MESSAGE_COMPONENT:
+            interaction = ComponentInteraction(data=data, state=self._connection)  # type: ignore
+            self.dispatch("component_interaction", interaction)
+            self.dispatch("check_component_interaction", interaction)
+
+    async def on_check_component_interaction(
+        self, interaction: ComponentInteraction
+    ) -> None:
+        await self.dispatch_components(interaction)
+
+    def parse_unhandled_event(self, data: Dict[Any, Any]) -> None:
+        pass
+
+    def inject_parsers(self) -> None:
+        parsers = {
+            "INTERACTION_CREATE": self.parse_interaction_create,
+            "APPLICATION_COMMAND_CREATE": self.parse_unhandled_event,
+            "APPLICATION_COMMAND_DELETE": self.parse_unhandled_event,
+            "APPLICATION_COMMAND_UPDATE": self.parse_unhandled_event,
+        }
+        self._connection.parsers.update(parsers)  # type: ignore
+
+    def clean_components(
+        self,
+        components: Union[
+            Button, Select, Sequence[Union[Button, Select, ActionRow]], ActionRow
+        ],
+    ) -> Optional[List[Union[Button, Select]]]:
+        result: List[Union[Button, Select]] = []
+        if isinstance(components, (Button, Select)):
+            result.append(components)
+        elif isinstance(components, ActionRow):
+            result.extend(components.components)
+
+        elif isinstance(components, List):
+            for components_in_list in components:
+                next_clean = self.clean_components(components_in_list)
+                if next_clean is not None:
+                    result.extend(next_clean)
+        return result
+
+    def wait_for_components(
+        self,
+        components: Union[
+            Button, Select, Sequence[Union[Button, Select, ActionRow]], ActionRow
+        ],
+        check: Callable[[ComponentInteraction], Awaitable[bool]] = None,
+        timeout: float = None,
+    ) -> "Future[Any]":
+        cleaned_components = self.clean_components(components)
+        if cleaned_components is None or len(cleaned_components) == 0:
+            raise NoComponents()
+        future = self.loop.create_future()
+        if check is None:
+
+            async def _check(interaction: ComponentInteraction) -> bool:
+                return True
+
+            check = _check
+        for component in cleaned_components:
+            self.component_listeners[component.custom_id] = (future, check)
+
+        if len(self.component_listeners) > 1000:
+            logger.warning("Bot.component_listeners exceeded 1000")
+
+        return asyncio.wait_for(future, timeout)
+
+    async def dispatch_components(self, interaction: ComponentInteraction) -> None:
+        custom_id = interaction.component.custom_id
+        listener = self.component_listeners.get(custom_id, None)
+        no_response = False
+        if listener is not None:
+            future, condition = listener
+            if future.done():
+                self.component_listeners.pop(custom_id)
+                no_response = True
+            else:
+                result = await condition(interaction)
+                if result:
+                    future.set_result(interaction)
+                    self.component_listeners.pop(custom_id)
+                else:
+                    no_response = True
+
+        else:
+            no_response = True
+        if no_response:
+            if interaction.responded:
+                return
+            if interaction.message.components is None:
+                # ephemeral message
+                await interaction.respond(
+                    response_type=InteractionResponseType.ChannelMessageWithSource,
+                    content="❗That component could not be found!\n This could be due to an outage, please try the original action again.",
+                    flags=InteractionResponseFlags.EPHEMERAL,
+                )
+            else:
+                components = interaction.message.components
+                for component in components:
+                    if isinstance(component, ActionRow):
+                        for next_component in component.components:
+                            if isinstance(next_component, (Select, Button)):
+                                if (
+                                    next_component.custom_id
+                                    == interaction.component.custom_id
+                                ):
+                                    next_component.disabled = True
+                    if isinstance(component, (Select, Button)):
+                        if component.custom_id == interaction.component.custom_id:
+                            component.disabled = True
+                await interaction.respond(
+                    content=interaction.message.content,
+                    embeds=interaction.message.embeds,
+                    response_type=InteractionResponseType.UpdateMessage,
+                    components=components,
+                )
+                await interaction.create_followup(
+                    content="❗That component could not be found!\n This could be due to an outage, please try the original action again.",
+                    flags=InteractionResponseFlags.EPHEMERAL,
+                )
+
+    async def check_component_listener(self, custom_id: str) -> None:
+        future, check = self.component_listeners[custom_id]
+        if future.done():
+            self.removed_listeners.append(custom_id)
+
+    async def clean_component_listeners(self) -> None:
+        for listener in self.component_listeners:
+            await self.check_component_listener(listener)
+        for custom_id in self.removed_listeners:
+            self.component_listeners.pop(custom_id)
+        self.removed_listeners = []
 
 
 logger = logging.getLogger()
@@ -142,6 +348,7 @@ def run() -> None:
         "cogs.stats",
         "cogs.admin",
         "cogs.setup",
+        "cogs.component_management",
     ]
     if not config.self_host:
         bot.dbl_token = config.dbl_token

@@ -20,8 +20,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import discord
 
-from src import Context, errors
 from main import Bot
+from src import Context, errors
 
 
 async def check_if_manage_role(bot: Bot, ctx: Context) -> bool:

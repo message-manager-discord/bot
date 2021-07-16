@@ -18,17 +18,28 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
+import sys
+import traceback
+
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Awaitable, Callable, Optional, Union
 
 import discord
 
+from discord.embeds import Embed
 from discord.ext import commands
-from discord_slash import SlashContext, cog_ext
-from discord_slash.utils import manage_commands
+from discord.role import Role
 
-from src import Context, errors
 from main import Bot
+from src import Context, errors
+from src.interactions import (
+    ApplicationCommandInteractionDataOption,
+    CommandInteraction,
+    InteractionResponseFlags,
+    InteractionResponseType,
+    PartialChannel,
+    PartialRole,
+)
 from src.models import Channel, LoggingChannel
 
 if TYPE_CHECKING:
@@ -47,17 +58,13 @@ class LogicFunctions:
     def __init__(self, bot: Bot) -> None:
         self.bot = bot
 
-    async def get_prefix_logic(
-        self, guild: discord.Guild, author: discord.Member
-    ) -> str:
+    async def get_prefix_logic(self, guild: discord.Guild) -> str:
         guild = await self.bot.guild_cache.get(guild.id)
         return f"My prefix for this server is: `{guild.prefix}`"
 
     async def set_prefix_logic(
-        self, guild: discord.Guild, author: discord.Member, new_prefix: Optional[str]
+        self, guild: discord.Guild, new_prefix: Optional[str]
     ) -> discord.Embed:
-        if not author.guild_permissions.administrator:
-            raise commands.MissingPermissions(["administrator"])  # type: ignore
         guild_data = await self.bot.guild_cache.get(guild.id)
         current_prefix = guild_data.prefix
         if new_prefix is None:
@@ -83,10 +90,8 @@ class LogicFunctions:
                 )
 
     async def get_logging_logic(
-        self, guild: discord.Guild, author: discord.Member
+        self, guild: discord.Guild
     ) -> Union[discord.Embed, str]:
-        if not author.guild_permissions.administrator:
-            raise commands.MissingPermissions(["administrator"])  # type: ignore
         logging_channel = await LoggingChannel.get_or_none(
             guild_id=guild.id, logger_type="main"
         )
@@ -103,11 +108,8 @@ class LogicFunctions:
     async def set_logging_logic(
         self,
         guild: discord.Guild,
-        author: discord.Member,
         channel_input: Optional[str],
     ) -> Union[discord.Embed, str]:
-        if not author.guild_permissions.administrator:
-            raise commands.MissingPermissions(["administrator"])  # type: ignore
         logging_channel = await LoggingChannel.get_or_none(
             guild_id=guild.id, logger_type="main"
         )
@@ -161,10 +163,8 @@ class LogicFunctions:
             return embed
 
     async def get_admin_role_logic(
-        self, guild: discord.Guild, author: discord.Member
+        self, guild: discord.Guild
     ) -> Union[discord.Embed, str]:
-        if not author.guild_permissions.administrator:
-            raise commands.MissingPermissions(["administrator"])  # type: ignore
         db_guild = await self.bot.guild_cache.get(guild.id)
         role_id = db_guild.management_role_id
         if role_id is None:
@@ -181,10 +181,8 @@ class LogicFunctions:
             )
 
     async def set_admin_role_logic(
-        self, guild: discord.Guild, author: discord.Member, new_role_id: Optional[str]
+        self, guild: discord.Guild, new_role_id: Optional[str]
     ) -> discord.Embed:
-        if not author.guild_permissions.administrator:
-            raise commands.MissingPermissions(["administrator"])  # type: ignore
         db_guild = await self.bot.guild_cache.get(guild.id)
         original_role_id = db_guild.management_role_id
         original_role = (
@@ -263,7 +261,13 @@ class SetupCog(Cog):
                 f"Report a bug or get support from the support server at {self.bot.command_with_prefix(ctx, 'support')}\n"
                 f"Error: {error}"
             )
-            raise error
+
+            print(
+                "Ignoring exception in command {}:".format(ctx.command), file=sys.stderr
+            )
+            traceback.print_exception(
+                type(error), error, error.__traceback__, file=sys.stderr
+            )
 
     @commands.has_guild_permissions(administrator=True)
     @commands.group()
@@ -300,13 +304,13 @@ class SetupCog(Cog):
             raise commands.CheckFailure("Internal error: ctx.guild was None")
         assert isinstance(ctx.author, discord.Member)
         if new_prefix is None:
-            msg = await self.logic_functions.get_prefix_logic(ctx.guild, ctx.author)
+            msg = await self.logic_functions.get_prefix_logic(ctx.guild)
             await ctx.send(msg)
         else:
             if new_prefix.lower() == "none":
                 new_prefix = None
             msg_embed = await self.logic_functions.set_prefix_logic(
-                ctx.guild, ctx.author, new_prefix
+                ctx.guild, new_prefix
             )
             await ctx.send(embed=msg_embed)
 
@@ -316,12 +320,12 @@ class SetupCog(Cog):
         assert ctx.guild is not None
         assert isinstance(ctx.author, discord.Member)
         if role_id_input is None:
-            msg = await self.logic_functions.get_admin_role_logic(ctx.guild, ctx.author)
+            msg = await self.logic_functions.get_admin_role_logic(ctx.guild)
         else:
             if role_id_input.lower() == "none":
                 role_id_input = None
             msg = await self.logic_functions.set_admin_role_logic(
-                ctx.guild, ctx.author, role_id_input
+                ctx.guild, role_id_input
             )
 
         if isinstance(msg, discord.Embed):
@@ -337,13 +341,11 @@ class SetupCog(Cog):
             raise commands.CheckFailure("Internal error: ctx.guild was None")
         assert isinstance(ctx.author, discord.Member)
         if channel_input is None:
-            msg = await self.logic_functions.get_logging_logic(ctx.guild, ctx.author)
+            msg = await self.logic_functions.get_logging_logic(ctx.guild)
         else:
             if channel_input.lower() == "none":
                 channel_input = None
-            msg = await self.logic_functions.set_logging_logic(
-                ctx.guild, ctx.author, channel_input
-            )
+            msg = await self.logic_functions.set_logging_logic(ctx.guild, channel_input)
         if isinstance(msg, discord.Embed):
             await ctx.send(embed=msg)
         else:
@@ -362,307 +364,162 @@ class SetupCogSlash(Cog):
     def __init__(self, bot: Bot, logic_functions: LogicFunctions) -> None:
         self.bot = bot
         self.logic_functions = logic_functions
+        self.bot.slash_commands.update({"settings": self.handle_setup_command})
 
-    @cog_ext.cog_subcommand(
-        base="settings",
-        subcommand_group="set",
-        sub_group_desc=settings_set_group_desc,
-        name="prefix",
-        description="Set the prefix, don't pass anything to reset it.",
-        base_description=settings_base_desc,
-        options=[
-            manage_commands.create_option(
-                name="prefix",
-                description="New prefix",
-                option_type=3,
-                required=False,
-            )
-        ],
-    )
-    async def _set_prefix(
+    async def respond_str_or_embed(
         self,
-        ctx: SlashContext,
-        prefix: Optional[str] = None,
+        interaction: CommandInteraction,
+        msg: Union[str, Embed],
+        ephemeral: bool = False,
     ) -> None:
-        if ctx.guild is None:
-            await ctx.send(
-                content=(
-                    "You've either ran this command in a dm or in a server without the bot user!"
-                    "\nYou cannot run this command in dms"
-                    "\nAnd a bot user is required for this command to work!"
-                    "\nPlease invite me, invite link here: https://messagemanager.xyz/invite"
-                ),
-                hidden=True,
-            )
-            return
-        if ctx.author is None:
-            ctx.author = await ctx.guild.fetch_member(ctx.author_id)
-
-        try:
-
-            msg = await self.logic_functions.set_prefix_logic(
-                ctx.guild, ctx.author, prefix
-            )
-
-        except Exception as e:
-
-            if isinstance(
-                e,
-                (
-                    errors.InputContentIncorrect,
-                    commands.MissingPermissions,
-                    errors.WebhookChannelNotTextChannel,
-                ),
-            ):
-                await ctx.send(content=str(e), hidden=True)
-                return
-
-            else:
-                raise
-        await ctx.send(embeds=[msg])
-
-    @cog_ext.cog_subcommand(
-        base="settings",
-        subcommand_group="get",
-        sub_group_desc=settings_get_group_desc,
-        name="prefix",
-        description="Gets the current prefix",
-        base_description=settings_base_desc,
-    )
-    async def _get_prefix(self, ctx: SlashContext) -> None:
-        if ctx.guild is None:
-
-            await ctx.send(
-                content=(
-                    "You've either ran this command in a dm or in a server without the bot user!"
-                    "\nYou cannot run this command in dms"
-                    "\nAnd a bot user is required for this command to work!"
-                    "\nPlease invite me, invite link here: https://messagemanager.xyz/invite"
-                ),
-                hidden=True,
-            )
-            return
-        if ctx.author is None:
-            ctx.author = await ctx.guild.fetch_member(ctx.author_id)
-
-        try:
-            msg = await self.logic_functions.get_prefix_logic(ctx.guild, ctx.author)
-
-        except commands.MissingPermissions as e:
-
-            await ctx.send(content=str(e), hidden=True)
-            return
-
-        await ctx.send(content=msg)
-
-    @cog_ext.cog_subcommand(
-        base="settings",
-        subcommand_group="set",
-        sub_group_desc=settings_set_group_desc,
-        name="logging",
-        description="Set the logging channel, don't pass anything to remove it.",
-        base_description=settings_base_desc,
-        options=[
-            manage_commands.create_option(
-                name="channel",
-                description="New logging channel",
-                option_type=7,
-                required=False,
-            )
-        ],
-    )
-    async def _set_logging(
-        self,
-        ctx: SlashContext,
-        channel: Optional[Union[discord.TextChannel, int, str]] = None,
-    ) -> None:
-        if ctx.guild is None:
-
-            await ctx.send(
-                content=(
-                    "You've either ran this command in a dm or in a server without the bot user!"
-                    "\nYou cannot run this command in dms"
-                    "\nAnd a bot user is required for this command to work!"
-                    "\nPlease invite me, invite link here: https://messagemanager.xyz/invite"
-                ),
-                hidden=True,
-            )
-            return
-        if ctx.author is None:
-            ctx.author = await ctx.guild.fetch_member(ctx.author_id)
-
-        if not isinstance(channel, (int, str)) and channel is not None:
-
-            channel = channel.id
-
-        if channel is not None:
-            channel = str(channel)
-
-        try:
-
-            msg = await self.logic_functions.set_logging_logic(
-                ctx.guild, ctx.author, channel
-            )
-
-        except Exception as e:
-
-            if isinstance(
-                e,
-                (
-                    errors.InputContentIncorrect,
-                    commands.MissingPermissions,
-                    errors.WebhookChannelNotTextChannel,
-                ),
-            ):
-
-                await ctx.send(content=str(e), hidden=True)
-                return
-
-            else:
-                raise
-
-        await ctx.send(embeds=[msg])
-
-    @cog_ext.cog_subcommand(
-        base="settings",
-        subcommand_group="get",
-        sub_group_desc=settings_get_group_desc,
-        name="logging",
-        description="Gets the logging channel",
-        base_description=settings_base_desc,
-    )
-    async def _get_logging(self, ctx: SlashContext) -> None:
-        if ctx.guild is None:
-
-            await ctx.send(
-                content=(
-                    "You've either ran this command in a dm or in a server without the bot user!"
-                    "\nYou cannot run this command in dms"
-                    "\nAnd a bot user is required for this command to work!"
-                    "\nPlease invite me, invite link here: https://messagemanager.xyz/invite"
-                ),
-                hidden=True,
-            )
-            return
-        if ctx.author is None:
-            ctx.author = await ctx.guild.fetch_member(ctx.author_id)
-
-        try:
-            msg = await self.logic_functions.get_logging_logic(ctx.guild, ctx.author)
-
-        except commands.MissingPermissions as e:
-
-            await ctx.send(content=str(e), hidden=True)
-            return
-
-        if isinstance(msg, str):
-            await ctx.send(content=msg)
+        flags: Optional[InteractionResponseFlags]
+        if ephemeral:
+            flags = InteractionResponseFlags.EPHEMERAL
         else:
-            await ctx.send(embeds=[msg])
-
-    @cog_ext.cog_subcommand(
-        base="settings",
-        subcommand_group="set",
-        sub_group_desc=settings_set_group_desc,
-        name="admin",
-        description="Set the admin role, don't pass anything to remove it.",
-        base_description=settings_base_desc,
-        options=[
-            manage_commands.create_option(
-                name="role",
-                description="Admin role",
-                option_type=8,
-                required=False,
-            )
-        ],
-    )
-    async def _set_admin(
-        self,
-        ctx: SlashContext,
-        role: Optional[Union[discord.Role, int, str]] = None,
-    ) -> None:
-        if ctx.guild is None:
-
-            await ctx.send(
-                content=(
-                    "You've either ran this command in a dm or in a server without the bot user!"
-                    "\nYou cannot run this command in dms"
-                    "\nAnd a bot user is required for this command to work!"
-                    "\nPlease invite me, invite link here: https://messagemanager.xyz/invite"
-                ),
-                hidden=True,
-            )
-            return
-        if ctx.author is None:
-            ctx.author = await ctx.guild.fetch_member(ctx.author_id)
-
-        if not isinstance(role, (int, str)) and role is not None:
-
-            role = role.id
-
-        if role is not None:
-            role = str(role)
-
-        try:
-
-            msg = await self.logic_functions.set_admin_role_logic(
-                ctx.guild, ctx.author, role
-            )
-
-        except Exception as e:
-
-            if isinstance(
-                e,
-                (
-                    errors.InputContentIncorrect,
-                    commands.MissingPermissions,
-                    errors.WebhookChannelNotTextChannel,
-                ),
-            ):
-                await ctx.send(content=str(e), hidden=True)
-                return
-
-            else:
-                raise
-
-        await ctx.send(embeds=[msg])
-
-    @cog_ext.cog_subcommand(
-        base="settings",
-        subcommand_group="get",
-        sub_group_desc=settings_get_group_desc,
-        name="admin",
-        description="Gets the admin role",
-        base_description=settings_base_desc,
-    )
-    async def _get_admin(self, ctx: SlashContext) -> None:
-        if ctx.guild is None:
-
-            await ctx.send(
-                content=(
-                    "You've either ran this command in a dm or in a server without the bot user!"
-                    "\nYou cannot run this command in dms"
-                    "\nAnd a bot user is required for this command to work!"
-                    "\nPlease invite me, invite link here: https://messagemanager.xyz/invite"
-                ),
-                hidden=True,
-            )
-            return
-        if ctx.author is None:
-            ctx.author = await ctx.guild.fetch_member(ctx.author_id)
-
-        try:
-            msg = await self.logic_functions.get_admin_role_logic(ctx.guild, ctx.author)
-
-        except commands.MissingPermissions as e:
-
-            await ctx.send(content=str(e), hidden=True)
-            return
-
+            flags = None
         if isinstance(msg, str):
-            await ctx.send(content=msg)
+            await interaction.respond(
+                response_type=InteractionResponseType.ChannelMessageWithSource,
+                content=msg,
+                flags=flags,
+            )
         else:
-            await ctx.send(embeds=[msg])
+            await interaction.respond(
+                response_type=InteractionResponseType.ChannelMessageWithSource,
+                embeds=[msg],
+                flags=flags,
+            )
+
+    async def clean_option(
+        self, option: Optional[ApplicationCommandInteractionDataOption]
+    ) -> Optional[str]:
+        if option is None:
+            return None
+        else:
+            value = option.value
+        id_objects = (Role, PartialRole, Channel, PartialChannel)
+        if isinstance(value, id_objects):
+            return str(value.id)
+        elif isinstance(value, int):
+            return str(value)
+        elif isinstance(value, str):
+            return value
+        return None
+
+    async def try_function_send_errors(
+        self,
+        interaction: CommandInteraction,
+        function: Callable[
+            [discord.Guild, Optional[str]], Awaitable[Union[Embed, str]]
+        ],
+        guild: discord.Guild,
+        argument: Optional[str],
+    ) -> None:
+        try:
+            msg = await function(guild, argument)
+        except (
+            errors.InputContentIncorrect,
+            errors.WebhookChannelNotTextChannel,
+        ) as e:
+            await interaction.respond(
+                response_type=InteractionResponseType.ChannelMessageWithSource,
+                content=str(e),
+                flags=InteractionResponseFlags.EPHEMERAL,
+            )
+            return
+
+        await self.respond_str_or_embed(interaction, msg)
+
+    async def handle_setup_command(self, interaction: CommandInteraction) -> None:
+        sub_groups = interaction.data.options
+        if sub_groups is None:
+            return
+            # Partly to appease mypy, partly if discord messes up.
+        sub_group_name = sub_groups[0].name
+        sub_commands = sub_groups[0].options
+        # Since it's a subcommand only one option, the command
+        if sub_commands is None:
+            return
+            # Partly to appease mypy, partly if discord messes up.
+        sub_command = sub_commands[0]
+        sub_command_name = sub_command.name
+        if interaction.guild is None:
+            if interaction.guild_id:
+                message = (
+                    "There is an issue with how I was invited to this server."
+                    "\nPlease (reinvite me)[https://messagemanager.xyz/invite] to ensure the full bot is added"
+                )
+            else:
+                message = "This command cannot be ran in dms"
+            await interaction.respond(
+                response_type=InteractionResponseType.ChannelMessageWithSource,
+                content=message,
+                flags=InteractionResponseFlags.EPHEMERAL,
+            )
+            return
+        has_admin = (
+            interaction.member.permissions.administrator
+            if interaction.member is not None
+            and interaction.member.permissions is not None
+            else False
+        )
+        if not has_admin:
+            await interaction.respond(
+                response_type=InteractionResponseType.ChannelMessageWithSource,
+                content="You do not have the required permissions to run this command: `ADMINISTRATOR`",
+                flags=InteractionResponseFlags.EPHEMERAL,
+            )
+            return
+
+        assert interaction.member is not None
+        if sub_group_name == "set":
+            if sub_command_name == "prefix":
+                option = (
+                    sub_command.options[0] if sub_command.options is not None else None
+                )
+                prefix = option.value if option is not None else None
+                await self.try_function_send_errors(
+                    interaction,
+                    self.logic_functions.set_prefix_logic,
+                    interaction.guild,
+                    prefix,
+                )
+            elif sub_command_name == "logging":
+                option = (
+                    sub_command.options[0] if sub_command.options is not None else None
+                )
+                channel = await self.clean_option(option)
+                await self.try_function_send_errors(
+                    interaction,
+                    self.logic_functions.set_logging_logic,
+                    interaction.guild,
+                    channel,
+                )
+            elif sub_command_name == "admin":
+                option = (
+                    sub_command.options[0] if sub_command.options is not None else None
+                )
+                role = await self.clean_option(option)
+                await self.try_function_send_errors(
+                    interaction,
+                    self.logic_functions.set_admin_role_logic,
+                    interaction.guild,
+                    role,
+                )
+        elif sub_group_name == "get":
+            msg: Union[Embed, str]
+            if sub_command_name == "prefix":
+                msg = await self.logic_functions.get_prefix_logic(interaction.guild)
+                await interaction.respond(
+                    response_type=InteractionResponseType.ChannelMessageWithSource,
+                    content=msg,
+                )
+            elif sub_command_name == "logging":
+                msg = await self.logic_functions.get_logging_logic(interaction.guild)
+                await self.respond_str_or_embed(interaction, msg, False)
+            elif sub_command_name == "admin":
+                msg = await self.logic_functions.get_admin_role_logic(interaction.guild)
+                await self.respond_str_or_embed(interaction, msg, False)
 
 
 def setup(bot: Bot) -> None:

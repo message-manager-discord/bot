@@ -1,4 +1,4 @@
-# cogs/listing.py
+# cogs/component_management.py
 
 """
 Message Manager - A bot for discord
@@ -18,12 +18,14 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
+import logging
+
 from typing import TYPE_CHECKING
 
 from discord.ext import commands, tasks
 
 from main import Bot
-from src import Context, list_wrappers
+from src import Context
 
 if TYPE_CHECKING:
     Cog = commands.Cog[Context]
@@ -31,29 +33,21 @@ else:
     Cog = commands.Cog
 
 
-class ListingCog(Cog):
+class ComponentChecking(Cog):
     def __init__(self, bot: Bot) -> None:
         self.bot = bot
-        self.stats_post_loop.start()
-        self.de_list = list_wrappers.Del(token=self.bot.del_token, bot=self.bot)
-        self.dbl = list_wrappers.Dbl(token=self.bot.dbl_token, bot=self.bot)
-        self.dboats = list_wrappers.DBoats(token=self.bot.dboats_token, bot=self.bot)
-        self.dbgg = list_wrappers.Dbgg(token=self.bot.dbgg_token, bot=self.bot)
-        self.topgg = list_wrappers.TopGG(token=self.bot.topgg_token, bot=self.bot)
+        self.check_components.start()
 
     def cog_unload(self) -> None:
-        self.stats_post_loop.cancel()
+        self.check_components.cancel()
 
-    @tasks.loop(minutes=30)
-    async def stats_post_loop(self) -> None:
-        await self.bot.wait_until_ready()
-        await self.de_list.post_guild_stats()
-        await self.dbl.post_guild_stats()
-        await self.dboats.post_guild_stats()
-        await self.dbgg.post_guild_stats()
-        await self.topgg.post_guild_stats()
+    @tasks.loop(minutes=120)
+    async def check_components(self) -> None:
+        logging.debug(f"Checking component listeners: {self.bot.component_listeners}")
+        await self.bot.clean_component_listeners()
+        logging.debug(f"Finished checking: {self.bot.component_listeners}")
 
 
 def setup(bot: Bot) -> None:
-    bot.add_cog(ListingCog(bot))
+    bot.add_cog(ComponentChecking(bot))
     print("    Listing cog!")
