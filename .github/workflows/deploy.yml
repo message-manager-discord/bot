@@ -42,4 +42,6 @@ jobs:
             git pull origin master --tags
             git checkout $GITHUB_REF
             pipenv install
-            pm2 restart $PROCESS_ID -s
+            pm2 stop $PROCESS_ID -s
+            pipenv run aerich upgrade
+            pm2 start $PROCESS_ID -s
