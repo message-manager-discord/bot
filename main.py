@@ -60,7 +60,7 @@ from src.interactions import (
 )
 from tortoise_config import TORTOISE_ORM
 
-__version__ = "v2.0.1"
+__version__ = "v2.1"
 
 if TYPE_CHECKING:
     BotBase = commands.Bot[Context]

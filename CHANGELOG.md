@@ -1,5 +1,15 @@
 # Changelog - Bot
 
+## v2.1 - Interactions
+
+- Add custom interaction handlers
+  - Remove `discord-py-slash-command`
+- Add component handlers
+- Add components
+- Add checks to message commands
+- Fix aerich
+- Upgrade dependencies
+
 ## v2.0.1 - Changes
 
 - Fix `id` named `channel_id` when fetching channel from database. 
