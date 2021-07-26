@@ -20,11 +20,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import asyncio
 import datetime
+import logging
 import random
 import string
-import sys
-import traceback
-import logging
+
 
 from math import floor
 from typing import TYPE_CHECKING
@@ -42,6 +41,8 @@ else:
     Cog = commands.Cog
 
 logger = logging.getLogger(__name__)
+
+
 class AdminCog(Cog):
     def __init__(self, bot: Bot) -> None:
         self.bot = bot
@@ -69,7 +70,9 @@ class AdminCog(Cog):
                 f"Report a bug or get support from the support server at {self.bot.command_with_prefix(ctx, 'support')}\n"
                 f"Error: {error}"
             )
-            logger.error(f'Ignoring exception in interaction {ctx.command}:', exc_info = error)
+            logger.error(
+                f"Ignoring exception in interaction {ctx.command}:", exc_info=error
+            )
 
     @commands.command(hidden=True)
     async def load(self, ctx: Context, *, module: str) -> None:

@@ -20,10 +20,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import asyncio
 import json
-import os
-import sys
-import traceback
 import logging
+import os
+
 
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Dict, List, NamedTuple, Optional, TypedDict, Union
@@ -52,6 +51,7 @@ else:
 
 
 logger = logging.getLogger(__name__)
+
 
 class ComfirmEmbedTuple(NamedTuple):
     confirmation_embed: discord.Embed
@@ -185,7 +185,9 @@ class MessagesCog(Cog):
                 f"Error: {error}"
             )
 
-            logger.error(f'Ignoring exception in command {ctx.command}:', exc_info = error)
+            logger.error(
+                f"Ignoring exception in command {ctx.command}:", exc_info=error
+            )
 
     async def check_channel(
         self, ctx: Context, channel: Optional[discord.TextChannel]

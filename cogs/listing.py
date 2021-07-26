@@ -18,8 +18,9 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-from typing import TYPE_CHECKING
 import logging
+
+from typing import TYPE_CHECKING
 
 from discord.ext import commands, tasks
 
@@ -33,6 +34,7 @@ else:
 
 
 logger = logging.getLogger(__name__)
+
 
 class ListingCog(Cog):
     def __init__(self, bot: Bot) -> None:

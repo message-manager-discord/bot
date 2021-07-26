@@ -33,6 +33,8 @@ else:
     Cog = commands.Cog
 
 logger = logging.getLogger(__name__)
+
+
 class ComponentChecking(Cog):
     def __init__(self, bot: Bot) -> None:
         self.bot = bot

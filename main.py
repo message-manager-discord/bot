@@ -18,13 +18,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 import asyncio
-from discord.errors import DiscordException
-import sentry_sdk
-import subprocess
 import datetime
 import logging
-import sys
-import traceback
+
 
 from asyncio.futures import Future
 from typing import (
@@ -42,6 +38,7 @@ from typing import (
 
 import aiohttp
 import discord
+import sentry_sdk
 
 from discord.ext import commands
 from tortoise import Tortoise
@@ -64,15 +61,11 @@ from src.interactions import (
 from tortoise_config import TORTOISE_ORM
 
 __version__ = "v2.1"
-__hash__ = subprocess.check_output(["git", "rev-parse", "HEAD"]).strip()
 
 if TYPE_CHECKING:
     BotBase = commands.Bot[Context]
 else:
     BotBase = commands.Bot
-
-
-
 
 
 class Bot(BotBase):
@@ -154,7 +147,7 @@ class Bot(BotBase):
         self, interaction: CommandInteraction, error: Exception
     ) -> None:
         name = interaction.data.name
-        logger.error(f'Ignoring exception in interaction {name}:', exc_info = error)
+        logger.error(f"Ignoring exception in interaction {name}:", exc_info=error)
         if not interaction.responded:
             await interaction.respond(
                 content=(
@@ -313,10 +306,10 @@ class Bot(BotBase):
             self.component_listeners.pop(custom_id)
         self.removed_listeners = []
 
-    async def on_error(self, event_method: str, *args: Any, **kwargs: Any):
-        logger.error(f'Ignoring exception in {event_method}', exc_info=True)
+    async def on_error(self, event_method: str, *args: Any, **kwargs: Any) -> None:
+        logger.error(f"Ignoring exception in {event_method}", exc_info=True)
 
-    async def on_command_error(self, context: Context, exception: DiscordException):
+    async def on_command_error(self, context: Context, exception: Exception) -> None:
         command = context.command
         if command and command.has_error_handler():
             return
@@ -325,19 +318,22 @@ class Bot(BotBase):
         if cog and cog.has_error_handler():
             return
 
-        logger.error(f'Ignoring exception in command {context.command}:', exc_info = exception)
+        logger.error(
+            f"Ignoring exception in command {context.command}:", exc_info=exception
+        )
 
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(format = "%(asctime)s:%(levelname)s:%(name)s: %(message)s", level=logging.INFO)
+logging.basicConfig(
+    format="%(asctime)s:%(levelname)s:%(name)s: %(message)s", level=logging.INFO
+)
 # Setup sentry
 if hasattr(config, "sentry_dsn"):
     logger.info("Started sentry")
 
-    
     sentry_sdk.init(
         config.sentry_dsn,
-        release = f"bot@{__version__}",
+        release=f"bot@{__version__}",
         traces_sample_rate=0.5,
     )
 

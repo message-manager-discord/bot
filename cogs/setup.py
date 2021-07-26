@@ -18,9 +18,8 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-import sys
-import traceback
 import logging
+
 
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Awaitable, Callable, Optional, Union
@@ -55,6 +54,7 @@ settings_get_group_desc = "Gets the current value of the setting"
 settings_base_desc = "Set and get values of settings"
 
 logger = logging.getLogger(__name__)
+
 
 class LogicFunctions:
     def __init__(self, bot: Bot) -> None:
@@ -263,7 +263,9 @@ class SetupCog(Cog):
                 f"Report a bug or get support from the support server at {self.bot.command_with_prefix(ctx, 'support')}\n"
                 f"Error: {error}"
             )
-            logger.error(f'Ignoring exception in interaction {ctx.command}:', exc_info = error)
+            logger.error(
+                f"Ignoring exception in interaction {ctx.command}:", exc_info=error
+            )
 
     @commands.has_guild_permissions(administrator=True)
     @commands.group()
