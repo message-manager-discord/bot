@@ -24,7 +24,6 @@ import logging
 import random
 import string
 
-
 from math import floor
 from typing import TYPE_CHECKING
 

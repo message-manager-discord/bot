@@ -591,14 +591,14 @@ class PartialChannel:
         self.permissions = Permissions(int(data["permissions"]))
 
 
-def send_message_components(
+async def send_message_components(
     *,
     content: Optional[str] = None,
     state: ConnectionState,
     channel_id: int,
     embed: Optional[Embed] = None,
     components: Optional[Sequence[Union[ActionRow, Button, Select]]] = None,
-) -> Any:
+) -> int:
 
     allowed_mentions = state.allowed_mentions and state.allowed_mentions.to_dict()  # type: ignore
     components = [c.to_dict() for c in components] if components is not None else None
@@ -618,4 +618,46 @@ def send_message_components(
     if components:
         payload["components"] = components
 
-    return state.http.request(r, json=payload)  # type: ignore
+    response = await state.http.request(r, json=payload)
+    message_id = int(response["id"])
+
+    return message_id
+
+
+async def edit_message_components(
+    *,
+    content: Optional[str] = None,
+    state: ConnectionState,
+    channel_id: int,
+    message_id: int,
+    embed: Optional[Embed] = None,
+    components: Optional[Sequence[Union[ActionRow, Button, Select]]] = None,
+) -> int:
+
+    allowed_mentions = state.allowed_mentions and state.allowed_mentions.to_dict()  # type: ignore
+    components = [c.to_dict() for c in components] if components is not None else None
+
+    r = Route(
+        "PATCH",
+        "/channels/{channel_id}/messages/{message_id}",
+        channel_id=channel_id,
+        message_id=message_id,
+    )
+    payload: Dict[str, Any] = {}
+
+    if content:
+        payload["content"] = content
+
+    if embed:
+        payload["embeds"] = [embed.to_dict()]
+
+    if allowed_mentions:
+        payload["allowed_mentions"] = allowed_mentions
+
+    if components:
+        payload["components"] = components
+
+    response = await state.http.request(r, json=payload)
+    message_id = int(response["id"])
+
+    return message_id

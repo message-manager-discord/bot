@@ -23,7 +23,6 @@ import json
 import logging
 import os
 
-
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Dict, List, NamedTuple, Optional, TypedDict, Union
 
@@ -41,6 +40,7 @@ from src.interactions import (
     InteractionResponseFlags,
     InteractionResponseType,
     PartialEmoji,
+    edit_message_components,
     send_message_components,
 )
 
@@ -99,7 +99,7 @@ async def confirm(
         )
     ]
 
-    await send_message_components(
+    msg_id = await send_message_components(
         embed=embed, channel_id=channel_id, components=components, state=bot._connection  # type: ignore
     )
 
@@ -114,15 +114,14 @@ async def confirm(
         else:
             return True
 
-    button_interaction: ComponentInteraction = await bot.wait_for_components(
-        components=components, check=check
-    )
-    if button_interaction.component.custom_id == confirm_custom_id:
-        state = "a success"
-        return_value = True
-        colour = discord.Colour.green()
-    else:
-        state = "cancelled"
+    try:
+        button_interaction: ComponentInteraction = await bot.wait_for_components(
+            components=components, check=check, timeout=60.0
+        )
+    except asyncio.TimeoutError:
+        for component in components[0].components:
+            component.disabled = True
+        state = "timed out"
         colour = discord.Colour.red()
         if original_content:
             finished_embed.add_field(
@@ -133,17 +132,43 @@ async def confirm(
             )
         else:
             finished_embed.add_field(name=content_name, value=content)
-        return_value = False
-    finished_embed.colour = colour
-    finished_embed.title = finished_embed.title.format(state=state)  # type: ignore
-    for component in components[0].components:
-        component.disabled = True
-    await button_interaction.respond(
-        response_type=InteractionResponseType.UpdateMessage,
-        embeds=[finished_embed],
-        components=components,
-    )
-    return return_value
+        finished_embed.colour = colour
+        finished_embed.title = finished_embed.title.format(state=state)  # type: ignore
+        await edit_message_components(
+            embed=finished_embed, components=components, channel_id=channel_id, message_id=msg_id, state=bot._connection  # type: ignore
+        )
+        return False
+    else:
+
+        if button_interaction.component.custom_id == confirm_custom_id:
+            state = "was a success"
+            return_value = True
+            colour = discord.Colour.green()
+        else:
+            state = "was cancelled"
+            colour = discord.Colour.red()
+            if original_content:
+                finished_embed.add_field(
+                    name=f"New {content_name}", value=content, inline=False
+                )
+                finished_embed.add_field(
+                    name=f"Original {content_name}",
+                    value=original_content,
+                    inline=False,
+                )
+            else:
+                finished_embed.add_field(name=content_name, value=content)
+            return_value = False
+        finished_embed.colour = colour
+        finished_embed.title = finished_embed.title.format(state=state)  # type: ignore
+        for component in components[0].components:
+            component.disabled = True
+        await button_interaction.respond(
+            response_type=InteractionResponseType.UpdateMessage,
+            embeds=[finished_embed],
+            components=components,
+        )
+        return return_value
 
 
 class MessagesCog(Cog):
@@ -402,7 +427,7 @@ class MessagesCog(Cog):
             cleaned_original_content = None
 
         finish_embed = discord.Embed(
-            title=f"{action} the {message_type} was {'{state}'}.",
+            title=f"{action} the {message_type} {'{state}'}.",
         )
         if description is not None:
             finish_embed.description = description

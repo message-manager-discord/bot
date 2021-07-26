@@ -20,7 +20,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import logging
 import platform
 
-
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Optional
 
