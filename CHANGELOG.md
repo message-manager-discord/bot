@@ -1,5 +1,10 @@
 # Changelog - Bot
 
+## v2.2 - Logging and timeout
+
+- Added 60s timeout to the confirm stage
+- Added sentry logging
+
 ## v2.1 - Interactions
 
 - Add custom interaction handlers
