@@ -20,6 +20,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import platform
 import sys
 import traceback
+import logging
 
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Optional
@@ -43,6 +44,8 @@ else:
     Cog = commands.Cog
 
 info_base_description = "Information Commands"
+
+logger = logging.getLogger(__name__)
 
 
 async def create_info_embed(
@@ -157,26 +160,13 @@ class MainCog(Cog):
         self.bot = bot
         self.bot.slash_commands.update({"info": self.handle_info_command})
 
-    async def on_command_error(
-        self, ctx: Context, error: discord.DiscordException
-    ) -> None:
-        await ctx.send(
-            "There was an unknown error!\n"
-            f"Report a bug or get support from the support server at {self.bot.command_with_prefix(ctx, 'support')}\n"
-            f"Error: {error}"
-        )
-        print("Ignoring exception in command {}:".format(ctx.command), file=sys.stderr)
-        traceback.print_exception(
-            type(error), error, error.__traceback__, file=sys.stderr
-        )
-
     @commands.Cog.listener()
     async def on_ready(self) -> None:
         # Print the bot invite link
-        print(
+        logger.info(
             f"https://discord.com/api/oauth2/authorize?client_id={self.bot.user.id}&permissions=537250880&scope=applications.commands%20bot"
         )
-        print(f"Logged on as {self.bot.user}!")
+        logger.info(f"Logged on as {self.bot.user}!")
         self.bot.load_time = datetime.utcnow()
 
     @commands.Cog.listener()
@@ -389,4 +379,4 @@ class MainCog(Cog):
 
 def setup(bot: Bot) -> None:
     bot.add_cog(MainCog(bot))
-    print("    Main cog!")
+    logger.info("Main cog!")

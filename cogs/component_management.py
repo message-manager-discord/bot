@@ -32,7 +32,7 @@ if TYPE_CHECKING:
 else:
     Cog = commands.Cog
 
-
+logger = logging.getLogger(__name__)
 class ComponentChecking(Cog):
     def __init__(self, bot: Bot) -> None:
         self.bot = bot
@@ -43,11 +43,11 @@ class ComponentChecking(Cog):
 
     @tasks.loop(minutes=120)
     async def check_components(self) -> None:
-        logging.debug(f"Checking component listeners: {self.bot.component_listeners}")
+        logger.debug(f"Checking component listeners: {self.bot.component_listeners}")
         await self.bot.clean_component_listeners()
-        logging.debug(f"Finished checking: {self.bot.component_listeners}")
+        logger.debug(f"Finished checking: {self.bot.component_listeners}")
 
 
 def setup(bot: Bot) -> None:
     bot.add_cog(ComponentChecking(bot))
-    print("    Listing cog!")
+    logger.info("Component checks cog!")

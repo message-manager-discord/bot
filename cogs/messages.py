@@ -23,6 +23,7 @@ import json
 import os
 import sys
 import traceback
+import logging
 
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Dict, List, NamedTuple, Optional, TypedDict, Union
@@ -49,6 +50,8 @@ if TYPE_CHECKING:
 else:
     Cog = commands.Cog
 
+
+logger = logging.getLogger(__name__)
 
 class ComfirmEmbedTuple(NamedTuple):
     confirmation_embed: discord.Embed
@@ -182,12 +185,7 @@ class MessagesCog(Cog):
                 f"Error: {error}"
             )
 
-            print(
-                "Ignoring exception in command {}:".format(ctx.command), file=sys.stderr
-            )
-            traceback.print_exception(
-                type(error), error, error.__traceback__, file=sys.stderr
-            )
+            logger.error(f'Ignoring exception in command {ctx.command}:', exc_info = error)
 
     async def check_channel(
         self, ctx: Context, channel: Optional[discord.TextChannel]
@@ -1055,4 +1053,4 @@ class MessagesCog(Cog):
 
 def setup(bot: Bot) -> None:
     bot.add_cog(MessagesCog(bot))
-    print("    Messages cog!")
+    logger.info("Messages cog!")

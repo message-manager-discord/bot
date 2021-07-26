@@ -11,6 +11,7 @@ jishaku = "*"
 discord-py-slash-command = "~=1.1"
 tortoise-orm = {extras = ["asyncpg"], version = "*"}
 aerich = "*"
+sentry-sdk = "*"
 
 [dev-packages]
 black = "==21.4b2"

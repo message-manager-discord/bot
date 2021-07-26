@@ -20,11 +20,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import sys
 import traceback
+import logging
 
 from discord.ext import commands
 
 from src import Context, errors
 
+
+logger = logging.getLogger(__name__)
 
 class StatsCog(commands.Cog):
     def __init__(self, bot):
@@ -47,13 +50,7 @@ class StatsCog(commands.Cog):
                 f"Report a bug or get support from the support server at {self.bot.command_with_prefix(ctx, 'support')}\n"
                 f"Error: {error}"
             )
-
-            print(
-                "Ignoring exception in command {}:".format(ctx.command), file=sys.stderr
-            )
-            traceback.print_exception(
-                type(error), error, error.__traceback__, file=sys.stderr
-            )
+            logger.error(f'Ignoring exception in interaction {ctx.command}:', exc_info = error)
 
     @commands.group()
     async def stats(self, ctx: Context):
@@ -70,4 +67,4 @@ class StatsCog(commands.Cog):
 
 def setup(bot):
     bot.add_cog(StatsCog(bot))
-    print("    Stats cog!")
+    logger.info("Stats cog!")

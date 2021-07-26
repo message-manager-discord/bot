@@ -19,9 +19,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 import discord
+import logging
 
 from main import Bot
 from src import Context, errors
+
+logger = logging.getLogger(__name__)
 
 
 async def check_if_manage_role(bot: Bot, ctx: Context) -> bool:
@@ -61,4 +64,4 @@ def guild_only(bot: Bot, ctx: Context) -> bool:
 
 
 def setup(bot: Bot) -> None:
-    print("    Checks!")
+    logger.info("Checks!")

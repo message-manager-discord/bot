@@ -19,6 +19,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 from typing import TYPE_CHECKING
+import logging
 
 from discord.ext import commands, tasks
 
@@ -30,6 +31,8 @@ if TYPE_CHECKING:
 else:
     Cog = commands.Cog
 
+
+logger = logging.getLogger(__name__)
 
 class ListingCog(Cog):
     def __init__(self, bot: Bot) -> None:
@@ -56,4 +59,4 @@ class ListingCog(Cog):
 
 def setup(bot: Bot) -> None:
     bot.add_cog(ListingCog(bot))
-    print("    Listing cog!")
+    logger.log("Listing cog!")

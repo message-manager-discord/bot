@@ -20,6 +20,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import sys
 import traceback
+import logging
 
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Awaitable, Callable, Optional, Union
@@ -53,6 +54,7 @@ settings_get_group_desc = "Gets the current value of the setting"
 
 settings_base_desc = "Set and get values of settings"
 
+logger = logging.getLogger(__name__)
 
 class LogicFunctions:
     def __init__(self, bot: Bot) -> None:
@@ -261,13 +263,7 @@ class SetupCog(Cog):
                 f"Report a bug or get support from the support server at {self.bot.command_with_prefix(ctx, 'support')}\n"
                 f"Error: {error}"
             )
-
-            print(
-                "Ignoring exception in command {}:".format(ctx.command), file=sys.stderr
-            )
-            traceback.print_exception(
-                type(error), error, error.__traceback__, file=sys.stderr
-            )
+            logger.error(f'Ignoring exception in interaction {ctx.command}:', exc_info = error)
 
     @commands.has_guild_permissions(administrator=True)
     @commands.group()
@@ -526,4 +522,4 @@ def setup(bot: Bot) -> None:
     logic_functions = LogicFunctions(bot)
     bot.add_cog(SetupCog(bot, logic_functions))
     bot.add_cog(SetupCogSlash(bot, logic_functions))
-    print("    Setup cog!")
+    logger.info("Setup cog!")
