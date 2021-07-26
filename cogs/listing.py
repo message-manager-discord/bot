@@ -61,4 +61,4 @@ class ListingCog(Cog):
 
 def setup(bot: Bot) -> None:
     bot.add_cog(ListingCog(bot))
-    logger.log("Listing cog!")
+    logger.info("Listing cog!")
