@@ -4,6 +4,8 @@ owner = None
 owners = {0}
 uri = "postgres://user:password@host/database"
 
+sentry_dsn = "" # DSN for sentry error logging
+
 guild_cache_max = 500
 guild_cache_drop = 50
 
