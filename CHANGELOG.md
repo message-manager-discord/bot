@@ -1,5 +1,10 @@
 # Changelog - Bot
 
+
+## v2.2.1 - Small Fixes
+
+- Handle JSON embed errors correctly
+
 ## v2.2 - Logging and timeout
 
 - Added 60s timeout to the confirm stage
