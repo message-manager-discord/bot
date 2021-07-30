@@ -62,7 +62,7 @@ class InputContentIncorrect(CheckFailure):
     pass
 
 
-class JSONFailure(DiscordException):
+class JSONFailure(CheckFailure):
     pass
 
 

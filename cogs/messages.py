@@ -65,6 +65,20 @@ class FieldDict(TypedDict):
     value: str
     inline: bool
 
+def embed_from_dict(d: dict) -> discord.Embed:
+    try:
+        e = discord.Embed.from_dict(d)
+        return e
+
+    except TypeError as e:
+        raise errors.InputContentIncorrect(
+            "The json that you specified was not correct, please check and try again.\n"
+            f"Get support from the docs or the support server at `/info support`\n"
+            f"Error message: {e}"
+        )
+        
+
+
 
 async def confirm(
     bot: Bot,
@@ -783,7 +797,7 @@ class MessagesCog(Cog):
                 if "title" in embed:
                     log_embed.add_field(name=f"Embed {n}", value=embed["title"])
                     embed_titles.append(embed["title"])
-                final_embeds.append(discord.Embed.from_dict(embed))
+                final_embeds.append(embed_from_dict(embed))
                 n = n + 1
 
         else:
@@ -792,7 +806,7 @@ class MessagesCog(Cog):
                     dict_content.pop("timestamp")
             except KeyError:
                 pass
-            final_embeds.append(discord.Embed.from_dict(dict_content))
+            final_embeds.append(embed_from_dict(dict_content))
             if "title" in dict_content:
                 log_embed.add_field(name="Embed title", value=dict_content["title"])
                 embed_titles.append(dict_content["title"])
@@ -1022,7 +1036,7 @@ class MessagesCog(Cog):
                     embed.pop("timestamp")
             except KeyError:
                 pass
-            final_embed = discord.Embed.from_dict(embed)
+            final_embed = embed_from_dict(embed)
 
         else:
             try:
@@ -1030,7 +1044,7 @@ class MessagesCog(Cog):
                     new_dict_content.pop("timestamp")
             except KeyError:
                 pass
-            final_embed = discord.Embed.from_dict(new_dict_content)
+            final_embed = embed_from_dict(new_dict_content)
         content_for_confirm = final_embed.title or "No Title"
         if not isinstance(content_for_confirm, str):
             content_for_confirm = "Content too complicated to condense"
