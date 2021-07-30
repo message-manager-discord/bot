@@ -65,6 +65,7 @@ class FieldDict(TypedDict):
     value: str
     inline: bool
 
+
 def embed_from_dict(d: dict) -> discord.Embed:
     try:
         e = discord.Embed.from_dict(d)
@@ -76,8 +77,6 @@ def embed_from_dict(d: dict) -> discord.Embed:
             f"Get support from the docs or the support server at `/info support`\n"
             f"Error message: {e}"
         )
-        
-
 
 
 async def confirm(
