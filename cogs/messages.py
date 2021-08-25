@@ -50,6 +50,10 @@ else:
     Cog = commands.Cog
 
 
+MAX_CONTENT_LENGTH = 2000
+MAX_EMBED_TITLE_LENGTH = 256
+MAX_EMBED_DESCRIPTION_LENGTH = 4096
+
 logger = logging.getLogger(__name__)
 
 
@@ -64,6 +68,15 @@ class FieldDict(TypedDict):
     name: str
     value: str
     inline: bool
+
+
+def check_content_length(
+    content: str, content_name: str = "Content", max_length: int = MAX_CONTENT_LENGTH
+) -> None:
+    if len(content) > max_length:
+        raise errors.InputContentTooLong(
+            name_of_content=content_name, max_content_length=max_length
+        )
 
 
 def embed_from_dict(d: dict) -> discord.Embed:
@@ -204,6 +217,7 @@ class MessagesCog(Cog):
                 errors.InputContentIncorrect,
                 errors.DifferentAuthor,
                 errors.JSONFailure,
+                errors.InputContentTooLong,
                 commands.NoPrivateMessage,
             ),
         ):
@@ -260,7 +274,7 @@ class MessagesCog(Cog):
 
         return channel
 
-    async def check_content(
+    async def check_content_or_get_content(
         self,
         ctx: Context,
         content: Optional[str],
@@ -276,6 +290,25 @@ class MessagesCog(Cog):
             return content
         else:
             return content
+
+    async def check_content(
+        self,
+        ctx: Context,
+        content: Optional[str],
+        ask_message: str = "What is the content of the message to be?",
+        max_content_length: Optional[int] = None,
+        content_name: str = "Content",
+    ) -> str:
+        checked_content = await self.check_content_or_get_content(
+            ctx=ctx, content=content, ask_message=ask_message
+        )
+        if max_content_length is not None:
+            check_content_length(
+                content=checked_content,
+                max_length=max_content_length,
+                content_name=content_name,
+            )
+        return checked_content
 
     async def check_message_id(
         self,
@@ -466,7 +499,9 @@ class MessagesCog(Cog):
         channel = await self.check_channel(ctx, channel)  # Get the channel.
         if channel.guild != ctx.guild:
             raise errors.DifferentServer()
-        content = await self.check_content(ctx, content)
+        content = await self.check_content(
+            ctx, content, max_content_length=MAX_CONTENT_LENGTH
+        )
         if content[1:4] == "```" and content[-3:] == "```":
             content = content[4:-3]
 
@@ -515,7 +550,9 @@ class MessagesCog(Cog):
         if msg.author != ctx.guild.me:
             raise errors.DifferentAuthor()
 
-        content = await self.check_content(ctx, content)
+        content = await self.check_content(
+            ctx, content, max_content_length=MAX_CONTENT_LENGTH
+        )
         if content[1:4] == "```" and content[-3:] == "```":
             content = content[4:-3]
 
@@ -690,12 +727,20 @@ class MessagesCog(Cog):
             if channel.guild != ctx.guild:
                 raise errors.DifferentServer()
             title = await self.check_content(
-                ctx, None, ask_message="Enter the title of the embed:"
+                ctx,
+                None,
+                ask_message="Enter the title of the embed:",
+                max_content_length=MAX_EMBED_TITLE_LENGTH,
+                content_name="Title",
             )
             if title[0:3] == "```" and title[-3:] == "```":
                 title = title[3:-3]
             description = await self.check_content(
-                ctx, None, ask_message="Enter the description (main body) of the embed:"
+                ctx,
+                None,
+                ask_message="Enter the description (main body) of the embed:",
+                max_content_length=MAX_EMBED_DESCRIPTION_LENGTH,
+                content_name="Description",
             )
             if description[0:3] == "```" and description[-3:] == "```":
                 description = description[3:-3]
@@ -897,7 +942,11 @@ class MessagesCog(Cog):
             )
 
         title = await self.check_content(
-            ctx, None, ask_message="Enter the new title of the embed:"
+            ctx,
+            None,
+            ask_message="Enter the new title of the embed:",
+            max_content_length=MAX_EMBED_TITLE_LENGTH,
+            content_name="Title",
         )
         if title[0:3] == "```" and title[-3:] == "```":
             title = title[3:-3]
@@ -905,6 +954,8 @@ class MessagesCog(Cog):
             ctx,
             None,
             ask_message="Enter the new description (main body) of the embed:",
+            max_content_length=MAX_EMBED_DESCRIPTION_LENGTH,
+            content_name="Description",
         )
         if description[0:3] == "```" and description[-3:] == "```":
             description = description[3:-3]

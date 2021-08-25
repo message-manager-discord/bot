@@ -18,7 +18,7 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-from typing import Any
+from typing import Any, Optional
 
 from discord import DiscordException
 from discord.ext.commands import CheckFailure
@@ -36,7 +36,7 @@ class DifferentServer(CheckFailure):
     def __init__(
         self,
         message: str = "That channel is not in this server, Please re-do the command",
-        *args: Any
+        *args: Any,
     ) -> None:
         super().__init__(message, *args)
 
@@ -45,7 +45,7 @@ class DifferentAuthor(CheckFailure):
     def __init__(
         self,
         message: str = "That message was not sent by me! I cannot edit messages sent by others.",
-        *args: Any
+        *args: Any,
     ) -> None:
         super().__init__(message, *args)
 
@@ -60,6 +60,21 @@ class MissingPermission(CheckFailure):
 
 class InputContentIncorrect(CheckFailure):
     pass
+
+
+class InputContentTooLong(CheckFailure):
+    def __init__(
+        self,
+        message: Optional[str] = None,
+        name_of_content: str = "Content",
+        max_content_length: int = 2000,
+        *args: Any,
+    ) -> None:
+        if message is None:
+            message = (
+                f"{name_of_content} must be {max_content_length} characters or less"
+            )
+        super().__init__(message, *args)
 
 
 class JSONFailure(CheckFailure):
