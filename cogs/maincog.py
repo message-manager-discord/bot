@@ -24,6 +24,7 @@ from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Optional
 
 import discord
+from discord.channel import TextChannel
 
 from discord.ext import commands
 
@@ -157,6 +158,13 @@ class MainCog(Cog):
     def __init__(self, bot: Bot) -> None:
         self.bot = bot
         self.bot.slash_commands.update({"info": self.handle_info_command})
+
+    async def cog_check(self, ctx: Context) -> bool:
+        if isinstance(ctx.channel, TextChannel) and ctx.guild:
+            perms = ctx.channel.permissions_for(ctx.guild.me)
+        else:
+            return True
+        return perms.send_messages and perms.embed_links
 
     @commands.Cog.listener()
     async def on_ready(self) -> None:
