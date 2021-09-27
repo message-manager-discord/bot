@@ -2,7 +2,7 @@ name: SentryRelease
 on:
 
   push:
-    branches: [ master ]
+    tags: v*
 
 jobs:
   publish-release:
@@ -10,6 +10,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      
+      - name: 'Get Previous tag'
+        id: previoustag
+        uses: "WyriHaximus/github-action-get-previous-tag@v1"
+        with:
+          fallback: 0.0.0
 
       - name: Sentry Release
         uses: getsentry/action-release@v1.1.6
@@ -19,4 +25,5 @@ jobs:
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
         with:
           environment: production 
+          version: ${{steps.previoustag.outputs.tag}}
           
