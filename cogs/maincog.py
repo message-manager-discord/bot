@@ -296,7 +296,7 @@ class MainCog(Cog):
                 if help_command is not None:
                     await ctx.invoke(help_command)
 
-        await success(ctx)
+        await success_analytics(ctx)
 
     async def handle_info_command(self, interaction: CommandInteraction) -> None:
         sub_commands = interaction.data.options
