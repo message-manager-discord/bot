@@ -285,7 +285,7 @@ class Interaction:
         self.channel_id = int(data["channel_id"]) if "channel_id" in data else None
         self.member = (
             InteractionMember(data=data["member"], state=state, guild=self.guild)
-            if "member"
+            if "member" in data
             else None
         )
         self.user = (
