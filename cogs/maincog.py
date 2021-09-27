@@ -21,11 +21,11 @@ import logging
 import platform
 
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Awaitable, Optional
 
 import discord
-from discord.channel import TextChannel
 
+from discord.channel import TextChannel
 from discord.ext import commands
 
 from main import Bot
@@ -36,6 +36,8 @@ from src.interactions import (
     InteractionResponseFlags,
     InteractionResponseType,
 )
+from src.models import CommandStatus, CommandUsageAnalytics
+from src.analytics import success_analytics
 
 if TYPE_CHECKING:
     Cog = commands.Cog[Context]
@@ -294,6 +296,8 @@ class MainCog(Cog):
                 if help_command is not None:
                     await ctx.invoke(help_command)
 
+        await success(ctx)
+
     async def handle_info_command(self, interaction: CommandInteraction) -> None:
         sub_commands = interaction.data.options
         if sub_commands is None:
@@ -347,6 +351,20 @@ class MainCog(Cog):
                 flags=InteractionResponseFlags.EPHEMERAL,
                 embeds=[create_support_embed()],
             )
+        if sub_name in (
+            "info",
+            "ping",
+            "privacy",
+            "invite",
+            "docs",
+            "source",
+            "support",
+        ):
+            await CommandUsageAnalytics.create(
+                guild_id=interaction.guild_id,
+                command_name=["info", sub_name],
+                slash=True,
+            )
 
     # Create the info command.
     @commands.command(name="info")
@@ -356,31 +374,38 @@ class MainCog(Cog):
             bot=self.bot, guild_id=guild_id, guild_data=ctx.guild_data
         )
         await ctx.send(embed=embed)
+        await success_analytics(ctx)
 
     @commands.command(name="ping")
     async def ping(self, ctx: Context) -> None:
         await ctx.send(f"Gateway latency: {round(self.bot.latency*1000, 2)}ms")
+        await success_analytics(ctx)
 
     @commands.command()
     async def privacy(self, ctx: Context) -> None:
         embed = create_privacy_embed()
         await ctx.send(embed=embed)
+        await success_analytics(ctx)
 
     @commands.command()
     async def invite(self, ctx: Context) -> None:
         await ctx.send(embed=create_invite_embed())
+        await success_analytics(ctx)
 
     @commands.command()
     async def docs(self, ctx: Context) -> None:
         await ctx.send(embed=create_docs_embed())
+        await success_analytics(ctx)
 
     @commands.command()
     async def source(self, ctx: Context) -> None:
         await ctx.send(embed=create_source_embed())
+        await success_analytics(ctx)
 
     @commands.command()
     async def support(self, ctx: Context) -> None:
         await ctx.send(embed=create_support_embed())
+        await success_analytics(ctx)
 
 
 def setup(bot: Bot) -> None:

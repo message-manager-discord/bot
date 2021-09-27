@@ -21,7 +21,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import logging
 
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Awaitable, Callable, Optional, Union
+from typing import TYPE_CHECKING, Awaitable, Optional, Union
 
 import discord
 
@@ -31,6 +31,7 @@ from discord.role import Role
 
 from main import Bot
 from src import Context, errors
+from src.analytics import get_success_code
 from src.interactions import (
     ApplicationCommandInteractionDataOption,
     CommandInteraction,
@@ -39,7 +40,7 @@ from src.interactions import (
     PartialChannel,
     PartialRole,
 )
-from src.models import Channel, LoggingChannel
+from src.models import Channel, CommandStatus, CommandUsageAnalytics, LoggingChannel
 
 if TYPE_CHECKING:
     Cog = commands.Cog[Context]
@@ -247,14 +248,20 @@ class SetupCog(Cog):
             (
                 errors.MissingPermission,
                 errors.InputContentIncorrect,
-                errors.ConfigNotSet,
-                errors.ConfigError,
                 commands.errors.MissingPermissions,
                 commands.errors.NoPrivateMessage,
                 errors.WebhookChannelNotTextChannel,
             ),
         ):
             await ctx.send(error)
+            success = get_success_code(error)
+
+            await CommandUsageAnalytics.create(
+                guild_id=ctx.guild.id if ctx.guild is not None else None,
+                command_name=[*ctx.invoked_parents, ctx.invoked_with],
+                slash=False,
+                success=success,
+            )
 
         else:
             await ctx.send(
@@ -265,6 +272,20 @@ class SetupCog(Cog):
             logger.error(
                 f"Ignoring exception in interaction {ctx.command}:", exc_info=error
             )
+            await CommandUsageAnalytics.create(
+                guild_id=ctx.guild.id if ctx.guild is not None else None,
+                command_name=[*ctx.invoked_parents, ctx.invoked_with],
+                slash=False,
+                success=CommandStatus.UNKNOWN_ERROR,
+            )
+
+    def success_analytics(self, ctx: Context) -> Awaitable:
+        return CommandUsageAnalytics.create(
+            guild_id=ctx.guild.id if ctx.guild is not None else None,
+            command_name=[*ctx.invoked_parents, ctx.invoked_with],
+            slash=False,
+            success=CommandStatus.SUCCESS,
+        )
 
     @commands.has_guild_permissions(administrator=True)
     @commands.group()
@@ -292,6 +313,7 @@ class SetupCog(Cog):
                 inline=False,
             )
             await ctx.send(embed=embed)
+            await self.success_analytics(ctx)
 
     @setup.command(name="prefix")
     async def return_prefix(
@@ -310,6 +332,7 @@ class SetupCog(Cog):
                 ctx.guild, new_prefix
             )
             await ctx.send(embed=msg_embed)
+        await self.success_analytics(ctx)
 
     @commands.has_guild_permissions(administrator=True)
     @setup.command()
@@ -329,6 +352,7 @@ class SetupCog(Cog):
             await ctx.send(embed=msg)
         else:
             await ctx.send(content=msg)
+        await self.success_analytics(ctx)
 
     @setup.command(name="logging")
     async def set_logging(
@@ -347,6 +371,7 @@ class SetupCog(Cog):
             await ctx.send(embed=msg)
         else:
             await ctx.send(msg)
+        await self.success_analytics(ctx)
 
     @commands.command(name="prefix")
     async def prefix(self, ctx: Context) -> None:
@@ -355,6 +380,7 @@ class SetupCog(Cog):
             await ctx.send(f"My prefix for this server is: `{guild.prefix}`")
         else:
             await ctx.send(f"My prefix is `{self.bot.default_prefix}`")
+        await self.success_analytics(ctx)
 
 
 class SetupCogSlash(Cog):
@@ -403,30 +429,6 @@ class SetupCogSlash(Cog):
             return value
         return None
 
-    async def try_function_send_errors(
-        self,
-        interaction: CommandInteraction,
-        function: Callable[
-            [discord.Guild, Optional[str]], Awaitable[Union[Embed, str]]
-        ],
-        guild: discord.Guild,
-        argument: Optional[str],
-    ) -> None:
-        try:
-            msg = await function(guild, argument)
-        except (
-            errors.InputContentIncorrect,
-            errors.WebhookChannelNotTextChannel,
-        ) as e:
-            await interaction.respond(
-                response_type=InteractionResponseType.ChannelMessageWithSource,
-                content=str(e),
-                flags=InteractionResponseFlags.EPHEMERAL,
-            )
-            return
-
-        await self.respond_str_or_embed(interaction, msg)
-
     async def handle_setup_command(self, interaction: CommandInteraction) -> None:
         sub_groups = interaction.data.options
         if sub_groups is None:
@@ -440,83 +442,132 @@ class SetupCogSlash(Cog):
             # Partly to appease mypy, partly if discord messes up.
         sub_command = sub_commands[0]
         sub_command_name = sub_command.name
-        if interaction.guild is None:
-            if interaction.guild_id:
-                message = (
-                    "There is an issue with how I was invited to this server."
-                    "\nPlease (reinvite me)[https://messagemanager.xyz/invite] to ensure the full bot is added"
-                )
-            else:
-                message = "This command cannot be ran in dms"
-            await interaction.respond(
-                response_type=InteractionResponseType.ChannelMessageWithSource,
-                content=message,
-                flags=InteractionResponseFlags.EPHEMERAL,
-            )
-            return
-        has_admin = (
-            interaction.member.permissions.administrator
-            if interaction.member is not None
-            and interaction.member.permissions is not None
-            else False
-        )
-        if not has_admin:
-            await interaction.respond(
-                response_type=InteractionResponseType.ChannelMessageWithSource,
-                content="You do not have the required permissions to run this command: `ADMINISTRATOR`",
-                flags=InteractionResponseFlags.EPHEMERAL,
-            )
-            return
-
-        assert interaction.member is not None
-        if sub_group_name == "set":
-            if sub_command_name == "prefix":
-                option = (
-                    sub_command.options[0] if sub_command.options is not None else None
-                )
-                prefix = option.value if option is not None else None
-                await self.try_function_send_errors(
-                    interaction,
-                    self.logic_functions.set_prefix_logic,
-                    interaction.guild,
-                    prefix,
-                )
-            elif sub_command_name == "logging":
-                option = (
-                    sub_command.options[0] if sub_command.options is not None else None
-                )
-                channel = await self.clean_option(option)
-                await self.try_function_send_errors(
-                    interaction,
-                    self.logic_functions.set_logging_logic,
-                    interaction.guild,
-                    channel,
-                )
-            elif sub_command_name == "admin":
-                option = (
-                    sub_command.options[0] if sub_command.options is not None else None
-                )
-                role = await self.clean_option(option)
-                await self.try_function_send_errors(
-                    interaction,
-                    self.logic_functions.set_admin_role_logic,
-                    interaction.guild,
-                    role,
-                )
-        elif sub_group_name == "get":
-            msg: Union[Embed, str]
-            if sub_command_name == "prefix":
-                msg = await self.logic_functions.get_prefix_logic(interaction.guild)
+        try:
+            if interaction.guild is None:
+                if interaction.guild_id:
+                    message = (
+                        "There is an issue with how I was invited to this server."
+                        "\nPlease (reinvite me)[https://messagemanager.xyz/invite] to ensure the full bot is added"
+                    )
+                else:
+                    message = "This command cannot be ran in dms"
                 await interaction.respond(
                     response_type=InteractionResponseType.ChannelMessageWithSource,
-                    content=msg,
+                    content=message,
+                    flags=InteractionResponseFlags.EPHEMERAL,
                 )
-            elif sub_command_name == "logging":
-                msg = await self.logic_functions.get_logging_logic(interaction.guild)
-                await self.respond_str_or_embed(interaction, msg, False)
-            elif sub_command_name == "admin":
-                msg = await self.logic_functions.get_admin_role_logic(interaction.guild)
-                await self.respond_str_or_embed(interaction, msg, False)
+                if interaction.guild_id:
+                    success = CommandStatus.MISSING_BOT_SCOPE
+                else:
+                    success = CommandStatus.GUILD_ONLY_COMMAND_IN_DM
+                await CommandUsageAnalytics.create(
+                    guild_id=interaction.guild_id,
+                    command_name=["setup", sub_group_name, sub_command_name],
+                    slash=True,
+                    success=success,
+                )
+                return
+            has_admin = (
+                interaction.member.permissions.administrator
+                if interaction.member is not None
+                and interaction.member.permissions is not None
+                else False
+            )
+            if not has_admin:
+                await interaction.respond(
+                    response_type=InteractionResponseType.ChannelMessageWithSource,
+                    content="You do not have the required permissions to run this command: `ADMINISTRATOR`",
+                    flags=InteractionResponseFlags.EPHEMERAL,
+                )
+                await CommandUsageAnalytics.create(
+                    guild_id=interaction.guild_id,
+                    command_name=["setup", sub_group_name, sub_command_name],
+                    slash=True,
+                    success=CommandStatus.MISSING_USER_PERMISSIONS,
+                )
+                return
+
+            assert interaction.member is not None
+            if sub_group_name == "set":
+                if sub_command_name == "prefix":
+                    option = (
+                        sub_command.options[0]
+                        if sub_command.options is not None
+                        else None
+                    )
+                    prefix = option.value if option is not None else None
+                    msg = await self.logic_functions.set_prefix_logic(
+                        interaction.guild, prefix
+                    )
+                    await self.respond_str_or_embed(interaction, msg, False)
+                elif sub_command_name == "logging":
+                    option = (
+                        sub_command.options[0]
+                        if sub_command.options is not None
+                        else None
+                    )
+                    channel = await self.clean_option(option)
+                    msg = await self.logic_functions.set_logging_logic(
+                        interaction.guild, channel
+                    )
+                    await self.respond_str_or_embed(interaction, msg, False)
+
+                elif sub_command_name == "admin":
+                    option = (
+                        sub_command.options[0]
+                        if sub_command.options is not None
+                        else None
+                    )
+                    role = await self.clean_option(option)
+                    msg = await self.logic_functions.set_admin_role_logic(
+                        interaction.guild, role
+                    )
+                    await self.respond_str_or_embed(interaction, msg, False)
+            elif sub_group_name == "get":
+                msg: Union[Embed, str]
+                if sub_command_name == "prefix":
+                    msg = await self.logic_functions.get_prefix_logic(interaction.guild)
+                    await interaction.respond(
+                        response_type=InteractionResponseType.ChannelMessageWithSource,
+                        content=msg,
+                    )
+                elif sub_command_name == "logging":
+                    msg = await self.logic_functions.get_logging_logic(
+                        interaction.guild
+                    )
+                    await self.respond_str_or_embed(interaction, msg, False)
+                elif sub_command_name == "admin":
+                    msg = await self.logic_functions.get_admin_role_logic(
+                        interaction.guild
+                    )
+                    await self.respond_str_or_embed(interaction, msg, False)
+        except (
+            errors.InputContentIncorrect,
+            errors.WebhookChannelNotTextChannel,
+        ) as e:
+            await interaction.respond(
+                response_type=InteractionResponseType.ChannelMessageWithSource,
+                content=str(e),
+                flags=InteractionResponseFlags.EPHEMERAL,
+            )
+            success = (
+                CommandStatus.INVALID_INPUT
+                if isinstance(e, errors.InputContentIncorrect)
+                else CommandStatus.CHANNEL_INPUT_NOT_TEXT_CHANNEL
+            )
+            await CommandUsageAnalytics.create(
+                guild_id=interaction.guild_id,
+                command_name=["setup", sub_group_name, sub_command_name],
+                slash=True,
+                success=success,
+            )
+            return
+        await CommandUsageAnalytics.create(
+            guild_id=interaction.guild_id,
+            command_name=["setup", sub_group_name, sub_command_name],
+            slash=True,
+            success=CommandStatus.SUCCESS,
+        )
 
 
 def setup(bot: Bot) -> None:

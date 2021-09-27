@@ -28,10 +28,6 @@ class ConfigNotSet(CheckFailure):
     pass
 
 
-class ConfigError(CheckFailure):
-    pass
-
-
 class DifferentServer(CheckFailure):
     def __init__(
         self,
@@ -55,6 +51,10 @@ class ContentError(CheckFailure):
 
 
 class MissingPermission(CheckFailure):
+    pass
+
+
+class MissingBotPermission(CheckFailure):
     pass
 
 

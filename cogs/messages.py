@@ -32,6 +32,7 @@ from discord.ext import commands
 
 from main import Bot
 from src import Context, checks, errors, send_log_once
+from src.analytics import get_success_code, success_analytics
 from src.interactions import (
     ActionRow,
     Button,
@@ -43,6 +44,7 @@ from src.interactions import (
     edit_message_components,
     send_message_components,
 )
+from src.models import CommandStatus, CommandUsageAnalytics
 
 if TYPE_CHECKING:
     Cog = commands.Cog[Context]
@@ -211,6 +213,7 @@ class MessagesCog(Cog):
             error,
             (
                 errors.MissingPermission,
+                errors.MissingBotPermission,
                 errors.ContentError,
                 errors.DifferentServer,
                 errors.ConfigNotSet,
@@ -222,14 +225,20 @@ class MessagesCog(Cog):
             ),
         ):
             await ctx.send(error)
+            success = get_success_code(error)
+
         elif isinstance(error, asyncio.TimeoutError):
             await ctx.send("Timedout, Please try again.")
+
+            success = CommandStatus.TIMEOUT
         elif isinstance(error, commands.ChannelNotFound):
             await ctx.send(
                 "I could not find that channel!\n"
                 "Please check that the id is correct\n"
                 "Run the command without pararameters to be guided through the input!"
             )
+
+            success = CommandStatus.INPUT_CHANNEL_NOT_FOUND
         else:
             await ctx.send(
                 "There was an unknown error!\n"
@@ -240,6 +249,14 @@ class MessagesCog(Cog):
             logger.error(
                 f"Ignoring exception in command {ctx.command}:", exc_info=error
             )
+
+            success = CommandStatus.UNKNOWN_ERROR
+        await CommandUsageAnalytics.create(
+            guild_id=ctx.guild.id if ctx.guild is not None else None,
+            command_name=[*ctx.invoked_parents, ctx.invoked_with],
+            slash=False,
+            success=success,
+        )
 
     async def check_channel(
         self, ctx: Context, channel: Optional[discord.TextChannel]
@@ -260,15 +277,15 @@ class MessagesCog(Cog):
         perms = channel.permissions_for(ctx.guild.me)
         sender_perms = channel.permissions_for(ctx.author)
         if not perms.view_channel:
-            raise errors.InputContentIncorrect(
+            raise errors.MissingBotPermission(
                 "I do not have the the `View Messages` permission in that channel!"
             )
         elif not (perms.send_messages and perms.embed_links):
-            raise errors.InputContentIncorrect(
+            raise errors.MissingBotPermission(
                 "I do not have the the `Send Message` and `Embed Links` permission in that channel!"
             )
         elif not sender_perms.view_channel:
-            raise errors.InputContentIncorrect(
+            raise errors.MissingPermission(
                 "You don't have the `View Messages` permissions in that channel!"
             )
 
@@ -531,6 +548,7 @@ class MessagesCog(Cog):
             await self.send_message_info_embed(
                 ctx, "Send", ctx.author, content, msg, channel
             )
+        await success_analytics(ctx, not success)
 
     # Create the edit command. This command will edit the specificed message. (Message must be from the bot)
     @commands.command(name="edit")
@@ -583,6 +601,8 @@ class MessagesCog(Cog):
                 ctx, "edit", ctx.author, content, msg, channel
             )
             await msg.edit(content=content)
+
+        await success_analytics(ctx, not success)
 
     # Create the command delete. This will delete a message from the bot.
     @commands.command(name="delete", aliases=["delete-embed"])
@@ -678,6 +698,8 @@ class MessagesCog(Cog):
             except discord.errors.Forbidden:
                 raise errors.ContentError("There was an unknown error!")
 
+        await success_analytics(ctx, not success)
+
     @commands.command(name="fetch", aliases=["fetch-embed"])
     async def fetch(
         self,
@@ -717,6 +739,7 @@ class MessagesCog(Cog):
             file=discord.File(file_name, filename=file_display_name),
         )
         os.remove(file_name)
+        await success_analytics(ctx)
 
     @commands.command(name="send-embed")
     async def send_embed(
@@ -788,6 +811,7 @@ class MessagesCog(Cog):
                     file=discord.File(file_name, filename="content.json"),
                 )
                 os.remove(file_name)
+            await success_analytics(ctx, not success)
 
     @commands.command(name="send-embed-json")
     async def send_json_embed(
@@ -918,6 +942,8 @@ class MessagesCog(Cog):
             )
             os.remove(file_name)
 
+        await success_analytics(ctx, not success)
+
     @commands.command(name="edit-embed")
     async def edit_embed(
         self,
@@ -1013,6 +1039,8 @@ class MessagesCog(Cog):
             os.remove(new_file_name)
             os.remove(old_file_name)
             await msg.edit(embed=new_embed)
+
+        await success_analytics(ctx, not success)
 
     @commands.command(name="edit-embed-json")
     async def json_edit(
@@ -1140,6 +1168,8 @@ class MessagesCog(Cog):
             )
             os.remove(new_file_name)
             os.remove(old_file_name)
+
+        await success_analytics(ctx, not success)
 
 
 def setup(bot: Bot) -> None:

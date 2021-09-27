@@ -21,6 +21,8 @@ We also use Cloudflare's privacy aware analytics service, which records: Referre
 
 We use a LFU (least frequently used) caching method for caching guild settings. Part of this means that the count of times that the data per guild has been access is stored in ram. Because the prefix is checked each time a message event is received to check if the message is a command (most bots work this way) this means that the count will roughly represent the amount of messages in that guild since the bot was loaded. This data will not be used for any other purpose than to maintain the cache.
 
+Command usage is logged for analytics purposes, the timestamp, server id, command name(s), and result (if it succeeded / errors thrown, etc). This data is only available to the bot team.  
+
 #### Cookies
 
 Cookies are only currently used by Cloudflare to detect bad actors and block them, and to provide their other services to us. These cookies do not allow cross site tracking and in most cases log data retrieved using these cookies is only stored for 24 hours by Cloudflare on their servers.
@@ -43,11 +45,15 @@ Webhook ids and tokens are needed for logging to function
 
 Data collected by Cloudflare is collected to protect the service from DDoS attacks among others attacks.
 
+Command usage data is also collected to help detect / identify users who are abusing the service.  
+
 ### To help us improve the Service
 
 Anonymous data is collected by Cloudflare that contains approximate location, device type, http request info, browser type and other device data. None of this data is personally identifiable. We use this data to give us insight on how the Service is used, and this helps us improve the Service.
 
 Data may also be used in development and testing.
+
+Command usage data is collected to gain insight on command usage to help focus development and identify improvements, to improve the service.
 
 ### To optimise the service
 
@@ -71,4 +77,4 @@ If you would like us to remove your data please reach out to us and ask.
 
 ## Changes to the policy
 
-Note: This Privacy Policy was last updated on the 10/04/2021. The privacy policy can be updated at anytime without any notice, however we will make an effort to inform you about the change.
+Note: This Privacy Policy was last updated on 28/09/2021 and came into effect on 1/10/2021. The privacy policy can be updated at anytime without any notice, however we will make an effort to inform you about the change. The support server is the best place to be to stay up to date.
