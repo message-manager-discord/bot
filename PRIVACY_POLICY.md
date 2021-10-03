@@ -69,7 +69,7 @@ If you have a concern you can contact us a few ways.
 You can:
 
 - Join the discord [server](https://discord.gg/xFZu29t) and contact me at `Another Cat#4247`
-- Emailing [privacy@messagemanager.xyz](mailto:privacy@messagemanager.xyz)
+- Emailing [anothercat1259@gmail.com](mailto:anothercat1259@gmail.com)
 
 ## How to get your data removed
 
