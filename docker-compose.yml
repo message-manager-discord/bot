@@ -3,6 +3,7 @@ version: "3.4"
 services:
   bot:
     image: bot
+    restart: always
     build:
       context: .
       dockerfile: ./Dockerfile
