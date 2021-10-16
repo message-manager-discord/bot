@@ -21,7 +21,7 @@ import logging
 import platform
 
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Awaitable, Optional
+from typing import TYPE_CHECKING, Optional
 
 import discord
 
@@ -30,14 +30,14 @@ from discord.ext import commands
 
 from main import Bot
 from src import Context
+from src.analytics import success_analytics
 from src.cache import GuildTuple
 from src.interactions import (
     CommandInteraction,
     InteractionResponseFlags,
     InteractionResponseType,
 )
-from src.models import CommandStatus, CommandUsageAnalytics
-from src.analytics import success_analytics
+from src.models import CommandUsageAnalytics
 
 if TYPE_CHECKING:
     Cog = commands.Cog[Context]

@@ -35,9 +35,8 @@ from typing import (
     Union,
 )
 
-import discord
 import aiohttp
-
+import discord
 import sentry_sdk
 
 from discord.ext import commands
