@@ -2,10 +2,8 @@
 __pycache__
 venv
 
-# Local Config
-config.json
-testingconfig.json
-config.py
+# Local secrets
+.env
 
 # Logging
 *.log

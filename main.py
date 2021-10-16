@@ -35,14 +35,15 @@ from typing import (
     Union,
 )
 
-import aiohttp
 import discord
+import aiohttp
+
 import sentry_sdk
 
 from discord.ext import commands
 from tortoise import Tortoise
 
-import config
+import load_config
 
 from src import Context, PartialGuildCache
 from src.errors import NoComponents
@@ -59,7 +60,7 @@ from src.interactions import (
 )
 from tortoise_config import TORTOISE_ORM
 
-__version__ = "v2.2.3"
+__version__ = "v3.0.0"
 
 if TYPE_CHECKING:
     BotBase = commands.Bot[Context]
@@ -102,8 +103,8 @@ class Bot(BotBase):
     async def init_db(self) -> None:
         await Tortoise.init(config=TORTOISE_ORM)
         self.guild_cache = PartialGuildCache(
-            capacity=config.guild_cache_max,
-            drop_amount=config.guild_cache_drop,
+            capacity=load_config.guild_cache_max,
+            drop_amount=load_config.guild_cache_drop,
         )
 
     async def start(self, *args, **kwargs) -> None:  # type: ignore
@@ -327,11 +328,11 @@ logging.basicConfig(
     format="%(asctime)s:%(levelname)s:%(name)s: %(message)s", level=logging.INFO
 )
 # Setup sentry
-if hasattr(config, "sentry_dsn"):
+if load_config.sentry_dsn:
     logger.info("Started sentry")
 
     sentry_sdk.init(
-        config.sentry_dsn,
+        load_config.sentry_dsn,
         release=f"bot@{__version__}",
         traces_sample_rate=0.5,
     )
@@ -345,16 +346,16 @@ async def get_custom_prefix(bot: Bot, message: discord.Message) -> List[str]:
         )  # Fetch current server prefix from database
         prefix = [guild.prefix]
     else:
-        prefix = [config.default_prefix, ""]
+        prefix = [load_config.default_prefix, ""]
 
     return commands.when_mentioned_or(*prefix)(bot, message)
 
 
 def run() -> None:
     bot = Bot(
-        owner_ids=config.owners,
-        default_prefix=config.default_prefix,
-        self_hosted=config.self_host,
+        owner_ids=load_config.owners,
+        default_prefix=load_config.default_prefix,
+        self_hosted=load_config.self_host,
         command_prefix=get_custom_prefix,
     )
 
@@ -366,18 +367,18 @@ def run() -> None:
         "cogs.setup",
         "cogs.component_management",
     ]
-    if not config.self_host:
-        bot.dbl_token = config.dbl_token
-        bot.dboats_token = config.dboats_token
-        bot.del_token = config.def_token
-        bot.dbgg_token = config.dbgg_token
-        bot.topgg_token = config.topgg_token
+    if not load_config.self_host:
+        bot.dbl_token = load_config.dbl_token
+        bot.dboats_token = load_config.dboats_token
+        bot.del_token = load_config.del_token
+        bot.dbgg_token = load_config.dbgg_token
+        bot.topgg_token = load_config.topgg_token
         extensions.append("jishaku")
         extensions.append("cogs.listing")
     logger.info("Loading extensions...")
     for extension in extensions:
         bot.load_extension(extension)
-    bot.run(config.token)
+    bot.run(load_config.token)
 
 
 if __name__ == "__main__":

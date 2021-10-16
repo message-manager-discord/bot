@@ -1,5 +1,8 @@
 # Changelog - Bot
 
+## v3.0.0 - Use docker
+
+Use docker containers to run the bot, this is breaking and requires configuration changes and database migration (backup from current database, and restore to database in docker container)
 
 ## v2.2.1 - Small Fixes
 
@@ -22,7 +25,7 @@
 
 ## v2.0.1 - Changes
 
-- Fix `id` named `channel_id` when fetching channel from database. 
+- Fix `id` named `channel_id` when fetching channel from database.
 
 ## v2 - Changes
 
@@ -32,6 +35,7 @@
 
 - Add action that deploys changes on non major tag release
 - Fix bug when user doesn't have required permissions and uses a `/settings` command
+
 ## v1.6 - Changes
 
 - Bump dependencies
@@ -45,7 +49,6 @@
 - Implement caching for guild settings
   - Updated privacy policy
 - Make `/info` slash commands ephemeral
-
 
 ## v1.5.1 - Changes
 

@@ -10,5 +10,26 @@ Otherwise you will have to refer to the migration page.
 
 ## Database
 
-After pulling from the remote run `pipenv install` then `aerich upgrade` 
-If you are currently on a v1.x version or earlier **this won't work** and make sure that you read the migration page.
+To migrate the database run this after pulling and restarting:
+
+```bash
+~/bot$ docker-compose exec bot aerich upgrade
+```
+
+### Backups
+
+Making a backup:
+
+```bash
+~/bot$ docker exec -i postgres /usr/bin/pg_dump -U <postgresql_user> <postgresql_database> > postgres-backup.sql
+```
+
+Restoring from a plain text backup
+
+```bash
+~/bot$ docker cp <archive> <container name>:/backup-bot.sql
+~/bot$ docker-compose exec postgres psql -U <db-user> -d <db-name> -f /backup-bot.sql
+~/bot$ docker-compose exec postgres rm /backup-bot.sql
+```
+
+NOTE: This is just an example, you'll probably need to figure out docker commands and what works for you

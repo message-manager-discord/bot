@@ -11,12 +11,12 @@
 If you find a bug or if you want to make a feature request<!--, either join the [discord server](https://discord.gg/xFZu29t) or --> open an issue.  
 If you want to contribute to the docs or the code of the bot feel free to open a pull request.
 
-Current version: `v2.2.3`
+Current version: `v3.0.0`
 
 ## License
 
 Message Manager is licensed under the [GNU Affero General Public License](https://github.com/AnotherCat/message-manager/blob/master/LICENSE)  
-Here is a [simplified version](https://tldrlegal.com/license/gnu-affero-general-public-license-v3-(agpl-3.0)#summary)
+Here is a [simplified version](<https://tldrlegal.com/license/gnu-affero-general-public-license-v3-(agpl-3.0)#summary>)
 
 ## Invite link
 

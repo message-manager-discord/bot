@@ -1,4 +1,4 @@
-from config import uri
+from load_config import uri
 
 TORTOISE_ORM = {
     "connections": {
