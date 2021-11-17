@@ -1,5 +1,10 @@
 # Changelog - Bot
 
+## v3.1.0 - Minor updates
+
+- Restart the image automatically
+- Update invite link
+
 ## v3.0.0 - Use docker
 
 Use docker containers to run the bot, this is breaking and requires configuration changes and database migration (backup from current database, and restore to database in docker container)

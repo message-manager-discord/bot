@@ -11,7 +11,7 @@
 If you find a bug or if you want to make a feature request<!--, either join the [discord server](https://discord.gg/xFZu29t) or --> open an issue.  
 If you want to contribute to the docs or the code of the bot feel free to open a pull request.
 
-Current version: `v3.0.0`
+Current version: `v3.1.0`
 
 ## License
 

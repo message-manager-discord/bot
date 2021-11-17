@@ -59,7 +59,7 @@ from src.interactions import (
 )
 from tortoise_config import TORTOISE_ORM
 
-__version__ = "v3.0.0"
+__version__ = "v3.1.0"
 
 if TYPE_CHECKING:
     BotBase = commands.Bot[Context]
