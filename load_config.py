@@ -41,7 +41,7 @@ def try_get_config_var(name: str, optional: Optional[str] = None) -> str:
 token = try_get_config_var("DISCORD_TOKEN")
 default_prefix = try_get_config_var("DEFAULT_PREFIX", "~")
 
-uri = f"postgres://{try_get_config_var('POSTGRES_USER')}:{try_get_config_var('POSTGRES_PASSWORD')}@postgres:5432/{try_get_config_var('POSTGRES_DB')}"
+uri = try_get_config_var("DATABASE_URL")
 
 
 sentry_dsn = try_get_config_var("SENTRY_DSN", "")
