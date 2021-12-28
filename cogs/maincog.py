@@ -174,6 +174,10 @@ class MainCog(Cog):
         logger.info(
             f"https://discord.com/api/oauth2/authorize?client_id={self.bot.user.id}&permissions=515933326400&scope=applications.commands%20bot"
         )
+        await self.bot.change_presence(
+            activity=discord.Game(name="Outage! Use any command for more details"),
+            status=discord.Status.idle,
+        )
         logger.info(f"Logged on as {self.bot.user}!")
         self.bot.load_time = datetime.utcnow()
 
