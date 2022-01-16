@@ -61,7 +61,7 @@ async def create_info_embed(
         title="Info about the bot",
         colour=discord.Colour(0xC387C1),
         timestamp=datetime.now(timezone.utc),
-        url="https://messagemanager.xyz",
+        url="https://message.anothercat.me",
     )
     embed.add_field(name="Username", value=str(bot.user), inline=True),
     if guild_id is not None:
@@ -72,7 +72,7 @@ async def create_info_embed(
     embed.add_field(name="Version", value=bot.version, inline=True),
     embed.add_field(
         name="Docs",
-        value="[The Docs](https://docs.messagemanager.xyz)",
+        value="[The Docs](https://message.anothercat.me/docs)",
         inline=True,
     ),
     embed.add_field(
@@ -129,8 +129,8 @@ def create_invite_embed() -> discord.Embed:
 def create_docs_embed() -> discord.Embed:
     return discord.Embed(
         title="Docs!",
-        description="My docs are [here](https://docs.messagemanager.xyz)",
-        url="https://docs.messagemanager.xyz",
+        description="My docs are [here](https://message.anothercat.me/docs)",
+        url="https://message.anothercat.me/docs",
         colour=discord.Colour(0xC387C1),
         timestamp=datetime.now(timezone.utc),
     )
@@ -206,14 +206,14 @@ class MainCog(Cog):
                 colour=discord.Colour(16761035),
                 description="Thank you for inviting me to your server!",
                 timestamp=datetime.now(timezone.utc),
-                url="https://messagemanager.xyz",
+                url="https://message.anothercat.me",
             )
             embed.add_field(
                 name="Prefix", value=f"My prefix here is: `{prefix}`", inline=False
             )
             embed.add_field(
                 name="Help",
-                value="Have a look at my [docs](https://docs.messagemanager.xyz) "
+                value="Have a look at my [docs](https://message.anothercat.me/docs) "
                 "If you've got any questions or join our [support server](https://discord.gg/xFZu29t)",
                 inline=False,
             )
@@ -232,7 +232,7 @@ class MainCog(Cog):
                 title="Help!",
                 colour=16761035,
                 timestamp=datetime.now(timezone.utc),
-                url="https://docs.messagemanager.xyz",
+                url="https://message.anothercat.me/docs",
             )
             embed.add_field(
                 name=self.bot.command_with_prefix(ctx, "ping"),
@@ -282,7 +282,7 @@ class MainCog(Cog):
             )
             embed.add_field(
                 name="Embeds",
-                value="Find the documentation for sending embeds [here](https://docs.messagemanager.xyz/functions/messages/#rich-embed-messages) (it's too big to fit here now)",
+                value="Find the documentation for sending embeds [here](https://message.anothercat.me/docs/features/messages) (it's too big to fit here now)",
             )
             await ctx.send(embed=embed)
         else:

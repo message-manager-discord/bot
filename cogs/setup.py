@@ -447,7 +447,7 @@ class SetupCogSlash(Cog):
                 if interaction.guild_id:
                     message = (
                         "There is an issue with how I was invited to this server."
-                        "\nPlease (reinvite me)[https://messagemanager.xyz/invite] to ensure the full bot is added"
+                        "\nPlease (reinvite me)[https://message.anothercat.me/invite] to ensure the full bot is added"
                     )
                 else:
                     message = "This command cannot be ran in dms"

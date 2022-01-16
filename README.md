@@ -20,7 +20,7 @@ Here is a [simplified version](<https://tldrlegal.com/license/gnu-affero-general
 
 ## Invite link
 
-[Click here to invite the bot](https://messagemanager.xyz/invite)
+[Click here to invite the bot](https://message.anothercat.me/invite)
 
 ## To Do
 
@@ -35,7 +35,7 @@ Here is a [simplified version](<https://tldrlegal.com/license/gnu-affero-general
 
 ## Docs
 
-Official docs are [here](https://docs.messagemanager.xyz). Read them before asking questions please :smile:
+Official docs are [here](https://message.anothercat.me/docs). Read them before asking questions please :smile:
 
 Self Hosting instructions can also be found in the docs
 
@@ -45,5 +45,5 @@ If any security vulnerabilities are found use the security issue reporting featu
 
 ## Getting in contact
 
-- Emailing `privacy@messagemanager.xyz`
+- Emailing `anothercat1259@gmail.com`
 - Joining the discord server (invite link on website)

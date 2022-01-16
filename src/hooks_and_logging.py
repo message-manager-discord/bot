@@ -143,7 +143,7 @@ class ServerLogger:
                         await channel.send(content=content, files=files, file=file)
                     else:
                         for embed in embeds:
-                            add_permissions_text = "Logging requires your action to function correctly. [Click here](https://docs.messagemanager.xyz) for more info "
+                            add_permissions_text = "Logging requires your action to function correctly. [Click here](https://message.anothercat.me/docs) for more info "
                             if embed.description:
                                 embed.description = (
                                     str(embed.description)
