@@ -219,7 +219,7 @@ class MainCog(Cog):
             )
             embed.add_field(
                 name="Privacy Policy",
-                value="Please read my [privacy policy](). \nBy using the bot you are confirming that you have read the privacy policy.",
+                value="Please read my [privacy policy](https://message.anothercat.me/privacy). \nBy using the bot you are confirming that you have read the privacy policy.",
             )
             await channel.send(embed=embed)
 
