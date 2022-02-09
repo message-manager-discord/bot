@@ -105,13 +105,13 @@ def create_privacy_embed() -> discord.Embed:
     embed = discord.Embed(
         title="Privacy Policy",
         description="We do store data. Please read our privacy policy.",
-        url="https://github.com/AnotherCat/message-manager/blob/master/PRIVACY_POLICY.md",
+        url="https://message.anothercat.me/privacy",
         colour=discord.Colour.red(),
         timestamp=datetime.now(timezone.utc),
     )
     embed.add_field(
         name="Where to find the privacy policy",
-        value="My privacy policy is located on [github](https://github.com/AnotherCat/message-manager/blob/master/PRIVACY_POLICY.md)",
+        value="Click [here for the privacy policy](https://message.anothercat.me/privacy)",
     )
     return embed
 
