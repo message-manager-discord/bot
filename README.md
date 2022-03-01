@@ -13,6 +13,11 @@ If you want to contribute to the docs or the code of the bot feel free to open a
 
 Current version: `v3.1.0`
 
+## Deprecation
+
+This repository is no longer actively developed, and it's pending depreciation.
+It will be replaced with a microservice based application, the repository are available under the [message-manager-discord](https://github.com/message-manager-discord) GitHub organisation.
+
 ## License
 
 Message Manager is licensed under the [GNU Affero General Public License](https://github.com/AnotherCat/message-manager/blob/master/LICENSE)  
