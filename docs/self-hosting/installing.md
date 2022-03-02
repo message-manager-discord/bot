@@ -17,7 +17,7 @@ I do not provide support for running your own instance of this bot other than th
 ### Setup Example (linux)
 
 ```bash
-~$ git clone https://github.com/message-manager-discord/bot.git # Clone this github repo
+~$ git clone https://github.com/message-manager-discord/bot.git # Clone the github repo
 ~$ cd bot # Navigate to the main directory for the project.
 # Now you need to setup the config variables, see Config below
 ~/bot$ docker-compose up --d --build # Run the bot in the background
