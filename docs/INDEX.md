@@ -1,5 +1,5 @@
 {% hint style="warning" %}
-These docs are being depreciated. Please use https://message.anothercat.me/docs instead.
+These docs are being depreciated. Please use the [new docs](https://message.anothercat.me/docs) instead.
 {% endhint %}
 
 # Introduction
