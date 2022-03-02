@@ -1,3 +1,7 @@
+{% hint style="warning" %}
+These docs are being depreciated. Please use https://message.anothercat.me/docs instead.
+{% endhint %}
+
 # Introduction
 
 This is an open source discord bot written in [discord.py](https://github.com/Rapptz/discord.py).  
