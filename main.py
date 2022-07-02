@@ -136,8 +136,8 @@ class Bot(BotBase):
 
         await ctx.send(
             content=(
-                ":exclamation:**Current Outage**\n"
-                "The bot is currently undergoing maintenance. Hang tight, or join the support server with this invite: https://discord.gg/smdn8djwRV for more updates."
+                ":exclamation:**Outdated command!**\n"
+                "The bot has migrated to interactions. Check out the migrating guide: https://message.anothercat.me/docs/changelog-and-migrating, or join the support server with this invite: https://discord.gg/smdn8djwRV for more help."
             )
         )
         return  # Preventing the bot from responding
@@ -147,8 +147,8 @@ class Bot(BotBase):
         await interaction.respond(
             response_type=InteractionResponseType.ChannelMessageWithSource,
             content=(
-                ":exclamation:**Current Outage**\n"
-                "The bot is currently undergoing maintenance. Hang tight, or join the support server with this [invite](https://discord.gg/smdn8djwRV) for more updates."
+                               ":exclamation:**Outdated command!**\n"
+                "The bot has migrated to interactions. Check out the [migrating guide](https://message.anothercat.me/docs/changelog-and-migrating), or join the support server with this [invite](https://discord.gg/smdn8djwRV) for more help."
             ),
             flags=InteractionResponseFlags.EPHEMERAL,
         )
@@ -197,8 +197,8 @@ class Bot(BotBase):
         await interaction.respond(
             response_type=InteractionResponseType.ChannelMessageWithSource,
             content=(
-                ":exclamation:**Current Outage**\n"
-                "The bot is currently undergoing maintenance. Hang tight, or join the support server with this [invite](https://discord.gg/smdn8djwRV) for more updates."
+                ":exclamation:**Outdated command!**\n"
+                "The bot has migrated to interactions. Check out the [migrating guide](https://message.anothercat.me/docs/changelog-and-migrating), or join the support server with this [invite](https://discord.gg/smdn8djwRV) for more help."
             ),
             flags=InteractionResponseFlags.EPHEMERAL,
         )
