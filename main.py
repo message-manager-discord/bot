@@ -141,7 +141,7 @@ class Bot(BotBase):
             )
         )
         return  # Preventing the bot from responding
-        await self.invoke(ctx)
+        
 
     async def on_command_interaction(self, interaction: CommandInteraction) -> None:
         await interaction.respond(
@@ -153,11 +153,7 @@ class Bot(BotBase):
             flags=InteractionResponseFlags.EPHEMERAL,
         )
         return  # Preventing the bot from responding
-        call = self.slash_commands[interaction.data.name]
-        try:
-            await call(interaction)
-        except Exception as e:
-            self.dispatch("slash_command_error", interaction, e)
+        
 
     async def on_slash_command_error(
         self, interaction: CommandInteraction, error: Exception
@@ -207,7 +203,7 @@ class Bot(BotBase):
             flags=InteractionResponseFlags.EPHEMERAL,
         )
         return  # Preventing the bot from responding
-        await self.dispatch_components(interaction)
+       
 
     def parse_unhandled_event(self, data: Dict[Any, Any]) -> None:
         pass
