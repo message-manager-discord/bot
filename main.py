@@ -133,9 +133,26 @@ class Bot(BotBase):
             return
         if message.guild is not None:
             await ctx.fetch_guild_data()
+
+        await ctx.send(
+            content=(
+                ":exclamation:**Current Outage**\n"
+                "The bot is currently undergoing maintenance. Hang tight, or join the support server with this invite: https://discord.gg/smdn8djwRV for more updates."
+            )
+        )
+        return  # Preventing the bot from responding
         await self.invoke(ctx)
 
     async def on_command_interaction(self, interaction: CommandInteraction) -> None:
+        await interaction.respond(
+            response_type=InteractionResponseType.ChannelMessageWithSource,
+            content=(
+                ":exclamation:**Current Outage**\n"
+                "The bot is currently undergoing maintenance. Hang tight, or join the support server with this [invite](https://discord.gg/smdn8djwRV) for more updates."
+            ),
+            flags=InteractionResponseFlags.EPHEMERAL,
+        )
+        return  # Preventing the bot from responding
         call = self.slash_commands[interaction.data.name]
         try:
             await call(interaction)
@@ -169,6 +186,7 @@ class Bot(BotBase):
 
     def parse_interaction_create(self, data: Dict[Any, Any]) -> None:
         interaction = Interaction(data=data, state=self._connection)  # type: ignore
+
         if data["type"] == InteractionType.APPLICATION_COMMAND:
             interaction = CommandInteraction(data=data, state=self._connection)  # type: ignore
             self.dispatch("command_interaction", interaction)
@@ -180,6 +198,15 @@ class Bot(BotBase):
     async def on_check_component_interaction(
         self, interaction: ComponentInteraction
     ) -> None:
+        await interaction.respond(
+            response_type=InteractionResponseType.ChannelMessageWithSource,
+            content=(
+                ":exclamation:**Current Outage**\n"
+                "The bot is currently undergoing maintenance. Hang tight, or join the support server with this [invite](https://discord.gg/smdn8djwRV) for more updates."
+            ),
+            flags=InteractionResponseFlags.EPHEMERAL,
+        )
+        return  # Preventing the bot from responding
         await self.dispatch_components(interaction)
 
     def parse_unhandled_event(self, data: Dict[Any, Any]) -> None:
