@@ -76,7 +76,6 @@ class Bot(BotBase):
             case_insensitive=True,
             chunk_guilds_on_startup=False,
             intents=discord.Intents(guilds=True, members=False, messages=True),
-            activity=discord.Game(name="Watching our important messages!"),
             help_command=None,
             **kwargs,
         )
@@ -141,19 +140,17 @@ class Bot(BotBase):
             )
         )
         return  # Preventing the bot from responding
-        
 
     async def on_command_interaction(self, interaction: CommandInteraction) -> None:
         await interaction.respond(
             response_type=InteractionResponseType.ChannelMessageWithSource,
             content=(
-                               ":exclamation:**Outdated command!**\n"
+                ":exclamation:**Outdated command!**\n"
                 "The bot has migrated to interactions. Check out the [migrating guide](https://message.anothercat.me/docs/changelog-and-migrating), or join the support server with this [invite](https://discord.gg/smdn8djwRV) for more help."
             ),
             flags=InteractionResponseFlags.EPHEMERAL,
         )
         return  # Preventing the bot from responding
-        
 
     async def on_slash_command_error(
         self, interaction: CommandInteraction, error: Exception
@@ -203,7 +200,6 @@ class Bot(BotBase):
             flags=InteractionResponseFlags.EPHEMERAL,
         )
         return  # Preventing the bot from responding
-       
 
     def parse_unhandled_event(self, data: Dict[Any, Any]) -> None:
         pass
