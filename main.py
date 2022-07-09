@@ -381,10 +381,12 @@ def run() -> None:
         "cogs.maincog",
         "cogs.messages",
         "cogs.stats",
-        "cogs.admin",
         "cogs.setup",
         "cogs.component_management",
     ]
+    extensions = [
+        "cogs.admin"
+    ]  # Don't load any cogs, as this is just for migration and listing stats now
     if not load_config.self_host:
         bot.dbl_token = load_config.dbl_token
         bot.dboats_token = load_config.dboats_token
