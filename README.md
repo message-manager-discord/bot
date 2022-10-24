@@ -1,5 +1,8 @@
 # Message Manager
 
+
+**Repo Archived - see organization for current repos**
+
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/326569ef23ba4a46848e531a662970c0)](https://app.codacy.com/gh/AnotherCat/message-bot?utm_source=github.com&utm_medium=referral&utm_content=AnotherCat/message-bot&utm_campaign=Badge_Grade_Settings)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![wakatime](https://wakatime.com/badge/github/message-manager-discord/bot.svg)](https://wakatime.com/badge/github/message-manager-discord/bot)
